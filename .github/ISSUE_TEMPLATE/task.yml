@@ -1,0 +1,25 @@
+name: Task
+description: A scoped unit of work
+labels: ["feature"]
+body:
+  - type: input
+    id: summary
+    attributes:
+      label: Summary
+      placeholder: "What needs to be done?"
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Acceptance Criteria
+      value: |
+        - [ ] 
+        - [ ] 
+    validations:
+      required: true
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      options: [auth, files, payments, admin, notifications, devops]
