@@ -1,4 +1,3 @@
-Set-Content -Path "src/lib/utils.ts" -Value @"
 import { type ClassValue, clsx } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 
@@ -21,4 +20,3 @@ export function formatDate(date: string | Date): string {
     day: 'numeric',
   });
 }
-"@
