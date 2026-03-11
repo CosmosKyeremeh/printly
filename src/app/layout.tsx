@@ -4,6 +4,9 @@ import './globals.css';
 export const metadata: Metadata = {
   title: 'ClassPrint Hub',
   description: 'Centralized assignment submission and printing for your class.',
+  icons: {
+    icon: '/public/favicon.jpg',
+  },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
