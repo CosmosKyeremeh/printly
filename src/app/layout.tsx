@@ -5,7 +5,7 @@ export const metadata: Metadata = {
   title: 'ClassPrint Hub',
   description: 'Centralized assignment submission and printing for your class.',
   icons: {
-    icon: '/public/favicon.jpg',
+    icon: '/umat-logo.jpeg',
   },
 };
 
