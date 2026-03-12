@@ -70,7 +70,7 @@ export function NotificationForm({ adminId }: { adminId: string }) {
             required
             className="h-10 bg-zinc-800 border-zinc-700 text-white placeholder:text-zinc-600 focus-visible:border-amber-500 text-sm"
           />
-          <select
+          <select aria-label="Assignment category"
             value={type}
             onChange={e => setType(e.target.value as NotificationType)}
             className="h-10 bg-zinc-800 border border-zinc-700 rounded-lg px-3 text-white text-sm focus:outline-none focus:border-amber-500 transition-colors"

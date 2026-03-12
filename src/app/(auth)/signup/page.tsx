@@ -1,7 +1,8 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import { Button } from '@/components/ui/button';
@@ -11,6 +12,14 @@ import { Loader2, PrinterIcon, GraduationCap, ShieldCheck } from 'lucide-react';
 
 const ADMIN_CODE = process.env.NEXT_PUBLIC_ADMIN_SIGNUP_CODE ?? 'ADMIN2026';
 
+const SCHOOL_IMAGES = [
+  '/images/school/school-1.jpg',
+  '/images/school/school-2.jpg',
+  '/images/school/school-3.jpg',
+  '/images/school/school-4.jpg',
+  '/images/school/school-5.jpg',
+];
+
 export default function SignupPage() {
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
@@ -19,8 +28,24 @@ export default function SignupPage() {
   const [adminCode, setAdminCode] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [currentImage, setCurrentImage] = useState(0);
+  const [nextImage, setNextImage] = useState(1);
+  const [transitioning, setTransitioning] = useState(false);
   const router = useRouter();
   const supabase = createClient();
+
+  // Slideshow logic
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setTransitioning(true);
+      setTimeout(() => {
+        setCurrentImage(prev => (prev + 1) % SCHOOL_IMAGES.length);
+        setNextImage(prev => (prev + 1) % SCHOOL_IMAGES.length);
+        setTransitioning(false);
+      }, 1000);
+    }, 5000);
+    return () => clearInterval(interval);
+  }, []);
 
   async function handleSignup(e: React.FormEvent) {
     e.preventDefault();
@@ -59,44 +84,74 @@ export default function SignupPage() {
 
   return (
     <div className="min-h-screen bg-zinc-950 flex">
-      {/* ── Left brand panel ── */}
-      <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden bg-zinc-900 flex-col items-center justify-center p-12">
+
+      {/* ── Left brand panel with slideshow ── */}
+      <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden flex-col items-center justify-center">
+
+        {/* Slideshow images */}
+        <div className="absolute inset-0">
+          {SCHOOL_IMAGES.map((src, i) => (
+            <div
+              key={src}
+              className="absolute inset-0 transition-opacity duration-1000"
+              style={{
+                opacity: i === currentImage ? (transitioning ? 0 : 1) : 0,
+                zIndex: i === currentImage ? 1 : 0,
+              }}
+            >
+              <Image
+                src={src}
+                alt={`School photo ${i + 1}`}
+                fill
+                className="object-cover"
+                priority={i === 0}
+              />
+            </div>
+          ))}
+        </div>
+
+        {/* Dark overlay with gradient */}
+        <div className="absolute inset-0 z-10 bg-gradient-to-t from-zinc-950 via-zinc-950/70 to-zinc-950/30" />
+
+        {/* Dot-grid texture */}
         <div
-          className="absolute inset-0 opacity-[0.07]"
+          className="absolute inset-0 z-10 opacity-[0.04]"
           style={{
             backgroundImage: 'radial-gradient(circle, #f59e0b 1px, transparent 1px)',
             backgroundSize: '28px 28px',
           }}
         />
-        <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-amber-500/10 rounded-full blur-3xl" />
 
-        <div className="relative z-10 max-w-sm w-full">
-          <div className="flex items-center gap-3 mb-12">
+        {/* Amber glow */}
+        <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-96 h-64 bg-amber-500/15 rounded-full blur-3xl z-10" />
+
+        {/* Content */}
+        <div className="relative z-20 max-w-sm w-full px-10">
+          <div className="flex items-center gap-3 mb-10">
             <div className="w-11 h-11 bg-amber-500 rounded-xl flex items-center justify-center shadow-lg shadow-amber-500/30">
               <PrinterIcon className="w-5 h-5 text-zinc-950" strokeWidth={2.5} />
             </div>
             <span className="text-white font-bold text-xl tracking-tight">ClassPrint Hub</span>
           </div>
 
-          <h1 className="text-5xl font-black text-white leading-[1.1] mb-5 tracking-tight">
+          <h1 className="text-5xl font-black text-white leading-[1.1] mb-4 tracking-tight">
             Join your<br />
             <span className="text-amber-500">class today.</span>
           </h1>
-          <p className="text-zinc-400 text-base leading-relaxed mb-10">
-            Create your account in seconds. Upload assignments, track submissions,
-            and never miss a deadline again.
+          <p className="text-zinc-300 text-base leading-relaxed mb-10">
+            Upload assignments, track submissions, and never miss a deadline again.
           </p>
 
-          {/* Role info cards */}
+          {/* Role info */}
           <div className="space-y-3">
-            <div className="flex items-start gap-4 bg-zinc-800/60 border border-zinc-700/50 rounded-xl p-4">
+            <div className="flex items-start gap-4 bg-black/30 backdrop-blur-sm border border-white/10 rounded-xl p-4">
               <GraduationCap className="w-5 h-5 text-amber-500 mt-0.5 shrink-0" />
               <div>
                 <p className="text-white text-sm font-semibold">Student</p>
                 <p className="text-zinc-400 text-xs mt-0.5">Upload files, track prints, manage payments</p>
               </div>
             </div>
-            <div className="flex items-start gap-4 bg-zinc-800/60 border border-zinc-700/50 rounded-xl p-4">
+            <div className="flex items-start gap-4 bg-black/30 backdrop-blur-sm border border-white/10 rounded-xl p-4">
               <ShieldCheck className="w-5 h-5 text-amber-500 mt-0.5 shrink-0" />
               <div>
                 <p className="text-white text-sm font-semibold">Admin / Class Rep</p>
@@ -104,12 +159,28 @@ export default function SignupPage() {
               </div>
             </div>
           </div>
+
+          {/* Slideshow dots */}
+          <div className="flex items-center gap-2 mt-8">
+            {SCHOOL_IMAGES.map((_, i) => (
+              <button
+                key={i}
+                onClick={() => setCurrentImage(i)}
+                className={`rounded-full transition-all duration-300 ${
+                  i === currentImage
+                    ? 'w-6 h-1.5 bg-amber-500'
+                    : 'w-1.5 h-1.5 bg-white/30 hover:bg-white/50'
+                }`}
+              />
+            ))}
+          </div>
         </div>
       </div>
 
       {/* ── Right form panel ── */}
       <div className="w-full lg:w-1/2 flex items-center justify-center p-6 sm:p-10">
         <div className="w-full max-w-md">
+
           {/* Mobile logo */}
           <div className="flex items-center gap-3 mb-8 lg:hidden">
             <div className="w-9 h-9 bg-amber-500 rounded-lg flex items-center justify-center">
@@ -138,11 +209,10 @@ export default function SignupPage() {
                     : 'text-zinc-400 hover:text-white'
                 }`}
               >
-                {r === 'student' ? (
-                  <GraduationCap className="w-4 h-4" />
-                ) : (
-                  <ShieldCheck className="w-4 h-4" />
-                )}
+                {r === 'student'
+                  ? <GraduationCap className="w-4 h-4" />
+                  : <ShieldCheck className="w-4 h-4" />
+                }
                 {r.charAt(0).toUpperCase() + r.slice(1)}
               </button>
             ))}
