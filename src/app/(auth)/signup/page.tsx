@@ -13,8 +13,8 @@ import { Loader2, PrinterIcon, GraduationCap, ShieldCheck } from 'lucide-react';
 const ADMIN_CODE = process.env.NEXT_PUBLIC_ADMIN_SIGNUP_CODE ?? 'ADMIN2026';
 
 const SCHOOL_IMAGES = [
-  '/images/school/school-1.jpg',
-  '/images/school/school-2.jpg',
+  '/images/school/ASCESbadge.jpeg',
+  '/images/school/pic-1.jpeg',
   '/images/school/school-3.jpg',
   '/images/school/school-4.jpg',
   '/images/school/school-5.jpg',
