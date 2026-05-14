@@ -82,35 +82,71 @@ export default async function StudentDashboard() {
       )}
 
       {/* Quick actions */}
-      <div>
-        <h2 className="text-sm font-semibold text-zinc-400 uppercase tracking-wider mb-3">Quick actions</h2>
-        <div className="grid sm:grid-cols-2 gap-3">
-          <Link
-            href="/upload"
-            className="flex items-center gap-4 bg-zinc-900 border border-zinc-800 hover:border-amber-500/40 rounded-xl p-4 transition-all group"
-          >
-            <div className="w-10 h-10 bg-amber-500/15 rounded-xl flex items-center justify-center group-hover:bg-amber-500/25 transition-colors">
-              <Upload className="w-5 h-5 text-amber-500" />
-            </div>
-            <div>
-              <p className="text-white text-sm font-semibold">Upload assignment</p>
-              <p className="text-zinc-500 text-xs">Submit files for printing</p>
-            </div>
-          </Link>
-          <Link
-            href="/files"
-            className="flex items-center gap-4 bg-zinc-900 border border-zinc-800 hover:border-zinc-600 rounded-xl p-4 transition-all group"
-          >
-            <div className="w-10 h-10 bg-zinc-800 rounded-xl flex items-center justify-center group-hover:bg-zinc-700 transition-colors">
-              <FileText className="w-5 h-5 text-zinc-400" />
-            </div>
-            <div>
-              <p className="text-white text-sm font-semibold">View my files</p>
-              <p className="text-zinc-500 text-xs">Track status and downloads</p>
-            </div>
-          </Link>
+      {total === 0 ? (
+        /* ── Onboarding empty state ── */
+        <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-10 text-center">
+          <div className="w-16 h-16 bg-amber-500/15 rounded-2xl flex items-center justify-center mx-auto mb-5">
+            <Upload className="w-8 h-8 text-amber-500" />
+          </div>
+          <h3 className="text-white font-black text-xl mb-2">Welcome to ClassPrint Hub</h3>
+          <p className="text-zinc-400 text-sm leading-relaxed max-w-sm mx-auto mb-6">
+            You&apos;re all set. Upload your first assignment to get started.
+            Select a category, drop your file, and leave any printing instructions for your admin.
+          </p>
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
+            <Link
+              href="/upload"
+              className="flex items-center gap-2 bg-amber-500 hover:bg-amber-400 text-zinc-950 font-bold text-sm px-6 py-3 rounded-xl transition-all shadow-lg shadow-amber-500/20 w-full sm:w-auto justify-center"
+            >
+              <Upload className="w-4 h-4" />
+              Upload your first file
+            </Link>
+          </div>
+          <div className="grid grid-cols-3 gap-4 mt-10 pt-8 border-t border-zinc-800">
+            {[
+              { step: '01', text: 'Upload your assignment' },
+              { step: '02', text: 'Admin queues it for printing' },
+              { step: '03', text: 'Pay and collect' },
+            ].map(({ step, text }) => (
+              <div key={step} className="text-center">
+                <span className="text-amber-500 text-xs font-bold font-mono">{step}</span>
+                <p className="text-zinc-500 text-xs mt-1">{text}</p>
+              </div>
+            ))}
+          </div>
         </div>
-      </div>
+      ) : (
+        /* ── Quick actions (existing) ── */
+        <div>
+          <h2 className="text-sm font-semibold text-zinc-400 uppercase tracking-wider mb-3">Quick actions</h2>
+          <div className="grid sm:grid-cols-2 gap-3">
+            <Link
+              href="/upload"
+              className="flex items-center gap-4 bg-zinc-900 border border-zinc-800 hover:border-amber-500/40 rounded-xl p-4 transition-all group"
+            >
+              <div className="w-10 h-10 bg-amber-500/15 rounded-xl flex items-center justify-center group-hover:bg-amber-500/25 transition-colors">
+                <Upload className="w-5 h-5 text-amber-500" />
+              </div>
+              <div>
+                <p className="text-white text-sm font-semibold">Upload assignment</p>
+                <p className="text-zinc-500 text-xs">Submit files for printing</p>
+              </div>
+            </Link>
+            <Link
+              href="/files"
+              className="flex items-center gap-4 bg-zinc-900 border border-zinc-800 hover:border-zinc-600 rounded-xl p-4 transition-all group"
+            >
+              <div className="w-10 h-10 bg-zinc-800 rounded-xl flex items-center justify-center group-hover:bg-zinc-700 transition-colors">
+                <FileText className="w-5 h-5 text-zinc-400" />
+              </div>
+              <div>
+                <p className="text-white text-sm font-semibold">View my files</p>
+                <p className="text-zinc-500 text-xs">Track status and downloads</p>
+              </div>
+            </Link>
+          </div>
+        </div>
+      )}
 
       {/* Notifications */}
       {notifications && notifications.length > 0 && (

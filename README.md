@@ -40,6 +40,7 @@ ClassPrint Hub is a web application that centralizes the entire printing workflo
 ## Features
 
 ### For Students
+
 - **File Upload** — Drag and drop multiple files (PDF, DOCX, PPTX, XLSX, ZIP, images up to 50MB)
 - **File Conversion** — Convert PDF to DOCX or DOCX to PDF directly in the browser
 - **File Management** — View, download, and delete uploaded files with real-time status tracking
@@ -48,6 +49,7 @@ ClassPrint Hub is a web application that centralizes the entire printing workflo
 - **Profile** — Update name and password at any time
 
 ### For Admins
+
 - **Print Queue** — Live queue with bulk select, mark as printing, done, or cancelled
 - **Categories** — Create assignment categories with optional deadlines
 - **Notifications** — Send announcements to all students by type (deadline, general, payment, etc.)
@@ -55,6 +57,7 @@ ClassPrint Hub is a web application that centralizes the entire printing workflo
 - **Submissions Table** — See all student submissions with status at a glance
 
 ### Platform
+
 - Role-based access — students and admins see completely different interfaces
 - Mobile-first responsive design
 - Row Level Security — students can only access their own files at the database level
@@ -65,7 +68,7 @@ ClassPrint Hub is a web application that centralizes the entire printing workflo
 ## Tech Stack
 
 | Layer | Technology | Purpose |
-|-------|-----------|---------|
+| ------- | ----------- | --------- |
 | Frontend | Next.js 16 (App Router) | Server components, routing, API routes |
 | Language | TypeScript | Type safety across the entire codebase |
 | Styling | Tailwind CSS v4 + shadcn/ui | Design system and accessible components |
@@ -92,6 +95,7 @@ ClassPrint Hub is a web application that centralizes the entire printing workflo
 ### Local Development
 
 **1. Clone the repository**
+
 ```bash
 git clone https://github.com/CosmosKyeremeh/classprint-hub.git
 cd classprint-hub
@@ -99,16 +103,19 @@ git checkout develop
 ```
 
 **2. Install dependencies**
+
 ```bash
 npm install
 ```
 
 **3. Set up environment variables**
+
 ```bash
 cp .env.example .env.local
 ```
 
 Fill in your `.env.local`:
+
 ```env
 NEXT_PUBLIC_SUPABASE_URL=your_supabase_project_url
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
@@ -126,6 +133,7 @@ RESEND_FROM_EMAIL=noreply@yourdomain.com
 ```
 
 **4. Set up Supabase**
+
 ```bash
 # Install Supabase CLI (via Scoop on Windows)
 scoop bucket add supabase https://github.com/supabase/scoop-bucket.git
@@ -144,11 +152,13 @@ supabase db push
 In your Supabase dashboard, create a private bucket named `assignments` then run the storage policies from `supabase/migrations/` in the SQL editor.
 
 **6. Generate TypeScript types**
+
 ```bash
 supabase gen types typescript --project-id your_project_ref > src/types/supabase.types.ts
 ```
 
 **7. Start development server**
+
 ```bash
 npm run dev
 ```
@@ -159,7 +169,7 @@ Visit `http://localhost:3000`
 
 ## Database Schema
 
-```
+```text
 profiles          → Extends auth.users with role (student | admin)
 categories        → Admin-defined assignment categories with optional deadlines
 files             → Uploaded files with metadata, status, and payment status
@@ -174,7 +184,7 @@ All tables have Row Level Security enabled. Students can only read and write the
 
 ## Project Structure
 
-```
+```text
 src/
 ├── app/
 │   ├── (auth)/           # Login and signup pages
@@ -206,7 +216,7 @@ supabase/
 
 This project follows a strict Git flow:
 
-```
+```text
 main          ← production releases only
 develop       ← integration branch (default)
 feature/*     ← individual features branched from develop
@@ -215,6 +225,7 @@ hotfix/*      ← emergency production fixes
 ```
 
 **Branch naming:**
+
 ```bash
 feature/42-upload-zone
 fix/38-admin-redirect
@@ -222,6 +233,7 @@ chore/update-deps
 ```
 
 **Commit conventions:**
+
 ```bash
 feat(files): add drag-drop upload zone
 fix(auth): admin redirect after login
@@ -236,10 +248,12 @@ docs: update README with deployment steps
 The app is deployed on Vercel with automatic deployments on push to `main`.
 
 **Required environment variables on Vercel:**
+
 - All variables from `.env.example` with production values
 - `NEXT_PUBLIC_APP_URL` should be your Vercel deployment URL
 
 **To deploy a new release:**
+
 ```bash
 git checkout develop
 git checkout -b release/vX.X.X
@@ -260,23 +274,27 @@ git push origin develop
 ## Roadmap
 
 ### v0.2 — Payments
+
 - [ ] Stripe checkout integration
 - [ ] Hubtel MoMo payment flow
 - [ ] Payment webhooks and auto-status updates
 - [ ] Receipt generation
 
 ### v0.3 — Notifications
+
 - [ ] Email delivery via Resend
 - [ ] 24-hour deadline reminders (cron job)
 - [ ] In-app notification bell with unread count
 
 ### v0.4 — Polish
+
 - [ ] File preview (PDF viewer)
 - [ ] Bulk download as ZIP for admin
 - [ ] Submission analytics dashboard
 - [ ] SMS receipts via Hubtel
 
 ### Future
+
 - Multi-school support
 - Direct printer hardware integration
 - Mobile app (React Native)
@@ -302,6 +320,6 @@ MIT License — see [LICENSE](LICENSE) for details.
 ---
 
 <div align="center">
-  <p>Built with ❤️ in Accra, Ghana 🇬🇭</p>
-  <p>by <a href="https://github.com/CosmosKyeremeh">Cosmos Kyeremeh</a></p>
+  <p>Built with ❤️ </p>
+  <p>by <a href="https://github.com/CosmosKyeremeh">BonGr8</a></p>
 </div>

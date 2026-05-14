@@ -22,6 +22,7 @@ export function UploadZone({ categories }: { categories: Category[] }) {
   const [queue, setQueue] = useState<QueuedFile[]>([]);
   const [categoryId, setCategoryId] = useState('');
   const [description, setDescription] = useState('');
+  const [instructions, setInstructions] = useState('');
   const supabase = createClient();
 
   const onDrop = useCallback((accepted: File[]) => {
@@ -81,6 +82,7 @@ export function UploadZone({ categories }: { categories: Category[] }) {
           file_size: file.size,
           file_type: file.type,
           description: description || null,
+          instructions: instructions || null,
         });
 
         if (dbError) throw dbError;
@@ -100,12 +102,14 @@ export function UploadZone({ categories }: { categories: Category[] }) {
   const pendingCount = queue.filter(f => f.status !== 'done').length;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-5">
+
       {/* Category + description */}
       <div className="grid sm:grid-cols-2 gap-4">
         <div className="space-y-1.5">
           <label className="text-zinc-300 text-sm font-medium">Category *</label>
           <select
+            aria-label="Assignment category"
             value={categoryId}
             onChange={e => setCategoryId(e.target.value)}
             className="w-full h-11 bg-zinc-900 border border-zinc-700 rounded-lg px-3 text-white text-sm focus:outline-none focus:border-amber-500 transition-colors"
@@ -117,7 +121,10 @@ export function UploadZone({ categories }: { categories: Category[] }) {
           </select>
         </div>
         <div className="space-y-1.5">
-          <label className="text-zinc-300 text-sm font-medium">Description (optional)</label>
+          <label className="text-zinc-300 text-sm font-medium">
+            Description
+            <span className="text-zinc-600 font-normal ml-1">(optional)</span>
+          </label>
           <input
             type="text"
             value={description}
@@ -126,6 +133,24 @@ export function UploadZone({ categories }: { categories: Category[] }) {
             className="w-full h-11 bg-zinc-900 border border-zinc-700 rounded-lg px-3 text-white text-sm placeholder:text-zinc-600 focus:outline-none focus:border-amber-500 transition-colors"
           />
         </div>
+      </div>
+
+      {/* Printing instructions */}
+      <div className="space-y-1.5">
+        <label className="text-zinc-300 text-sm font-medium">
+          Printing instructions
+          <span className="text-zinc-600 font-normal ml-1">(optional)</span>
+        </label>
+        <textarea
+          value={instructions}
+          onChange={e => setInstructions(e.target.value)}
+          placeholder="e.g. Print 2 copies, double-sided. Please bold the title on page 1 before printing."
+          rows={3}
+          className="w-full bg-zinc-900 border border-zinc-700 rounded-lg px-3 py-2.5 text-white text-sm placeholder:text-zinc-600 focus:outline-none focus:border-amber-500 transition-colors resize-none"
+        />
+        <p className="text-zinc-600 text-xs">
+          The admin will see these instructions in the print queue
+        </p>
       </div>
 
       {/* Drop zone */}
@@ -183,13 +208,22 @@ export function UploadZone({ categories }: { categories: Category[] }) {
               </div>
               <div className="shrink-0">
                 {item.status === 'idle' && (
-                  <button onClick={() => removeFile(i)} className="text-zinc-600 hover:text-red-400 transition-colors">
+                  <button
+                    onClick={() => removeFile(i)}
+                    className="text-zinc-600 hover:text-red-400 transition-colors"
+                  >
                     <X className="w-4 h-4" />
                   </button>
                 )}
-                {item.status === 'uploading' && <Loader2 className="w-4 h-4 text-amber-500 animate-spin" />}
-                {item.status === 'done' && <CheckCircle2 className="w-4 h-4 text-emerald-500" />}
-                {item.status === 'error' && <AlertCircle className="w-4 h-4 text-red-400" />}
+                {item.status === 'uploading' && (
+                  <Loader2 className="w-4 h-4 text-amber-500 animate-spin" />
+                )}
+                {item.status === 'done' && (
+                  <CheckCircle2 className="w-4 h-4 text-emerald-500" />
+                )}
+                {item.status === 'error' && (
+                  <AlertCircle className="w-4 h-4 text-red-400" />
+                )}
               </div>
             </div>
           ))}
@@ -205,6 +239,7 @@ export function UploadZone({ categories }: { categories: Category[] }) {
           Upload {pendingCount} file{pendingCount > 1 ? 's' : ''}
         </Button>
       )}
+
     </div>
   );
 }
