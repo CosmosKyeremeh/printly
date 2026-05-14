@@ -78,8 +78,7 @@ export default function SignupPage() {
       return;
     }
 
-    router.push(role === 'admin' ? '/admin/dashboard' : '/dashboard');
-    router.refresh();
+    router .push('/login?singup=success');
   }
 
   return (
