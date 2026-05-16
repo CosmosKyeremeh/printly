@@ -1,5 +1,5 @@
 <div align="center">
-  <h1>🖨️ ClassPrint Hub</h1>
+  <h1>🖨️ PrintLy</h1>
   <p><strong>Centralized assignment submission and printing for university classes</strong></p>
 
   ![Next.js](https://img.shields.io/badge/Next.js-16-black?style=flat-square&logo=next.js)
