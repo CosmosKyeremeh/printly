@@ -1,10 +1,11 @@
 'use client';
 
 import { useState } from 'react';
+import Link from 'next/link';
 import { createClient } from '@/lib/supabase/client';
 import { StatusBadge } from '@/components/shared/StatusBadge';
 import { formatBytes, formatDate } from '@/lib/utils';
-import { Download, Trash2, File, Loader2 } from 'lucide-react';
+import { Download, Trash2, File, Loader2, RefreshCw } from 'lucide-react';
 
 type FileRow = {
   id: string;
@@ -47,11 +48,16 @@ export function FileList({ files }: { files: FileRow[] }) {
   if (list.length === 0) {
     return (
       <div className="text-center py-20">
-        <div className="w-16 h-16 bg-zinc-900 rounded-2xl flex items-center justify-center mx-auto mb-4">
-          <File className="w-7 h-7 text-zinc-700" />
+        <div
+          className="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4"
+          style={{ background: '#42000130' }}
+        >
+          <File className="w-7 h-7" style={{ color: '#640000' }} />
         </div>
-        <p className="text-zinc-400 font-medium">No files uploaded yet</p>
-        <p className="text-zinc-600 text-sm mt-1">Upload your first assignment to get started</p>
+        <p className="text-white font-medium">No files uploaded yet</p>
+        <p className="text-sm mt-1" style={{ color: '#7a4a49' }}>
+          Upload your first assignment to get started
+        </p>
       </div>
     );
   }
@@ -61,41 +67,89 @@ export function FileList({ files }: { files: FileRow[] }) {
       {list.map(file => (
         <div
           key={file.id}
-          className="flex items-center gap-4 bg-zinc-900 border border-zinc-800 rounded-xl p-4 hover:border-zinc-700 transition-colors"
+          className="flex items-center gap-4 rounded-xl p-4 border transition-all"
+          style={{ background: '#420001', borderColor: '#64000060' }}
+          onMouseEnter={e => e.currentTarget.style.borderColor = '#b67e7d30'}
+          onMouseLeave={e => e.currentTarget.style.borderColor = '#64000060'}
         >
-          <div className="w-10 h-10 bg-zinc-800 rounded-lg flex items-center justify-center shrink-0">
-            <File className="w-5 h-5 text-zinc-400" />
+          {/* File icon */}
+          <div
+            className="w-10 h-10 rounded-lg flex items-center justify-center shrink-0"
+            style={{ background: '#64000030' }}
+          >
+            <File className="w-5 h-5" style={{ color: '#b67e7d' }} />
           </div>
 
+          {/* File info */}
           <div className="flex-1 min-w-0">
             <p className="text-white text-sm font-semibold truncate">{file.file_name}</p>
             <div className="flex items-center gap-2 mt-0.5 flex-wrap">
-              <span className="text-zinc-500 text-xs">{formatBytes(file.file_size)}</span>
+              <span className="text-xs" style={{ color: '#7a4a49' }}>
+                {formatBytes(file.file_size)}
+              </span>
               {file.categories && (
                 <>
-                  <span className="text-zinc-700 text-xs">·</span>
-                  <span className="text-zinc-500 text-xs">{file.categories.name}</span>
+                  <span className="text-xs" style={{ color: '#640000' }}>·</span>
+                  <span className="text-xs" style={{ color: '#7a4a49' }}>
+                    {file.categories.name}
+                  </span>
                 </>
               )}
-              <span className="text-zinc-700 text-xs">·</span>
-              <span className="text-zinc-500 text-xs">{formatDate(file.created_at)}</span>
+              <span className="text-xs" style={{ color: '#640000' }}>·</span>
+              <span className="text-xs" style={{ color: '#7a4a49' }}>
+                {formatDate(file.created_at)}
+              </span>
             </div>
           </div>
 
-          <div className="flex items-center gap-2 shrink-0">
+          {/* Actions */}
+          <div className="flex items-center gap-2 shrink-0 flex-wrap">
             <StatusBadge status={file.status as 'queued' | 'printing' | 'done' | 'cancelled'} />
             <StatusBadge status={file.payment_status as 'pending' | 'paid' | 'failed'} />
+
+            {/* Convert CTA */}
+            <Link
+              href={`/files/${file.id}`}
+              className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-semibold border transition-all"
+              style={{ color: '#b67e7d', borderColor: '#64000060', background: '#64000020' }}
+              title="View details & convert"
+            >
+              <RefreshCw className="w-3 h-3" />
+              Convert
+            </Link>
+
+            {/* Download */}
             <button
               onClick={() => handleDownload(file.file_path, file.file_name)}
-              className="p-2 text-zinc-500 hover:text-amber-500 hover:bg-amber-500/10 rounded-lg transition-all"
+              className="p-2 rounded-lg transition-all border border-transparent"
+              style={{ color: '#9d6463' }}
+              onMouseEnter={e => {
+                e.currentTarget.style.color = '#b67e7d';
+                e.currentTarget.style.background = '#64000030';
+              }}
+              onMouseLeave={e => {
+                e.currentTarget.style.color = '#9d6463';
+                e.currentTarget.style.background = 'transparent';
+              }}
               title="Download"
             >
               <Download className="w-4 h-4" />
             </button>
+
+            {/* Delete */}
             <button
               onClick={() => handleDelete(file.id, file.file_path)}
               disabled={deleting === file.id}
-              className="p-2 text-zinc-500 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-all disabled:opacity-50"
+              className="p-2 rounded-lg transition-all border border-transparent disabled:opacity-50"
+              style={{ color: '#9d6463' }}
+              onMouseEnter={e => {
+                e.currentTarget.style.color = '#f87171';
+                e.currentTarget.style.background = '#7f1d1d20';
+              }}
+              onMouseLeave={e => {
+                e.currentTarget.style.color = '#9d6463';
+                e.currentTarget.style.background = 'transparent';
+              }}
               title="Delete"
             >
               {deleting === file.id

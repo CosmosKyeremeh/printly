@@ -10,7 +10,7 @@ export default async function QueuePage() {
     .select(`
       id, status, queued_at,
       files (
-        id, file_name, file_size, file_path, payment_status,
+        id, file_name, file_size, file_path, payment_status,instructions,
         profiles ( full_name, email ),
         categories ( name )
       )

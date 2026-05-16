@@ -1,5 +1,5 @@
 import { createClient } from '@/lib/supabase/server';
-import { FileText, Upload, Clock, CheckCircle2 } from 'lucide-react';
+import { FileText, Upload, Clock, CheckCircle2, Zap } from 'lucide-react';
 import Link from 'next/link';
 
 export default async function StudentDashboard() {

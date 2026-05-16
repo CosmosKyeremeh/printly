@@ -221,7 +221,7 @@ export function PrintQueue({ initialQueue }: { initialQueue: QueueItem[] }) {
 
               {/* Printing instructions */}
               {item.files?.instructions && (
-                <div className="mt-3 ml-[52px] bg-amber-500/8 border border-amber-500/15 rounded-lg px-3 py-2.5">
+                <div className="mt-3 ml-13 bg-amber-500/8 border border-amber-500/15 rounded-lg px-3 py-2.5">
                   <p className="text-amber-500/70 text-xs font-semibold uppercase tracking-wide mb-1">
                     Printing instructions
                   </p>
