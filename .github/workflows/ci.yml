@@ -2,7 +2,13 @@ name: CI
 
 on:
   pull_request:
-    branches: [develop, main]
+    branches:
+      - develop
+      - main
+  push:
+    branches:
+      - develop
+      - main
 
 jobs:
   quality:
@@ -16,18 +22,3 @@ jobs:
       - run: npm ci
       - run: npm run lint
       - run: npm run type-check
-      - run: npm run test        # Vitest unit tests
-```
-
-This is what GitHub checks before any PR can merge.
-
----
-
-### The Complete Mental Model
-```
-main          ←── release/v0.x.x ←─────────────────────────────┐
-  ↓                                                              │
-develop  ←── feature/N-name ←── your daily work                 │
-         ←── fix/N-name                                         │
-         ←── hotfix/name ────────────────────────────────────── ┘
-                              (hotfix goes to both main + develop)
