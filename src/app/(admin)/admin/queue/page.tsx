@@ -10,7 +10,7 @@ export default async function QueuePage() {
     .select(`
       id, status, queued_at,
       files (
-        id, file_name, file_size, file_path, payment_status,instructions,
+        id, file_name, file_size, file_path, payment_status, instructions,
         profiles ( full_name, email ),
         categories ( name )
       )
@@ -20,12 +20,15 @@ export default async function QueuePage() {
   return (
     <div className="max-w-4xl mx-auto">
       <div className="flex items-center gap-3 mb-8">
-        <div className="w-9 h-9 bg-amber-500/15 rounded-lg flex items-center justify-center">
-          <PrinterIcon className="w-4 h-4 text-amber-500" />
+        <div className="w-9 h-9 rounded-lg flex items-center justify-center"
+          style={{ background: '#64000030' }}>
+          <PrinterIcon className="w-4 h-4" style={{ color: '#b67e7d' }} />
         </div>
         <div>
           <h1 className="text-2xl font-black text-white tracking-tight">Print Queue</h1>
-          <p className="text-zinc-500 text-xs">{queue?.length ?? 0} item{queue?.length !== 1 ? 's' : ''} in queue</p>
+          <p className="text-xs" style={{ color: '#7a4a49' }}>
+            {queue?.length ?? 0} item{queue?.length !== 1 ? 's' : ''} in queue
+          </p>
         </div>
       </div>
       <PrintQueue initialQueue={(queue ?? []) as Parameters<typeof PrintQueue>[0]['initialQueue']} />
