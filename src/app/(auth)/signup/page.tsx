@@ -42,7 +42,7 @@ export default function SignupPage() {
     return () => clearInterval(interval);
   }, []);
 
-  async function handleSignup(e: React.FormEvent) {
+  async function handleSignup(e: React.SubmitEvent) {
     e.preventDefault();
     setLoading(true);
     setError('');
