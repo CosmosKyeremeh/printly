@@ -43,248 +43,166 @@ function LoginForm() {
   }
 
   return (
-    <div className="min-h-screen bg-brand-950 flex">
+    <div className="min-h-screen bg-zinc-950 text-zinc-50 flex font-sans antialiased">
 
-      {/* ── Left panel ── */}
-      <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden flex-col items-center justify-center p-12"
-        style={{ background: 'linear-gradient(145deg, #420001 0%, #2a0001 50%, #040b15 100%)' }}
-      >
-        {/* Dot grid */}
-        <div className="absolute inset-0 opacity-[0.06]"
+      {/* ── Left Hero Panel ── */}
+      <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden flex-col justify-between p-16 bg-zinc-950 border-r border-zinc-900/60">
+        {/* Subtle geometric grid background */}
+        <div className="absolute inset-0 opacity-[0.015]"
           style={{
-            backgroundImage: 'radial-gradient(circle, #b67e7d 1px, transparent 1px)',
-            backgroundSize: '28px 28px',
+            backgroundImage: 'radial-gradient(circle, #ffffff 1px, transparent 1px)',
+            backgroundSize: '32px 32px',
           }}
         />
-        {/* Glow */}
-        <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 rounded-full blur-3xl"
-          style={{ background: 'radial-gradient(circle, #64000040 0%, transparent 70%)' }}
-        />
-
-        <motion.div
-          className="relative z-10 max-w-sm w-full"
-          initial={{ opacity: 0, x: -24 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.6, ease: [0.25, 0.46, 0.45, 0.94] }}
-        >
-          <div className="flex items-center gap-3 mb-14">
-            <div className="w-10 h-10 rounded-xl flex items-center justify-center shadow-lg"
-              style={{ background: '#b67e7d', boxShadow: '0 8px 24px #b67e7d30' }}
-            >
-              <PrinterIcon className="w-5 h-5 text-brand-950" strokeWidth={2.5} />
-            </div>
-            <span className="text-white font-black text-lg tracking-tight">Printly</span>
+        
+        {/* Top Branding Header */}
+        <div className="flex items-center gap-2.5 relative z-10">
+          <div className="w-9 h-9 rounded-xl flex items-center justify-center bg-zinc-900 border border-zinc-800 shadow-sm">
+            <PrinterIcon className="w-4 h-4 text-amber-500" strokeWidth={2} />
           </div>
+          <span className="font-semibold text-base tracking-tight text-zinc-200">Printly</span>
+        </div>
 
-          <h1 className="text-5xl font-black text-white leading-[1.08] tracking-tight mb-5">
-            Print smarter.<br />
-            <span style={{ color: '#b67e7d' }}>Not harder.</span>
+        {/* Centerpiece Messaging */}
+        <motion.div
+          className="relative z-10 max-w-md my-auto space-y-6"
+          initial={{ opacity: 0, y: 15 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, ease: 'easeOut' }}
+        >
+          <h1 className="text-4xl font-medium tracking-tight text-white leading-[1.15]">
+            Academic printing, <br />
+            <span className="text-zinc-400 font-normal italic">reimagined for speed.</span>
           </h1>
-          <p className="leading-relaxed mb-12" style={{ color: '#c99897' }}>
-            One place for your whole class to submit, queue, and collect printed assignments.
+          <p className="leading-relaxed text-zinc-400 text-[15px] font-normal max-w-sm">
+            An automated submission engine mapping file workflows smoothly from student device directly to your campus queue.
           </p>
 
-          <div className="space-y-3">
+          <div className="pt-6 space-y-3 max-w-sm">
             {[
-              { icon: <GraduationCap className="w-4 h-4" style={{ color: '#b67e7d' }} />, title: 'Students', desc: 'Upload files and track print status' },
-              { icon: <ShieldCheck className="w-4 h-4" style={{ color: '#b67e7d' }} />, title: 'Admins', desc: 'Manage queue, categories and payments' },
+              { icon: <GraduationCap className="w-4 h-4 text-zinc-400" />, title: 'Fluid Workflow', desc: 'Deploy assets and monitor real-time print execution rings.' },
+              { icon: <ShieldCheck className="w-4 h-4 text-zinc-400" />, title: 'Administrative Edge', desc: 'Control queue batch pipelines and transaction ledgers easily.' },
             ].map(({ icon, title, desc }) => (
-              <div key={title}
-                className="flex items-center gap-4 rounded-xl p-4 border"
-                style={{ background: '#42000130', borderColor: '#64000060' }}
-              >
-                <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0"
-                  style={{ background: '#64000040' }}
-                >
+              <div key={title} className="flex gap-3.5 items-start p-3.5 rounded-xl border border-zinc-900/50 bg-zinc-900/10">
+                <div className="w-7 h-7 rounded-lg flex items-center justify-center shrink-0 bg-zinc-900 border border-zinc-800/80">
                   {icon}
                 </div>
-                <div>
-                  <p className="text-white text-sm font-semibold">{title}</p>
-                  <p className="text-xs mt-0.5" style={{ color: '#9d6463' }}>{desc}</p>
+                <div className="space-y-0.5">
+                  <p className="text-zinc-200 text-sm font-medium">{title}</p>
+                  <p className="text-xs text-zinc-500 leading-normal">{desc}</p>
                 </div>
               </div>
             ))}
           </div>
         </motion.div>
+
+        {/* Footer Meta */}
+        <div className="text-xs text-zinc-600 relative z-10">
+          Secure identity verification managed by Supabase Vault Architecture.
+        </div>
       </div>
 
-      {/* ── Right form panel ── */}
-      <div className="w-full lg:w-1/2 flex flex-col bg-brand-950">
-
-        {/* Mobile header */}
-        <div className="lg:hidden flex items-center px-6 py-5 border-b" style={{ borderColor: '#64000040' }}>
-          <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: '#b67e7d' }}>
-              <PrinterIcon className="w-4 h-4 text-brand-950" strokeWidth={2.5} />
-            </div>
-            <span className="text-white font-bold">Printly</span>
+      {/* ── Right Form Panel ── */}
+      <div className="w-full lg:w-1/2 flex flex-col justify-center items-center p-6 sm:p-12 bg-zinc-950">
+        
+        {/* Mobile Header (Hidden on Desktop) */}
+        <div className="lg:hidden w-full max-w-md flex items-center gap-2.5 mb-12">
+          <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-zinc-900 border border-zinc-800">
+            <PrinterIcon className="w-4 h-4 text-amber-500" />
           </div>
+          <span className="font-bold text-sm tracking-tight text-zinc-200">Printly</span>
         </div>
 
-        {/* Mobile hero */}
-        <div className="lg:hidden border-b px-6 py-6" style={{ background: '#42000120', borderColor: '#64000040' }}>
-          <h2 className="text-2xl font-black text-white">
-            Print smarter.<br />
-            <span style={{ color: '#b67e7d' }}>Not harder.</span>
-          </h2>
-        </div>
+        <motion.div
+          className="w-full max-w-[360px]"
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4, delay: 0.05 }}
+        >
+          {/* Action Banners */}
+          {justSignedUp && (
+            <div className="flex items-start gap-3 rounded-xl p-3.5 mb-6 border border-emerald-500/10 bg-emerald-500/[0.02]">
+              <CheckCircle2 className="w-4 h-4 shrink-0 text-emerald-500 mt-0.5" />
+              <div className="space-y-0.5">
+                <p className="text-xs font-medium text-emerald-400">Account verified</p>
+                <p className="text-[11px] text-zinc-500 leading-normal">Your profile is initialized. Sign in below to enter the terminal.</p>
+              </div>
+            </div>
+          )}
 
-        <div className="flex-1 flex items-center justify-center p-6 sm:p-10">
-          <motion.div
-            className="w-full max-w-md"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.1, ease: [0.25, 0.46, 0.45, 0.94] }}
-          >
-            {/* Banners */}
-            {justSignedUp && (
-              <motion.div
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                className="flex items-center gap-3 rounded-xl p-4 mb-6 border"
-                style={{ background: '#420001', borderColor: '#64000060' }}
-              >
-                <CheckCircle2 className="w-5 h-5 shrink-0" style={{ color: '#b67e7d' }} />
-                <div>
-                  <p className="text-sm font-semibold" style={{ color: '#b67e7d' }}>Account created!</p>
-                  <p className="text-xs mt-0.5" style={{ color: '#9d6463' }}>Sign in below to access your dashboard</p>
-                </div>
-              </motion.div>
-            )}
+          <div className="mb-6 space-y-1">
+            <h2 className="text-2xl font-medium tracking-tight text-zinc-100">Welcome back</h2>
+            <p className="text-sm text-zinc-500">Sign in to initialize your campus workspace.</p>
+          </div>
 
-            {passwordReset && (
-              <motion.div
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                className="flex items-center gap-3 rounded-xl p-4 mb-6 border"
-                style={{ background: '#420001', borderColor: '#64000060' }}
-              >
-                <CheckCircle2 className="w-5 h-5 shrink-0" style={{ color: '#b67e7d' }} />
-                <div>
-                  <p className="text-sm font-semibold" style={{ color: '#b67e7d' }}>Password updated!</p>
-                  <p className="text-xs mt-0.5" style={{ color: '#9d6463' }}>Sign in with your new password</p>
-                </div>
-              </motion.div>
-            )}
-
-            <div className="mb-8">
-              <h2 className="text-3xl font-black text-white tracking-tight">Welcome back</h2>
-              <p className="text-sm mt-1" style={{ color: '#9d6463' }}>Sign in to continue to your dashboard</p>
+          <form onSubmit={handleLogin} className="space-y-4">
+            <div className="space-y-1.5">
+              <Label htmlFor="email" className="text-xs font-medium text-zinc-400">Email address</Label>
+              <Input
+                id="email"
+                type="email"
+                value={email}
+                onChange={e => setEmail(e.target.value)}
+                placeholder="name@university.edu.gh"
+                required
+                className="h-10 px-3 bg-zinc-900/40 border-zinc-800/80 text-zinc-200 text-sm placeholder:text-zinc-600 focus-visible:ring-1 focus-visible:ring-amber-500/30 focus-visible:border-amber-500 transition-all rounded-lg"
+              />
             </div>
 
-            <form onSubmit={handleLogin} className="space-y-4">
-              <div className="space-y-1.5">
-                <Label htmlFor="email" className="text-sm font-medium" style={{ color: '#c99897' }}>
-                  Email address
-                </Label>
+            <div className="space-y-1.5">
+              <div className="flex items-center justify-between">
+                <Label htmlFor="password" className="text-xs font-medium text-zinc-400">Password</Label>
+                <Link href="/forgot-password" className="text-[11px] font-normal text-zinc-500 hover:text-amber-500 transition-colors">
+                  Forgot?
+                </Link>
+              </div>
+              <div className="relative">
                 <Input
-                  id="email"
-                  type="email"
-                  value={email}
-                  onChange={e => setEmail(e.target.value)}
-                  placeholder="you@university.edu.gh"
+                  id="password"
+                  type={showPassword ? 'text' : 'password'}
+                  value={password}
+                  onChange={e => setPassword(e.target.value)}
+                  placeholder="••••••••"
                   required
-                  className="h-11 text-white placeholder:text-brand-700 transition-colors"
-                  style={{
-                    background: '#420001',
-                    borderColor: '#640000',
-                    outline: 'none',
-                  }}
+                  className="h-10 px-3 bg-zinc-900/40 border-zinc-800/80 text-zinc-200 text-sm placeholder:text-zinc-600 pr-10 focus-visible:ring-1 focus-visible:ring-amber-500/30 focus-visible:border-amber-500 transition-all rounded-lg"
                 />
-              </div>
-
-              <div className="space-y-1.5">
-                <Label htmlFor="password" className="text-sm font-medium" style={{ color: '#c99897' }}>
-                  Password
-                </Label>
-                <div className="relative">
-                  <Input
-                    id="password"
-                    type={showPassword ? 'text' : 'password'}
-                    value={password}
-                    onChange={e => setPassword(e.target.value)}
-                    placeholder="••••••••"
-                    required
-                    className="h-11 text-white placeholder:text-brand-700 pr-11 transition-colors"
-                    style={{ background: '#420001', borderColor: '#640000' }}
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 transition-colors"
-                    style={{ color: '#9d6463' }}
-                  >
-                    {showPassword
-                      ? <EyeOff className="w-4 h-4" />
-                      : <Eye className="w-4 h-4" />
-                    }
-                  </button>
-                </div>
-                <div className="flex justify-end">
-                  <Link
-                    href="/forgot-password"
-                    className="text-xs font-medium transition-colors hover:opacity-80"
-                    style={{ color: '#b67e7d' }}
-                  >
-                    Forgot password?
-                  </Link>
-                </div>
-              </div>
-
-              {error && (
-                <motion.div
-                  initial={{ opacity: 0, y: -8 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className="rounded-xl p-3.5 border"
-                  style={{ background: '#42000180', borderColor: '#640000' }}
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-600 hover:text-zinc-400 transition-colors"
                 >
-                  <p className="text-sm" style={{ color: '#c99897' }}>{error}</p>
-                </motion.div>
-              )}
-
-              <Button
-                type="submit"
-                disabled={loading}
-                className="w-full h-12 font-black text-sm transition-all rounded-xl mt-2 text-white"
-                style={{
-                  background: loading ? '#640000' : 'linear-gradient(135deg, #640000, #b67e7d)',
-                  boxShadow: '0 8px 24px #64000040',
-                }}
-              >
-                {loading ? (
-                  <span className="flex items-center gap-2">
-                    <Loader2 className="w-4 h-4 animate-spin" />
-                    Signing in...
-                  </span>
-                ) : 'Sign in'}
-              </Button>
-            </form>
-
-            {/* Role hints */}
-            <div className="grid grid-cols-2 gap-3 mt-6">
-              {[
-                { icon: <GraduationCap className="w-5 h-5 mx-auto mb-1" style={{ color: '#b67e7d' }} />, label: 'Student', hint: 'Use your student email' },
-                { icon: <ShieldCheck className="w-5 h-5 mx-auto mb-1" style={{ color: '#b67e7d' }} />, label: 'Admin', hint: 'Use your admin email' },
-              ].map(({ icon, label, hint }) => (
-                <div key={label}
-                  className="rounded-xl p-3 text-center border"
-                  style={{ background: '#42000130', borderColor: '#64000050' }}
-                >
-                  {icon}
-                  <p className="text-sm font-medium" style={{ color: '#c99897' }}>{label}</p>
-                  <p className="text-xs mt-0.5" style={{ color: '#7a4a49' }}>{hint}</p>
-                </div>
-              ))}
+                  {showPassword ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
+                </button>
+              </div>
             </div>
 
-            <p className="text-sm text-center mt-6" style={{ color: '#7a4a49' }}>
-              Don&apos;t have an account?{' '}
-              <Link href="/signup" className="font-semibold transition-colors hover:opacity-80" style={{ color: '#b67e7d' }}>
-                Create one free
-              </Link>
-            </p>
-          </motion.div>
-        </div>
+            {error && (
+              <div className="rounded-lg p-3 border border-red-500/10 bg-red-500/[0.02]">
+                <p className="text-xs text-red-400 font-medium">{error}</p>
+              </div>
+            )}
+
+            <Button
+              type="submit"
+              disabled={loading}
+              className="w-full h-10 bg-zinc-100 hover:bg-zinc-200 text-zinc-950 font-medium text-sm transition-colors rounded-lg mt-2 shadow-sm"
+            >
+              {loading ? (
+                <span className="flex items-center justify-center gap-2">
+                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                  Processing...
+                </span>
+              ) : 'Sign in to Workspace'}
+            </Button>
+          </form>
+
+          <p className="text-xs text-center mt-6 text-zinc-500">
+            New to the network?{' '}
+            <Link href="/signup" className="text-zinc-300 hover:text-amber-500 font-medium underline underline-offset-4 transition-colors">
+              Request access token
+            </Link>
+          </p>
+        </motion.div>
       </div>
     </div>
   );
@@ -292,7 +210,7 @@ function LoginForm() {
 
 export default function LoginPage() {
   return (
-    <Suspense fallback={<div className="min-h-screen bg-brand-950" />}>
+    <Suspense fallback={<div className="min-h-screen bg-zinc-950" />}>
       <LoginForm />
     </Suspense>
   );
