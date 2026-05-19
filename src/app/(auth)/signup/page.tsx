@@ -13,12 +13,13 @@ import { motion, AnimatePresence } from 'framer-motion';
 
 const ADMIN_CODE = process.env.NEXT_PUBLIC_ADMIN_SIGNUP_CODE ?? 'ADMIN2026';
 
-// const SCHOOL_IMAGES = [
+
+const SCHOOL_IMAGES: string[] = [
 //   '/images/school/pic-1.jpeg',
 //   '/images/school/school-3.jpg',
 //   '/images/school/school-4.jpg',
 //   '/images/school/school-5.jpg',
-// ];
+];
 
 export default function SignupPage() {
   const [fullName, setFullName] = useState('');
@@ -33,6 +34,8 @@ export default function SignupPage() {
   const supabase = createClient();
 
   useEffect(() => {
+    if (SCHOOL_IMAGES.length === 0) return;
+
     const interval = setInterval(() => {
       setCurrentImage(prev => (prev + 1) % SCHOOL_IMAGES.length);
     }, 6000);
@@ -76,27 +79,39 @@ export default function SignupPage() {
   return (
     <div className="min-h-screen bg-zinc-950 text-zinc-50 flex font-sans antialiased">
 
-      {/* ── Left Slideshow Panel (Smooth Crossfade) ── */}
-      <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden flex-col justify-between p-16 border-r border-zinc-900/60">
+      {/* ── Left Slideshow/Fallback Panel (Robust Crossfade) ── */}
+      <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden flex-col justify-between p-16 border-r border-zinc-900/60 bg-zinc-950">
         <div className="absolute inset-0 z-0">
-          <AnimatePresence mode="popLayout">
-            <motion.div
-              key={currentImage}
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 0.25 }} // Subdued background presence to prioritize readability
-              exit={{ opacity: 0 }}
-              transition={{ duration: 1.2 }}
-              className="absolute inset-0"
-            >
-              <Image
-                src={SCHOOL_IMAGES[currentImage]}
-                alt="Campus workspace environment"
-                fill
-                className="object-cover scale-105"
-                priority
-              />
-            </motion.div>
-          </AnimatePresence>
+          {SCHOOL_IMAGES.length > 0 ? (
+            <AnimatePresence mode="popLayout">
+              <motion.div
+                key={currentImage}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 0.25 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 1.2 }}
+                className="absolute inset-0"
+              >
+                <Image
+                  src={SCHOOL_IMAGES[currentImage] || ''}
+                  alt="Campus workspace environment"
+                  fill
+                  className="object-cover scale-105"
+                  priority
+                />
+              </motion.div>
+            </AnimatePresence>
+          ) : (
+            /* Modern minimalist geometric mesh fallback if array is empty */
+            <div 
+              className="absolute inset-0 bg-zinc-950 opacity-[0.02]"
+              style={{
+                backgroundImage: 'radial-gradient(circle, #ffffff 1px, transparent 1px)',
+                backgroundSize: '32px 32px',
+              }}
+            />
+          )}
+          
           {/* Modern overlay gradients */}
           <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-zinc-950/80 to-zinc-950/50 z-10" />
         </div>
@@ -120,9 +135,9 @@ export default function SignupPage() {
           </p>
         </div>
 
-        {/* Indicators */}
-        <div className="flex items-center gap-1.5 relative z-20">
-          {SCHOOL_IMAGES.map((_, i) => (
+        {/* Indicators — Only renders dots if multiple assets actually exist */}
+        <div className="flex items-center gap-1.5 relative z-20 h-1">
+          {SCHOOL_IMAGES.length > 1 && SCHOOL_IMAGES.map((_, i) => (
             <div
               key={i}
               className={`h-1 rounded-full transition-all duration-300 ${
