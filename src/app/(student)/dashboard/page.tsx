@@ -96,7 +96,7 @@ export default async function StudentDashboard() {
               <div className="w-16 h-16 bg-amber-500/15 rounded-2xl flex items-center justify-center mx-auto mb-5">
                 <Upload className="w-8 h-8 text-amber-500" />
               </div>
-              <h3 className="text-white font-black text-xl mb-2">Welcome to ClassPrint Hub</h3>
+              <h3 className="text-white font-black text-xl mb-2">Welcome to Printly</h3>
               <p className="text-zinc-400 text-sm leading-relaxed max-w-sm mx-auto mb-6">
                 You&apos;re all set. Upload your first assignment to get started.
                 Select a category, drop your file, and leave any printing instructions for your admin.

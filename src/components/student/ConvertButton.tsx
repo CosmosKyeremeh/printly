@@ -43,21 +43,31 @@ export function ConvertButton({ fileId, fileType }: ConvertButtonProps) {
   }
 
   return (
-    <div className="space-y-1">
+    <div className="space-y-1.5">
       <Button
         onClick={handleConvert}
         disabled={status === 'converting' || status === 'done'}
         variant="outline"
         size="sm"
-        className="border-zinc-700 text-zinc-300 hover:text-amber-500 hover:border-amber-500/50 text-xs h-8"
+        className="border-zinc-800 text-zinc-400 bg-zinc-900/20 backdrop-blur-xs hover:text-brand-300 hover:border-brand-500/40 text-xs h-8 rounded-lg cursor-pointer transition-all disabled:opacity-50 disabled:cursor-not-allowed"
       >
         {status === 'converting' && <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" />}
-        {status === 'done' && <CheckCircle2 className="w-3.5 h-3.5 mr-1.5 text-emerald-500" />}
-        {status === 'idle' && <RefreshCw className="w-3.5 h-3.5 mr-1.5" />}
-        {status === 'done' ? 'Converted — check My Files' : conversion.label}
+        {status === 'done' && <CheckCircle2 className="w-3.5 h-3.5 mr-1.5 text-emerald-400" />}
+        {status === 'idle' && <RefreshCw className="w-3.5 h-3.5 mr-1.5 transition-transform group-hover:rotate-45" />}
+        {status === 'error' && <RefreshCw className="w-3.5 h-3.5 mr-1.5 text-red-400/80" />}
+        
+        {status === 'done' 
+          ? 'Converted — check My Files' 
+          : status === 'converting' 
+          ? 'Processing Asset...' 
+          : conversion.label
+        }
       </Button>
+      
       {status === 'error' && (
-        <p className="text-red-400 text-xs">{errorMsg}</p>
+        <p className="text-red-400 text-[11px] pl-1 font-medium tracking-wide animate-in fade-in-50 duration-200">
+          {errorMsg}
+        </p>
       )}
     </div>
   );

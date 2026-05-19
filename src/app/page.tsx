@@ -22,23 +22,23 @@ export default async function LandingPage() {
 
       {/* ── NAV ── */}
       <nav className="fixed top-0 left-0 right-0 z-50 bg-zinc-950/80 backdrop-blur-md border-b border-zinc-800/50">
-        <div className="max-w-6xl mx-auto px-5 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 bg-amber-500 rounded-lg flex items-center justify-center shadow-lg shadow-amber-500/30">
-              <PrinterIcon className="w-4 h-4 text-zinc-950" strokeWidth={2.5} />
+        <div className="max-w-6xl mx-auto px-4 h-14 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <div className="w-7 h-7 bg-amber-500 rounded-lg flex items-center justify-center shrink-0 shadow-lg shadow-amber-500/30">
+              <PrinterIcon className="w-3.5 h-3.5 text-zinc-950" strokeWidth={2.5} />
             </div>
-            <span className="text-white font-bold tracking-tight">ClassPrint Hub</span>
+            <span className="text-white font-black text-sm tracking-tight">Printly</span>
           </div>
-          <div className="flex items-center gap-3">
-            <Link
+          <div className="flex items-center gap-2">
+            <Link 
               href="/login"
-              className="text-zinc-400 hover:text-white text-sm font-medium transition-colors px-4 py-2"
+              className="text-zinc-400 hover:text-white text-sm font-medium px-3 py-1.5 rounded-lg transition-colors"
             >
               Sign in
             </Link>
-            <Link
+            <Link 
               href="/signup"
-              className="bg-amber-500 hover:bg-amber-400 text-zinc-950 font-bold text-sm px-4 py-2 rounded-lg transition-all shadow-lg shadow-amber-500/20"
+              className="bg-amber-500 hover:bg-amber-400 text-zinc-950 text-sm font-bold px-3 py-2 rounded-lg transition-all shadow-lg shadow-amber-500/20"
             >
               Get started
             </Link>
@@ -333,7 +333,7 @@ export default async function LandingPage() {
                 Ready to end the<br />printer chaos?
               </h2>
               <p className="text-zinc-400 mb-8 leading-relaxed">
-                Join your class on ClassPrint Hub. Free to start, takes 30 seconds to set up.
+                Join your class on Printly. Free to start, takes 30 seconds to set up.
               </p>
               <Link
                 href="/signup"
@@ -348,20 +348,55 @@ export default async function LandingPage() {
       </section>
 
       {/* ── FOOTER ── */}
-      <footer className="border-t border-zinc-800 py-10 px-5">
-        <div className="max-w-5xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
-          <div className="flex items-center gap-2.5">
-            <div className="w-7 h-7 bg-amber-500 rounded-md flex items-center justify-center">
-              <PrinterIcon className="w-3.5 h-3.5 text-zinc-950" strokeWidth={2.5} />
+      <footer className="border-t border-zinc-900 bg-zinc-950 pt-16 pb-12 px-5">
+        <div className="max-w-5xl mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-10 pb-12 border-b border-zinc-900">
+            
+            {/* Brand Column */}
+            <div className="md:col-span-2 space-y-4">
+              <div className="flex items-center gap-2.5">
+                <div className="w-6 h-6 bg-amber-500 rounded flex items-center justify-center shadow-md shadow-amber-500/20">
+                  <PrinterIcon className="w-3 h-3 text-zinc-950" strokeWidth={2.5} />
+                </div>
+                <span className="text-white font-black text-sm tracking-tight">Printly</span>
+              </div>
+              <p className="text-zinc-500 text-xs max-w-sm leading-relaxed">
+                The centralized assignment submission and automated bulk printing network
+              </p>
             </div>
-            <span className="text-white font-bold text-sm">ClassPrint Hub</span>
+
+            {/* Platform Links */}
+            <div className="space-y-3">
+              <p className="text-zinc-400 text-xs font-bold uppercase tracking-wider">Platform</p>
+              <ul className="space-y-2 text-xs">
+                <li><Link href="/login" className="text-zinc-500 hover:text-white transition-colors">Student Portal</Link></li>
+                <li><Link href="/login" className="text-zinc-500 hover:text-white transition-colors">Admin Dashboard</Link></li>
+                <li><Link href="/signup" className="text-zinc-500 hover:text-white transition-colors">Register Cohort</Link></li>
+              </ul>
+            </div>
+
+            {/* Technical Links */}
+            <div className="space-y-3">
+              <p className="text-zinc-400 text-xs font-bold uppercase tracking-wider">System</p>
+              <ul className="space-y-2 text-xs">
+                <li><span className="text-zinc-600">Status: </span><span className="text-emerald-500/80 font-medium">Operational</span></li>
+                <li><Link href="#" className="text-zinc-500 hover:text-white transition-colors">Database Security</Link></li>
+                <li><Link href="#" className="text-zinc-500 hover:text-white transition-colors">Terms of Service</Link></li>
+              </ul>
+            </div>
+
           </div>
-          <p className="text-zinc-600 text-sm">
-            Built with ❤️ in Accra, Ghana 🇬🇭
-          </p>
-          <div className="flex items-center gap-5">
-            <Link href="/login" className="text-zinc-500 hover:text-white text-sm transition-colors">Sign in</Link>
-            <Link href="/signup" className="text-zinc-500 hover:text-white text-sm transition-colors">Sign up</Link>
+
+          {/* Bottom Copyright Strip */}
+          <div className="pt-8 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <p className="text-zinc-600 text-xs font-medium tracking-tight">
+              &copy; 2026 Printly. All rights reserved.
+            </p>
+            <div className="flex items-center gap-1.5 text-zinc-500 text-xs bg-zinc-900/40 border border-zinc-900/80 px-3 py-1.5 rounded-full">
+              <span>Crafted for You</span>
+              <span className="text-zinc-700">|</span>
+              <span>🤏</span>
+            </div>
           </div>
         </div>
       </footer>

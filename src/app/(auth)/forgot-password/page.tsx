@@ -48,7 +48,7 @@ export default function ForgotPasswordPage() {
           <div className="w-9 h-9 rounded-xl flex items-center justify-center" style={{ background: '#b67e7d' }}>
             <PrinterIcon className="w-4 h-4 text-brand-950" strokeWidth={2.5} />
           </div>
-          <span className="text-white font-black tracking-tight">ClassPrint Hub</span>
+          <span className="text-white font-black tracking-tight">Printly</span>
         </div>
 
         <div

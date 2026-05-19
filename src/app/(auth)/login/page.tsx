@@ -73,7 +73,7 @@ function LoginForm() {
             >
               <PrinterIcon className="w-5 h-5 text-brand-950" strokeWidth={2.5} />
             </div>
-            <span className="text-white font-black text-lg tracking-tight">ClassPrint Hub</span>
+            <span className="text-white font-black text-lg tracking-tight">Printly</span>
           </div>
 
           <h1 className="text-5xl font-black text-white leading-[1.08] tracking-tight mb-5">
@@ -117,7 +117,7 @@ function LoginForm() {
             <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: '#b67e7d' }}>
               <PrinterIcon className="w-4 h-4 text-brand-950" strokeWidth={2.5} />
             </div>
-            <span className="text-white font-bold">ClassPrint Hub</span>
+            <span className="text-white font-bold">Printly</span>
           </div>
         </div>
 

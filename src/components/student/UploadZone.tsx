@@ -59,6 +59,17 @@ export function UploadZone({ categories }: { categories: Category[] }) {
       setQueue(prev => prev.map((f, idx) =>
         idx === i ? { ...f, status: 'uploading', progress: 10 } : f
       ));
+      
+      //Reset form
+      const allDone = queue.every(f => f.status === 'done' || f.status === 'error');
+      if (allDone) {
+        setTimeout(() => {
+          setQueue([]);
+          setCategoryId('');
+          setDescription('');
+          setInstructions('');
+        }, 2000);
+      }
 
       try {
         const file = queue[i].file;

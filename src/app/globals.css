@@ -1,17 +1,18 @@
 @import "tailwindcss";
 
 @theme {
-  --color-brand-50:  #f9f0f0;
-  --color-brand-100: #f0d9d9;
-  --color-brand-200: #dbb0af;
-  --color-brand-300: #c99897;
-  --color-brand-400: #b67e7d;
-  --color-brand-500: #9d6463;
-  --color-brand-600: #7a4a49;
-  --color-brand-700: #640000;
-  --color-brand-800: #420001;
-  --color-brand-900: #2a0001;
-  --color-brand-950: #040b15;
+  /* ── Artisan Gold & Warm Ochre Palette ── */
+  --color-brand-50:  #fdfbf7;
+  --color-brand-100: #fbf4e6;
+  --color-brand-200: #f4e3c1;
+  --color-brand-300: #e9cb93;
+  --color-brand-400: #dbaf65;
+  --color-brand-500: #cca152; /* Master Core Gold */
+  --color-brand-600: #b0833b;
+  --color-brand-700: #93682c;
+  --color-brand-800: #6a4920;
+  --color-brand-900: #483218;
+  --color-brand-950: #090a0f; /* Luxury Architectural Deep Black */
 }
 
 *, *::before, *::after {
@@ -27,20 +28,30 @@ body {
   min-height: 100%;
   overflow-y: auto;
   overflow-x: hidden;
-  background-color: #040b15;
+  /* Syncs body background to absolute dark obsidian base */
+  background-color: #090a0f; 
   color: #fafafa;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* Luxury scrollbar */
-::-webkit-scrollbar { width: 4px; }
-::-webkit-scrollbar-track { background: #040b15; }
-::-webkit-scrollbar-thumb { background: #640000; border-radius: 4px; }
-::-webkit-scrollbar-thumb:hover { background: #b67e7d; }
+/* ── Technical Micro-Scrollbar ── */
+::-webkit-scrollbar { 
+  width: 4px; 
+}
+::-webkit-scrollbar-track { 
+  background: #090a0f; 
+}
+::-webkit-scrollbar-thumb { 
+  background: #cca152; /* Gold scroll indicator */
+  border-radius: 4px; 
+}
+::-webkit-scrollbar-thumb:hover { 
+  background: #dbaf65; 
+}
 
-/* Selection color */
+/* ── Premium High-Contrast Selection Text ── */
 ::selection {
-  background: #640000;
-  color: #f9f0f0;
+  background: #6a4920; 
+  color: #fdfbf7;
 }

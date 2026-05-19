@@ -11,7 +11,7 @@
   <br />
 
   <p>
-    <a href="https://classprint-hub-oh62.vercel.app">Live Demo</a> ·
+    <a href="https://printly-oh62.vercel.app">Live Demo</a> ·
     <a href="#features">Features</a> ·
     <a href="#tech-stack">Tech Stack</a> ·
     <a href="#getting-started">Getting Started</a> ·
@@ -33,7 +33,7 @@ In many university classes across Ghana, students print assignments individually
 
 ## The Solution
 
-ClassPrint Hub is a web application that centralizes the entire printing workflow. Students upload files once. The admin (class rep or printing manager) sees everything organized, manages a print queue, and collects payments — all from one dashboard.
+Printly is a web application that centralizes the entire printing workflow. Students upload files once. The admin (class rep or printing manager) sees everything organized, manages a print queue, and collects payments — all from one dashboard.
 
 ---
 
@@ -97,8 +97,8 @@ ClassPrint Hub is a web application that centralizes the entire printing workflo
 **1. Clone the repository**
 
 ```bash
-git clone https://github.com/CosmosKyeremeh/classprint-hub.git
-cd classprint-hub
+git clone https://github.com/CosmosKyeremeh/printly.git
+cd printly
 git checkout develop
 ```
 

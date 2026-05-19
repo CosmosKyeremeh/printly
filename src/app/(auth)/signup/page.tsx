@@ -130,7 +130,7 @@ export default function SignupPage() {
             <div className="w-11 h-11 bg-amber-500 rounded-xl flex items-center justify-center shadow-lg shadow-amber-500/30">
               <PrinterIcon className="w-5 h-5 text-zinc-950" strokeWidth={2.5} />
             </div>
-            <span className="text-white font-bold text-xl tracking-tight">ClassPrint Hub</span>
+            <span className="text-white font-bold text-xl tracking-tight">Printly</span>
           </div>
 
           <h1 className="text-5xl font-black text-white leading-[1.1] mb-4 tracking-tight">
@@ -185,7 +185,7 @@ export default function SignupPage() {
             <div className="w-9 h-9 bg-amber-500 rounded-lg flex items-center justify-center">
               <PrinterIcon className="w-4 h-4 text-zinc-950" strokeWidth={2.5} />
             </div>
-            <span className="text-white font-bold text-lg">ClassPrint Hub</span>
+            <span className="text-white font-bold text-lg">Printly</span>
           </div>
 
           <div className="mb-8">
