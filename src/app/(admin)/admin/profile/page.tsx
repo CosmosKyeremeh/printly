@@ -13,18 +13,22 @@ export default async function AdminProfilePage() {
     .single();
 
   return (
-    <div className="max-w-2xl mx-auto">
+    <div className="max-w-2xl mx-auto px-1 py-2">
+      
+      {/* Header Profile Module */}
       <div className="flex items-center gap-3 mb-8">
-        <div className="w-9 h-9 rounded-lg flex items-center justify-center"
-          style={{ background: '#64000030' }}>
-          <UserCircle className="w-4 h-4" style={{ color: '#b67e7d' }} />
+        <div className="w-9 h-9 rounded-xl flex items-center justify-center bg-zinc-900 border border-zinc-800 text-brand-400">
+          <UserCircle className="w-4 h-4" />
         </div>
         <div>
-          <h1 className="text-2xl font-black text-white tracking-tight">My Profile</h1>
-          <p className="text-xs" style={{ color: '#7a4a49' }}>Manage your account details</p>
+          <h1 className="text-xl font-bold text-zinc-100 tracking-tight">My Profile</h1>
+          <p className="text-xs text-zinc-500 mt-0.5">Manage and view your structural account permissions</p>
         </div>
       </div>
+
+      {/* Profile Form Wrapper */}
       <ProfileForm profile={profile} />
+      
     </div>
   );
 }
