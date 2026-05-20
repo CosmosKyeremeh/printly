@@ -98,21 +98,24 @@ export function FileList({ files }: { files: FileRow[] }) {
 
               {/* Action buttons */}
               <div className="flex items-center gap-1.5">
-                {/* View */}
-                <button
-                  onClick={async () => {
-                    const { data } = await supabase.storage
-                      .from('assignments')
-                      .createSignedUrl(file.file_path, 120);
-                    if (data?.signedUrl) window.open(data.signedUrl, '_blank');
-                  }}
-                  className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-medium bg-zinc-800 hover:bg-zinc-700 text-zinc-400 hover:text-white transition-all"
-                  title="View file"
-                >
-                  <Eye className="w-3 h-3" />
-                  View
-                </button>
-
+              {/* View */}
+              <button
+                onClick={() => {
+                  supabase.storage
+                    .from('assignments')
+                    .createSignedUrl(file.file_path, 120)
+                    .then(({ data }) => {
+                      if (data?.signedUrl) {
+                        window.location.href = data.signedUrl;
+                      }
+                    });
+                }}
+                className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-medium bg-zinc-800 hover:bg-zinc-700 text-zinc-400 hover:text-white transition-all"
+                title="View file"
+              >
+                <Eye className="w-3 h-3" />
+                View
+              </button>
                 {/* Convert */}
                 <Link
                   href={`/files/${file.id}`}
