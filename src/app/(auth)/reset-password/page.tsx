@@ -43,37 +43,36 @@ export default function ResetPasswordPage() {
   }
 
   return (
-    <div className="min-h-screen bg-brand-950 flex items-center justify-center p-6">
+    <div className="min-h-screen bg-zinc-950 flex items-center justify-center p-6 antialiased">
       <motion.div
-        className="w-full max-w-md"
+        className="w-full max-w-[400px]"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, ease: [0.25, 0.46, 0.45, 0.94] }}
       >
-        <div className="flex items-center gap-2.5 mb-10">
-          <div className="w-9 h-9 rounded-xl flex items-center justify-center" style={{ background: '#b67e7d' }}>
-            <PrinterIcon className="w-4 h-4 text-brand-950" strokeWidth={2.5} />
+        {/* Branding */}
+        <div className="flex items-center gap-2.5 mb-8">
+          <div className="w-9 h-9 rounded-xl flex items-center justify-center bg-zinc-900 border border-zinc-800 shadow-sm">
+            <PrinterIcon className="w-4 h-4 text-amber-500" />
           </div>
-          <span className="text-white font-black tracking-tight">Printly</span>
+          <span className="text-white font-semibold text-base tracking-tight">Printly</span>
         </div>
 
-        <div className="rounded-2xl p-8 border" style={{ background: '#420001', borderColor: '#64000060' }}>
-          <div className="w-14 h-14 rounded-2xl flex items-center justify-center mb-6"
-            style={{ background: '#64000050' }}
-          >
-            <ShieldCheck className="w-7 h-7" style={{ color: '#b67e7d' }} />
+        <div className="rounded-2xl p-8 border border-zinc-900 bg-zinc-900/20 backdrop-blur-xl shadow-2xl">
+          <div className="w-12 h-12 rounded-xl flex items-center justify-center mb-6 bg-zinc-900 border border-zinc-800">
+            <ShieldCheck className="w-5 h-5 text-zinc-400" />
           </div>
 
-          <h1 className="text-2xl font-black text-white tracking-tight mb-1">
+          <h1 className="text-2xl font-medium tracking-tight text-zinc-100 mb-1">
             Set new password
           </h1>
-          <p className="text-sm mb-6" style={{ color: '#9d6463' }}>
-            Choose a strong password for your account.
+          <p className="text-sm text-zinc-500 mb-6 leading-relaxed">
+            Configure a strong authentication key bound to your identity record.
           </p>
 
           <form onSubmit={handleReset} className="space-y-4">
             <div className="space-y-1.5">
-              <Label className="text-sm font-medium" style={{ color: '#c99897' }}>
+              <Label className="text-xs font-medium text-zinc-400">
                 New password
               </Label>
               <div className="relative">
@@ -83,22 +82,20 @@ export default function ResetPasswordPage() {
                   onChange={e => setPassword(e.target.value)}
                   placeholder="Min. 8 characters"
                   required
-                  className="h-11 text-white pr-11"
-                  style={{ background: '#2a0001', borderColor: '#640000' }}
+                  className="h-10 pl-3 pr-10 bg-zinc-900/40 border-zinc-800/80 text-zinc-200 text-sm placeholder:text-zinc-600 focus-visible:ring-1 focus-visible:ring-amber-500/30 focus-visible:border-amber-500 transition-all rounded-lg"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2"
-                  style={{ color: '#9d6463' }}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-600 hover:text-zinc-400 transition-colors"
                 >
-                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  {showPassword ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
                 </button>
               </div>
             </div>
 
             <div className="space-y-1.5">
-              <Label className="text-sm font-medium" style={{ color: '#c99897' }}>
+              <Label className="text-xs font-medium text-zinc-400">
                 Confirm password
               </Label>
               <Input
@@ -107,24 +104,24 @@ export default function ResetPasswordPage() {
                 onChange={e => setConfirm(e.target.value)}
                 placeholder="Repeat new password"
                 required
-                className="h-11 text-white"
-                style={{ background: '#2a0001', borderColor: '#640000' }}
+                className="h-10 px-3 bg-zinc-900/40 border-zinc-800/80 text-zinc-200 text-sm placeholder:text-zinc-600 focus-visible:ring-1 focus-visible:ring-amber-500/30 focus-visible:border-amber-500 transition-all rounded-lg"
               />
             </div>
 
             {error && (
-              <p className="text-sm" style={{ color: '#c99897' }}>{error}</p>
+              <div className="rounded-lg p-3 border border-red-500/10 bg-red-500/[0.02]">
+                <p className="text-xs text-red-400 font-medium">{error}</p>
+              </div>
             )}
 
             <Button
               type="submit"
               disabled={loading}
-              className="w-full h-11 font-bold text-sm rounded-xl text-white"
-              style={{ background: 'linear-gradient(135deg, #640000, #b67e7d)' }}
+              className="w-full h-10 bg-zinc-100 hover:bg-zinc-200 text-zinc-950 font-medium text-sm transition-colors rounded-lg mt-2 shadow-sm"
             >
               {loading ? (
-                <span className="flex items-center gap-2">
-                  <Loader2 className="w-4 h-4 animate-spin" />
+                <span className="flex items-center gap-2 justify-center">
+                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
                   Updating...
                 </span>
               ) : 'Update password'}

@@ -6,6 +6,8 @@ import { PrinterIcon, LayoutDashboard, Upload, FileText, CreditCard, LogOut, Men
 import { useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { cn } from '@/lib/utils';
+// 1. Import your local NotificationBell component
+import { NotificationBell } from './NotificationBell'; 
 
 type NavItem = { label: string; href: string; icon: React.ReactNode };
 
@@ -47,12 +49,19 @@ export function Navbar({ role }: { role: 'student' | 'admin' }) {
     <>
       {/* ── Sidebar (desktop) ── */}
       <aside className="hidden lg:flex flex-col w-60 min-h-screen fixed left-0 top-0 z-30 border-r border-brand-900/40 bg-gradient-to-b from-brand-950 via-brand-950 to-[#050608]">
-        {/* Logo */}
-        <div className="flex items-center gap-3 px-5 py-5 border-b border-brand-900/30">
-          <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0 bg-brand-500 shadow-[0_4px_12px_rgba(204,161,82,0.15)]">
-            <PrinterIcon className="w-4 h-4 text-brand-950" strokeWidth={2.5} />
+        {/* Logo Section - Modified to justify-between to sit the bell on the right */}
+        <div className="flex items-center justify-between px-5 py-5 border-b border-brand-900/30">
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0 bg-brand-500 shadow-[0_4px_12px_rgba(204,161,82,0.15)]">
+              <PrinterIcon className="w-4 h-4 text-brand-950" strokeWidth={2.5} />
+            </div>
+            <span className="text-white font-black text-sm tracking-tight">Printly</span>
           </div>
-          <span className="text-white font-black text-sm tracking-tight">Printly</span>
+          
+          {/* 2. Added NotificationBell here for Desktop Viewports */}
+          <div className="hover:opacity-80 transition-opacity cursor-pointer p-1">
+            <NotificationBell />
+          </div>
         </div>
 
         {/* Role badge */}
@@ -111,12 +120,19 @@ export function Navbar({ role }: { role: 'student' | 'admin' }) {
           </div>
           <span className="text-white font-bold text-sm">Printly</span>
         </div>
-        <button
-          onClick={() => setOpen(!open)}
-          className="p-1 text-zinc-400 hover:text-brand-400 transition-colors"
-        >
-          {open ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-        </button>
+        
+        {/* Actions layout wrapper for mobile viewports */}
+        <div className="flex items-center gap-4">
+          {/* 3. Added NotificationBell here for Mobile Viewports */}
+          <NotificationBell />
+          
+          <button
+            onClick={() => setOpen(!open)}
+            className="p-1 text-zinc-400 hover:text-brand-400 transition-colors"
+          >
+            {open ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+          </button>
+        </div>
       </header>
 
       {/* ── Mobile drawer ── */}

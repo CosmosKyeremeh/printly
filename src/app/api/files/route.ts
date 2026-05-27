@@ -23,7 +23,7 @@ export async function POST(request: NextRequest) {
       instructions 
     } = body;
 
-    // 1. Validate file type (Your master's rule)
+    // 1. Validate file type
     if (!ALLOWED_TYPES.includes(fileType)) {
       return NextResponse.json({ error: 'File type not allowed' }, { status: 400 });
     }

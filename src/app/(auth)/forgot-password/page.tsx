@@ -36,43 +36,38 @@ export default function ForgotPasswordPage() {
   }
 
   return (
-    <div className="min-h-screen bg-brand-950 flex items-center justify-center p-6">
+    <div className="min-h-screen bg-zinc-950 flex items-center justify-center p-6 antialiased">
       <motion.div
-        className="w-full max-w-md"
+        className="w-full max-w-[400px]"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, ease: [0.25, 0.46, 0.45, 0.94] }}
       >
         {/* Logo */}
-        <div className="flex items-center gap-2.5 mb-10">
-          <div className="w-9 h-9 rounded-xl flex items-center justify-center" style={{ background: '#b67e7d' }}>
-            <PrinterIcon className="w-4 h-4 text-brand-950" strokeWidth={2.5} />
+        <div className="flex items-center gap-2.5 mb-8">
+          <div className="w-9 h-9 rounded-xl flex items-center justify-center bg-zinc-900 border border-zinc-800 shadow-sm">
+            <PrinterIcon className="w-4 h-4 text-amber-500" />
           </div>
-          <span className="text-white font-black tracking-tight">Printly</span>
+          <span className="text-white font-semibold text-base tracking-tight">Printly</span>
         </div>
 
-        <div
-          className="rounded-2xl p-8 border"
-          style={{ background: '#420001', borderColor: '#64000060' }}
-        >
+        <div className="rounded-2xl p-8 border border-zinc-900 bg-zinc-900/20 backdrop-blur-xl shadow-2xl">
           {!sent ? (
             <>
-              <div className="w-14 h-14 rounded-2xl flex items-center justify-center mb-6"
-                style={{ background: '#64000050' }}
-              >
-                <Mail className="w-7 h-7" style={{ color: '#b67e7d' }} />
+              <div className="w-12 h-12 rounded-xl flex items-center justify-center mb-6 bg-zinc-900 border border-zinc-800">
+                <Mail className="w-5 h-5 text-zinc-400" />
               </div>
 
-              <h1 className="text-2xl font-black text-white tracking-tight mb-1">
+              <h1 className="text-2xl font-medium tracking-tight text-zinc-100 mb-1">
                 Reset your password
               </h1>
-              <p className="text-sm mb-6" style={{ color: '#9d6463' }}>
-                Enter your email and we&apos;ll send a reset link.
+              <p className="text-sm text-zinc-500 mb-6 leading-relaxed">
+                Enter your email address and we&apos;ll broadcast an access-token reset link to your inbox.
               </p>
 
               <form onSubmit={handleReset} className="space-y-4">
                 <div className="space-y-1.5">
-                  <Label className="text-sm font-medium" style={{ color: '#c99897' }}>
+                  <Label className="text-xs font-medium text-zinc-400">
                     Email address
                   </Label>
                   <Input
@@ -81,25 +76,25 @@ export default function ForgotPasswordPage() {
                     onChange={e => setEmail(e.target.value)}
                     placeholder="you@university.edu.gh"
                     required
-                    className="h-11 text-white placeholder:text-brand-700"
-                    style={{ background: '#2a0001', borderColor: '#640000' }}
+                    className="h-10 px-3 bg-zinc-900/40 border-zinc-800/80 text-zinc-200 text-sm placeholder:text-zinc-600 focus-visible:ring-1 focus-visible:ring-amber-500/30 focus-visible:border-amber-500 transition-all rounded-lg"
                   />
                 </div>
 
                 {error && (
-                  <p className="text-sm" style={{ color: '#c99897' }}>{error}</p>
+                  <div className="rounded-lg p-3 border border-red-500/10 bg-red-500/[0.02]">
+                    <p className="text-xs text-red-400 font-medium">{error}</p>
+                  </div>
                 )}
 
                 <Button
                   type="submit"
                   disabled={loading}
-                  className="w-full h-11 font-bold text-sm rounded-xl text-white"
-                  style={{ background: 'linear-gradient(135deg, #640000, #b67e7d)' }}
+                  className="w-full h-10 bg-zinc-100 hover:bg-zinc-200 text-zinc-950 font-medium text-sm transition-colors rounded-lg mt-2 shadow-sm"
                 >
                   {loading ? (
-                    <span className="flex items-center gap-2">
-                      <Loader2 className="w-4 h-4 animate-spin" />
-                      Sending...
+                    <span className="flex items-center gap-2 justify-center">
+                      <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                      Sending Link...
                     </span>
                   ) : 'Send reset link'}
                 </Button>
@@ -109,17 +104,14 @@ export default function ForgotPasswordPage() {
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
-              className="text-center py-4"
+              className="text-center py-2"
             >
-              <div className="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-5"
-                style={{ background: '#64000050' }}
-              >
-                <CheckCircle2 className="w-8 h-8" style={{ color: '#b67e7d' }} />
+              <div className="w-12 h-12 rounded-xl flex items-center justify-center mx-auto mb-5 bg-zinc-900 border border-zinc-800">
+                <CheckCircle2 className="w-5 h-5 text-emerald-500" />
               </div>
-              <h2 className="text-xl font-black text-white mb-2">Check your email</h2>
-              <p className="text-sm leading-relaxed" style={{ color: '#9d6463' }}>
-                We sent a reset link to <span style={{ color: '#b67e7d' }}>{email}</span>.
-                Check your inbox and follow the link to reset your password.
+              <h2 className="text-xl font-medium text-zinc-100 mb-2 tracking-tight">Check your email</h2>
+              <p className="text-sm text-zinc-500 leading-relaxed">
+                We broadcasted an allocation token link to <span className="text-zinc-300 font-medium">{email}</span>. Please verify your execution context.
               </p>
             </motion.div>
           )}
@@ -127,10 +119,9 @@ export default function ForgotPasswordPage() {
 
         <Link
           href="/login"
-          className="flex items-center justify-center gap-2 mt-6 text-sm font-medium transition-colors hover:opacity-80"
-          style={{ color: '#9d6463' }}
+          className="flex items-center justify-center gap-2 mt-6 text-xs text-zinc-500 hover:text-zinc-300 transition-colors font-medium"
         >
-          <ArrowLeft className="w-4 h-4" />
+          <ArrowLeft className="w-3.5 h-3.5" />
           Back to sign in
         </Link>
       </motion.div>

@@ -8,25 +8,15 @@ import { createClient } from '@/lib/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Loader2, PrinterIcon, GraduationCap, ShieldCheck } from 'lucide-react';
+import { Loader2, PrinterIcon } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
-const ADMIN_CODE = process.env.NEXT_PUBLIC_ADMIN_SIGNUP_CODE ?? 'ADMIN2026';
-
-
-const SCHOOL_IMAGES: string[] = [
-//   '/images/school/pic-1.jpeg',
-//   '/images/school/school-3.jpg',
-//   '/images/school/school-4.jpg',
-//   '/images/school/school-5.jpg',
-];
+const SCHOOL_IMAGES: string[] = [];
 
 export default function SignupPage() {
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [role, setRole] = useState<'student' | 'admin'>('student');
-  const [adminCode, setAdminCode] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [currentImage, setCurrentImage] = useState(0);
@@ -42,23 +32,10 @@ export default function SignupPage() {
     return () => clearInterval(interval);
   }, []);
 
-  async function handleSignup(e: React.SubmitEvent) {
+  async function handleSignup(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true);
     setError('');
-
-   if (role === 'admin') {
-  const res = await fetch('/api/auth/validate-admin-code', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ code: adminCode }),
-  });
-  if (!res.ok) {
-    setError('Invalid admin access code.');
-    setLoading(false);
-    return;
-  }
-}
 
     if (password.length < 8) {
       setError('Security key requirements demand min. 8 alphanumeric bounds.');
@@ -70,7 +47,10 @@ export default function SignupPage() {
       email,
       password,
       options: {
-        data: { full_name: fullName, role },
+        data: { 
+          full_name: fullName, 
+          role: 'student' // Hardcoded to student for safety
+        },
       },
     });
 
@@ -85,8 +65,7 @@ export default function SignupPage() {
 
   return (
     <div className="min-h-screen bg-zinc-950 text-zinc-50 flex font-sans antialiased">
-
-      {/* ── Left Slideshow/Fallback Panel (Robust Crossfade) ── */}
+      {/* Left Slideshow/Fallback Panel */}
       <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden flex-col justify-between p-16 border-r border-zinc-900/60 bg-zinc-950">
         <div className="absolute inset-0 z-0">
           {SCHOOL_IMAGES.length > 0 ? (
@@ -109,21 +88,17 @@ export default function SignupPage() {
               </motion.div>
             </AnimatePresence>
           ) : (
-            /* Modern minimalist geometric mesh fallback if array is empty */
             <div 
-              className="absolute inset-0 bg-zinc-950 opacity-[0.02]"
+              className="absolute inset-0 bg-zinc-950 opacity-[0.015]"
               style={{
                 backgroundImage: 'radial-gradient(circle, #ffffff 1px, transparent 1px)',
                 backgroundSize: '32px 32px',
               }}
             />
           )}
-          
-          {/* Modern overlay gradients */}
           <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-zinc-950/80 to-zinc-950/50 z-10" />
         </div>
 
-        {/* Branding header overlay */}
         <div className="flex items-center gap-2.5 relative z-20">
           <div className="w-9 h-9 rounded-xl flex items-center justify-center bg-zinc-900 border border-zinc-800 shadow-sm">
             <PrinterIcon className="w-4 h-4 text-amber-500" />
@@ -131,7 +106,6 @@ export default function SignupPage() {
           <span className="font-semibold text-base tracking-tight text-zinc-200">Printly</span>
         </div>
 
-        {/* Core panel callout */}
         <div className="relative z-20 max-w-sm my-auto space-y-4">
           <h1 className="text-4xl font-medium tracking-tight text-white leading-[1.15]">
             Create your <br />
@@ -142,7 +116,6 @@ export default function SignupPage() {
           </p>
         </div>
 
-        {/* Indicators — Only renders dots if multiple assets actually exist */}
         <div className="flex items-center gap-1.5 relative z-20 h-1">
           {SCHOOL_IMAGES.length > 1 && SCHOOL_IMAGES.map((_, i) => (
             <div
@@ -155,32 +128,12 @@ export default function SignupPage() {
         </div>
       </div>
 
-      {/* ── Right Form Panel ── */}
+      {/* Right Form Panel */}
       <div className="w-full lg:w-1/2 flex items-center justify-center p-6 sm:p-12 bg-zinc-950">
         <div className="w-full max-w-[360px]">
-          
           <div className="mb-6 space-y-1">
             <h2 className="text-2xl font-medium tracking-tight text-zinc-100">Create account</h2>
             <p className="text-sm text-zinc-500">Configure your global platform routing permissions.</p>
-          </div>
-
-          {/* Minimal Tab-Slider Controls */}
-          <div className="grid grid-cols-2 gap-1 mb-6 p-1 bg-zinc-900/40 border border-zinc-800/60 rounded-xl">
-            {(['student', 'admin'] as const).map((r) => (
-              <button
-                key={r}
-                type="button"
-                onClick={() => setRole(r)}
-                className={`flex items-center justify-center gap-1.5 py-1.5 rounded-lg text-xs font-medium transition-all ${
-                  role === r
-                    ? 'bg-zinc-800 border border-zinc-700/60 text-white shadow-sm'
-                    : 'text-zinc-500 hover:text-zinc-300'
-                }`}
-              >
-                {r === 'student' ? <GraduationCap className="w-3.5 h-3.5" /> : <ShieldCheck className="w-3.5 h-3.5" />}
-                {r.charAt(0).toUpperCase() + r.slice(1)}
-              </button>
-            ))}
           </div>
 
           <form onSubmit={handleSignup} className="space-y-4">
@@ -222,25 +175,6 @@ export default function SignupPage() {
                 className="h-10 px-3 bg-zinc-900/40 border-zinc-800/80 text-zinc-200 text-sm placeholder:text-zinc-600 focus-visible:ring-1 focus-visible:ring-amber-500/30 focus-visible:border-amber-500 transition-all rounded-lg"
               />
             </div>
-
-            {role === 'admin' && (
-              <motion.div
-                className="space-y-1.5 pt-0.5"
-                initial={{ opacity: 0, height: 0 }}
-                animate={{ opacity: 1, height: 'auto' }}
-              >
-                <Label htmlFor="adminCode" className="text-xs font-medium text-zinc-400">System authorization token</Label>
-                <Input
-                  id="adminCode"
-                  type="password"
-                  value={adminCode}
-                  onChange={(e) => setAdminCode(e.target.value)}
-                  placeholder="Enter administrative token signature"
-                  required
-                  className="h-10 px-3 bg-zinc-900/40 border-zinc-800/80 text-zinc-200 text-sm placeholder:text-zinc-600 focus-visible:ring-1 focus-visible:ring-amber-500/30 focus-visible:border-amber-500 transition-all rounded-lg"
-                />
-              </motion.div>
-            )}
 
             {error && (
               <div className="rounded-lg p-3 border border-red-500/10 bg-red-500/[0.02]">
