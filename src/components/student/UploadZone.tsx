@@ -23,6 +23,7 @@ export function UploadZone({ categories }: { categories: Category[] }) {
   const [categoryId, setCategoryId] = useState('');
   const [description, setDescription] = useState('');
   const [instructions, setInstructions] = useState('');
+  const [formError, setFormError] = useState(''); // Added formError state
   const supabase = createClient();
 
   const onDrop = useCallback((accepted: File[]) => {
@@ -46,7 +47,7 @@ export function UploadZone({ categories }: { categories: Category[] }) {
 
   async function uploadAll() {
     if (!categoryId) {
-      alert('Please select a category first.');
+      setFormError('Please select a category before uploading.'); // Replaced native alert
       return;
     }
 
@@ -73,7 +74,10 @@ export function UploadZone({ categories }: { categories: Category[] }) {
 
       try {
         const file = queue[i].file;
-        const path = `${user.id}/${Date.now()}_${file.name}`;
+        
+        // Fix — sanitise file names on upload
+        const safeName = file.name.replace(/[^a-zA-Z0-9.-\s]/g, '');
+        const path = `${user.id}/${Date.now()}_${safeName}`;
 
         const { error: storageError } = await supabase.storage
           .from('assignments')
@@ -88,7 +92,7 @@ export function UploadZone({ categories }: { categories: Category[] }) {
         const { error: dbError } = await supabase.from('files').insert({
           owner_id: user.id,
           category_id: categoryId,
-          file_name: file.name,
+          file_name: safeName, 
           file_path: path,
           file_size: file.size,
           file_type: file.type,
@@ -122,7 +126,10 @@ export function UploadZone({ categories }: { categories: Category[] }) {
           <select
             aria-label="Assignment category"
             value={categoryId}
-            onChange={e => setCategoryId(e.target.value)}
+            onChange={e => {
+              setCategoryId(e.target.value);
+              setFormError(''); // Clears error when category is selected
+            }}
             className="w-full h-11 bg-zinc-900 border border-zinc-700 rounded-lg px-3 text-white text-sm focus:outline-none focus:border-amber-500 transition-colors"
           >
             <option value="">Select a category...</option>
@@ -145,6 +152,14 @@ export function UploadZone({ categories }: { categories: Category[] }) {
           />
         </div>
       </div>
+
+      {/* Render the error below the category/description grid */}
+      {formError && (
+        <div className="flex items-center gap-2 bg-red-500/10 border border-red-500/20 text-red-400 p-3.5 rounded-xl text-sm">
+          <AlertCircle className="w-4 h-4 shrink-0" />
+          <p>{formError}</p>
+        </div>
+      )}
 
       {/* Printing instructions */}
       <div className="space-y-1.5">

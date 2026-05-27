@@ -1,7 +1,6 @@
 'use client';
 
 import { useState } from 'react';
-import { createClient } from '@/lib/supabase/client';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Loader2, CheckCircle2, Phone, X, Smartphone } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -22,7 +21,6 @@ export function MoMoPaymentModal({ fileId, fileName, onClose }: Props) {
   const [momoNumber, setMomoNumber] = useState('');
   const [network, setNetwork] = useState<'MTN' | 'Vodafone' | 'AirtelTigo'>('MTN');
   const [error, setError] = useState('');
-  const supabase = createClient();
   const router = useRouter();
 
   async function handleInitiate(e: React.FormEvent) {
@@ -34,30 +32,22 @@ export function MoMoPaymentModal({ fileId, fileName, onClose }: Props) {
     setError('');
     setStep('waiting');
 
-    // Simulate network delay (demo)
-    await new Promise(res => setTimeout(res, 4000));
-
-    // Mark as paid in DB
-    const { data: { user } } = await supabase.auth.getUser();
-    if (user) {
-      await supabase.from('files')
-        .update({ payment_status: 'paid' })
-        .eq('id', fileId);
-
-      await supabase.from('payments').insert({
-        file_id: fileId,
-        student_id: user.id,
-        amount: 2.00,
-        currency: 'GHS',
-        provider: 'momo',
-        provider_payment_id: `DEMO-${Date.now()}`,
-        status: 'paid',
-        metadata: { network, phone: momoNumber, demo: true },
+    try {
+      // Call the API route instead of executing direct Supabase writes
+      const res = await fetch('/api/payments/confirm', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ fileId, momoNumber, network }),
       });
-    }
 
-    setStep('success');
-    router.refresh();
+      if (!res.ok) throw new Error('Payment failed');
+
+      setStep('success');
+      router.refresh();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'An unexpected payment error occurred.');
+      setStep('enter_number');
+    }
   }
 
   return (

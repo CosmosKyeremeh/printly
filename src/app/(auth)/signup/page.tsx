@@ -47,11 +47,18 @@ export default function SignupPage() {
     setLoading(true);
     setError('');
 
-    if (role === 'admin' && adminCode !== ADMIN_CODE) {
-      setError('Invalid system administrative signature code.');
-      setLoading(false);
-      return;
-    }
+   if (role === 'admin') {
+  const res = await fetch('/api/auth/validate-admin-code', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ code: adminCode }),
+  });
+  if (!res.ok) {
+    setError('Invalid admin access code.');
+    setLoading(false);
+    return;
+  }
+}
 
     if (password.length < 8) {
       setError('Security key requirements demand min. 8 alphanumeric bounds.');
