@@ -2,11 +2,10 @@
 
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { PrinterIcon, LayoutDashboard, Upload, FileText, CreditCard, LogOut, Menu, X, UserCircle, Bell } from 'lucide-react';
+import { PrinterIcon, LayoutDashboard, Upload, FileText, CreditCard, LogOut, Menu, X, UserCircle, Bell, BookOpen } from 'lucide-react';
 import { useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { cn } from '@/lib/utils';
-// 1. Import your local NotificationBell component
 import { NotificationBell } from './NotificationBell'; 
 
 type NavItem = { label: string; href: string; icon: React.ReactNode };
@@ -17,6 +16,8 @@ const studentNav: NavItem[] = [
   { label: 'My Files',  href: '/files',     icon: <FileText className="w-4 h-4" /> },
   { label: 'Payments',  href: '/payments',  icon: <CreditCard className="w-4 h-4" /> },
   { label: 'Profile',   href: '/profile',   icon: <UserCircle className="w-4 h-4" /> },
+  { label: 'Notifications', href: '/notifications', icon: <Bell className="w-4 h-4" /> },
+  { label: 'Resources', href: '/resources', icon: <BookOpen className="w-4 h-4" /> },
 ];
 
 const adminNav: NavItem[] = [
@@ -26,6 +27,7 @@ const adminNav: NavItem[] = [
   { label: 'Notifications', href: '/admin/notifications', icon: <Bell className="w-4 h-4" /> },
   { label: 'Payments',      href: '/admin/payments',      icon: <CreditCard className="w-4 h-4" /> },
   { label: 'Profile',       href: '/admin/profile',       icon: <UserCircle className="w-4 h-4" /> },
+  { label: 'Resources', href: '/admin/resources', icon: <BookOpen className="w-4 h-4" /> },
 ];
 
 export function Navbar({ role }: { role: 'student' | 'admin' }) {

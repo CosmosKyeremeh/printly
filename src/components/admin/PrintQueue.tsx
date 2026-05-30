@@ -4,9 +4,10 @@ import { useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { StatusBadge } from '@/components/shared/StatusBadge';
 import { formatDate } from '@/lib/utils';
-import { Printer, CheckCheck, X, File, Download, Banknote, Loader2 } from 'lucide-react';
+import { Printer, CheckCheck, X, File, Download, Banknote, Loader2, Printer as PrintIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
+import { PriceEditor } from './PriceEditor';
 
 type QueueItem = {
   id: string;
@@ -19,6 +20,9 @@ type QueueItem = {
     file_path: string;
     payment_status: string;
     instructions: string | null;
+    page_count: number | null;
+    manual_price: number | null;
+    price_locked: boolean | null;
     profiles: { full_name: string | null; email: string } | null;
     categories: { name: string } | null;
   } | null;
@@ -100,7 +104,6 @@ export function PrintQueue({ initialQueue }: { initialQueue: QueueItem[] }) {
 
   return (
     <div className="space-y-4 max-w-5xl">
-
       {/* Info Banner — Pending Payments */}
       {unpaidCount > 0 && (
         <div className="flex items-start gap-3 rounded-xl px-4 py-3.5 border border-amber-500/10 bg-brand-500/5">
@@ -145,7 +148,6 @@ export function PrintQueue({ initialQueue }: { initialQueue: QueueItem[] }) {
         </div>
       )}
 
-      {/* Select All Toggle Wrapper */}
       {allQueue.length > 0 && (
         <div className="flex items-center gap-2.5 px-1 py-1">
           <input
@@ -161,7 +163,6 @@ export function PrintQueue({ initialQueue }: { initialQueue: QueueItem[] }) {
         </div>
       )}
 
-      {/* Queue Stream Container */}
       {allQueue.length === 0 ? (
         <div className="text-center py-20 rounded-2xl border border-zinc-900 bg-zinc-900/5">
           <div className="w-12 h-12 rounded-xl flex items-center justify-center mx-auto mb-4 bg-zinc-900 text-zinc-600">
@@ -203,6 +204,7 @@ export function PrintQueue({ initialQueue }: { initialQueue: QueueItem[] }) {
                     <p className="text-zinc-200 text-sm font-semibold truncate tracking-tight">
                       {item.files?.file_name ?? 'Missing File Link'}
                     </p>
+                    
                     <div className="flex items-center gap-2 mt-1 flex-wrap text-xs text-zinc-500">
                       <span className="font-medium text-zinc-400">
                         {item.files?.profiles?.full_name ?? item.files?.profiles?.email ?? 'Unknown Student'}
@@ -216,9 +218,33 @@ export function PrintQueue({ initialQueue }: { initialQueue: QueueItem[] }) {
                         </>
                       )}
                       <span>•</span>
-                      <span>
-                        {formatDate(item.queued_at)}
-                      </span>
+                      <span>{formatDate(item.queued_at)}</span>
+                    </div>
+
+                    {/* Page count setter — admin sets this so price auto-calculates */}
+                    <div className="flex items-center gap-1.5 mt-2">
+                      <span className="text-zinc-500 text-[10px] uppercase font-bold tracking-tight">Pages:</span>
+                      <input
+                        type="number"
+                        defaultValue={item.files?.page_count ?? 1}
+                        min={1}
+                        onBlur={async (e) => {
+                          const count = parseInt(e.target.value) || 1;
+                          if (item.files && !item.files.price_locked) {
+                            await supabase.from('files')
+                              .update({ page_count: count })
+                              .eq('id', item.files.id);
+                            
+                            // Optimistic local update
+                            setQueue(prev => prev.map(q => 
+                              q.id === item.id && q.files 
+                                ? { ...q, files: { ...q.files, page_count: count }} 
+                                : q
+                            ));
+                          }
+                        }}
+                        className="w-12 h-6 bg-zinc-950 border border-zinc-800 rounded px-1.5 text-brand-300 text-xs focus:border-brand-500 focus:outline-none transition-colors"
+                      />
                     </div>
                   </div>
 
@@ -243,20 +269,48 @@ export function PrintQueue({ initialQueue }: { initialQueue: QueueItem[] }) {
                         Cash Paid
                       </button>
                     )}
+
+                    {item.files && (
+                      <PriceEditor
+                        fileId={item.files.id}
+                        pageCount={item.files.page_count ?? 1}
+                        manualPrice={item.files.manual_price ?? null}
+                        priceLocked={item.files.price_locked ?? false}
+                      />
+                    )}
                     
                     {item.files && (
-                      <button
-                        onClick={() => handleDownload(item.files!.file_path, item.files!.file_name)}
-                        className="p-2 rounded-lg text-zinc-500 hover:text-zinc-200 hover:bg-zinc-900 transition-all cursor-pointer"
-                        title="Download Asset File"
-                      >
-                        <Download className="w-4 h-4" />
-                      </button>
+                      <div className="flex items-center gap-1 border-l border-zinc-800 pl-3">
+                        <button
+                          onClick={() => {
+                            supabase.storage
+                              .from('assignments')
+                              .createSignedUrl(item.files!.file_path, 60)
+                              .then(({ data }) => {
+                                if (data?.signedUrl) {
+                                  const w = window.open(data.signedUrl, '_blank');
+                                  if (w) w.onload = () => w.print();
+                                }
+                              });
+                          }}
+                          className="p-2 rounded-lg text-zinc-500 hover:text-amber-500 hover:bg-amber-500/10 transition-all cursor-pointer"
+                          title="Print file"
+                        >
+                          <PrintIcon className="w-4 h-4" />
+                        </button>
+
+                        <button
+                          onClick={() => handleDownload(item.files!.file_path, item.files!.file_name)}
+                          className="p-2 rounded-lg text-zinc-500 hover:text-zinc-200 hover:bg-zinc-900 transition-all cursor-pointer"
+                          title="Download Asset File"
+                        >
+                          <Download className="w-4 h-4" />
+                        </button>
+                      </div>
                     )}
                   </div>
                 </div>
 
-                {/* Optional Internal Printing Instructions Module */}
                 {item.files?.instructions && (
                   <div className="mx-4 mb-4 rounded-xl px-3.5 py-3 border border-zinc-800 bg-zinc-950/40">
                     <p className="text-[10px] font-bold uppercase tracking-widest text-zinc-500 mb-1.5">
