@@ -20,6 +20,7 @@ function LoginForm() {
   const searchParams = useSearchParams();
   const justSignedUp = searchParams.get('signup') === 'success';
   const passwordReset = searchParams.get('reset') === 'success';
+  const confirmError = searchParams.get('error') === 'confirmation_failed';
   const supabase = createClient();
 
   async function handleLogin(e: React.FormEvent) {
@@ -128,6 +129,19 @@ function LoginForm() {
                 <p className="text-[11px] text-zinc-500 leading-normal">Your profile is initialized. Sign in below to enter the terminal.</p>
               </div>
             </div>
+          )}
+
+          {confirmError && (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="flex items-center gap-3 rounded-xl p-4 mb-6 border"
+              style={{ background: '#42000130', borderColor: '#64000060' }}
+            >
+              <p className="text-sm" style={{ color: '#c99897' }}>
+                Confirmation link expired or already used. Please sign in or request a new link.
+              </p>
+            </motion.div>
           )}
 
           <div className="mb-6 space-y-1">
