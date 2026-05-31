@@ -10,6 +10,7 @@ export default function manifest(): MetadataRoute.Manifest {
     background_color: '#040b15',
     theme_color: '#b67e7d',
     orientation: 'portrait',
+    categories: ['education', 'productivity'],
     icons: [
       {
         src: '/favicon_io/android-chrome-192x192.png',
