@@ -18,6 +18,8 @@ const studentNav: NavItem[] = [
   { label: 'Profile',   href: '/profile',   icon: <UserCircle className="w-4 h-4" /> },
   { label: 'Notifications', href: '/notifications', icon: <Bell className="w-4 h-4" /> },
   { label: 'Resources', href: '/resources', icon: <BookOpen className="w-4 h-4" /> },
+  { label: 'Users', href: '/admin/users', icon: <Users className="w-4 h-4" /> 
+  },
 ];
 
 const adminNav: NavItem[] = [

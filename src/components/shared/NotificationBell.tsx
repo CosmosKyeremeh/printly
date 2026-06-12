@@ -1,31 +1,56 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Bell } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 import Link from 'next/link';
 
 export function NotificationBell({ role = 'student' }: { role?: 'student' | 'admin' }) {
   const [unread, setUnread] = useState(0);
+  const [userId, setUserId] = useState<string | null>(null);
   const supabase = createClient();
 
-  useEffect(() => {
-    async function fetchUnread() {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
-      const { data } = await supabase
-        .from('notifications')
-        .select('id, read_by')
-        .eq('is_global', true);
-      if (data) {
-        const count = data.filter(n => !n.read_by?.includes(user.id)).length;
-        setUnread(count);
-      }
+  const href = role === 'admin' ? '/admin/notifications' : '/notifications';
+
+  // Memoized fetch function so it can be called safely inside the effect and realtime stream
+  const fetchUnread = useCallback(async (uid: string) => {
+    const { data } = await supabase
+      .from('notifications')
+      .select('id, read_by')
+      .eq('is_global', true);
+
+    if (data) {
+      const count = data.filter(n => !n.read_by?.includes(uid)).length;
+      setUnread(count);
     }
-    fetchUnread();
   }, [supabase]);
 
-  const href = role === 'admin' ? '/admin/notifications' : '/notifications';
+  useEffect(() => {
+    let channel: any;
+
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      if (!user) return;
+      setUserId(user.id);
+      fetchUnread(user.id);
+
+      // Realtime subscription — fires fetchUnread whenever notifications alter
+      channel = supabase
+        .channel('notification-bell')
+        .on(
+          'postgres_changes',
+          { event: '*', schema: 'public', table: 'notifications' },
+          () => fetchUnread(user.id)
+        )
+        .subscribe();
+    });
+
+    // Cleanup subscription channel on unmount
+    return () => {
+      if (channel) {
+        supabase.removeChannel(channel);
+      }
+    };
+  }, [supabase, fetchUnread]);
 
   return (
     <Link href={href} className="relative p-2 rounded-lg transition-all hover:bg-zinc-800">

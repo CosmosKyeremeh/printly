@@ -9,6 +9,8 @@ const PUBLIC_ROUTES = [
   '/reset-password',
   '/auth/confirm',        
   '/api/auth/callback',
+  '/api/auth/validate-admin-code',
+  '/auth/invite',
 ];
 
 export async function proxy(request: NextRequest) {
@@ -35,11 +37,12 @@ export async function proxy(request: NextRequest) {
 
   const { data: { user } } = await supabase.auth.getUser();
   const path = request.nextUrl.pathname;
-  const isPublic = PUBLIC_ROUTES.includes(path);
+  const isPublic = PUBLIC_ROUTES.some(route => path === route || path.startsWith(route + '/'));
 
   if (!user && !isPublic) {
     const url = request.nextUrl.clone();
-    url.pathname = '/login';
+    url.pathname = '/';
+    url.searchParams.set('next', path);
     return NextResponse.redirect(url);
   }
 
@@ -48,6 +51,6 @@ export async function proxy(request: NextRequest) {
 
 export const config = {
   matcher: [
-    '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
+    '/((?!_next/static|_next/image|favicon.ico|sw.js|manifest.webmanifest|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
   ],
 };

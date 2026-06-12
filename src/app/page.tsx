@@ -4,10 +4,17 @@ import Link from 'next/link';
 import {
   PrinterIcon, Upload, Shield, Bell, CreditCard,
   RefreshCw, ArrowRight, CheckCircle2, Users,
-  FileText, Zap, Star
+  Star, AlertCircle
 } from 'lucide-react';
 
-export default async function LandingPage() {
+interface PageProps {
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+}
+
+export default async function LandingPage({ searchParams }: PageProps) {
+  const resolvedParams = await searchParams;
+  const next = typeof resolvedParams.next === 'string' ? resolvedParams.next : '';
+
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
 
@@ -16,6 +23,9 @@ export default async function LandingPage() {
       .from('profiles').select('role').eq('id', user.id).single();
     redirect(profile?.role === 'admin' ? '/admin/dashboard' : '/dashboard');
   }
+
+  // Construct search query string for internal links
+  const authQuery = next ? `?next=${encodeURIComponent(next)}` : '';
 
   return (
     <div className="min-h-screen bg-zinc-950 text-white">
@@ -31,13 +41,13 @@ export default async function LandingPage() {
           </div>
           <div className="flex items-center gap-2">
             <Link 
-              href="/login"
+              href={`/login${authQuery}`}
               className="text-zinc-400 hover:text-white text-sm font-medium px-3 py-1.5 rounded-lg transition-colors"
             >
               Sign in
             </Link>
             <Link 
-              href="/signup"
+              href={`/signup${authQuery}`}
               className="bg-amber-500 hover:bg-amber-400 text-zinc-950 text-sm font-bold px-3 py-2 rounded-lg transition-all shadow-lg shadow-amber-500/20"
             >
               Get started
@@ -46,7 +56,7 @@ export default async function LandingPage() {
         </div>
       </nav>
 
-      {/* ── HERO ── */}
+      {/* ── HERO & CONTEXT BANNER ── */}
       <section className="relative pt-32 pb-24 px-5 overflow-hidden">
         {/* Background glow */}
         <div className="absolute top-20 left-1/2 -translate-x-1/2 w-[600px] h-[400px] bg-amber-500/8 rounded-full blur-3xl pointer-events-none" />
@@ -62,6 +72,17 @@ export default async function LandingPage() {
         />
 
         <div className="relative z-10 max-w-4xl mx-auto text-center">
+          
+          {/* Graceful Authentication Context Banner */}
+          {next && (
+            <div className="animate-in fade-in slide-in-from-top-4 duration-3xl max-w-md mx-auto mb-6 flex items-center gap-3 bg-zinc-900/80 border border-amber-500/30 rounded-xl p-3 shadow-xl backdrop-blur-sm">
+              <AlertCircle className="w-5 h-5 text-amber-500 shrink-0" />
+              <p className="text-zinc-300 text-xs font-medium text-left">
+                Please <Link href={`/login${authQuery}`} className="text-amber-400 font-bold hover:underline">sign in</Link> or <Link href={`/signup${authQuery}`} className="text-amber-400 font-bold hover:underline">create an account</Link> to access that page.
+              </p>
+            </div>
+          )}
+
           {/* Badge */}
           <div className="inline-flex items-center gap-2 bg-amber-500/10 border border-amber-500/20 rounded-full px-4 py-1.5 mb-8">
             <Star className="w-3.5 h-3.5 text-amber-500 fill-amber-500" />
@@ -80,14 +101,14 @@ export default async function LandingPage() {
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
             <Link
-              href="/signup"
+              href={`/signup${authQuery}`}
               className="flex items-center gap-2 bg-amber-500 hover:bg-amber-400 text-zinc-950 font-bold text-base px-7 py-3.5 rounded-xl transition-all shadow-xl shadow-amber-500/25 hover:shadow-amber-500/40 hover:-translate-y-0.5 w-full sm:w-auto justify-center"
             >
               Start for free
               <ArrowRight className="w-4 h-4" />
             </Link>
             <Link
-              href="/login"
+              href={`/login${authQuery}`}
               className="flex items-center gap-2 bg-zinc-900 hover:bg-zinc-800 border border-zinc-700 text-white font-semibold text-base px-7 py-3.5 rounded-xl transition-all w-full sm:w-auto justify-center"
             >
               Sign in
@@ -220,7 +241,7 @@ export default async function LandingPage() {
                 desc: 'Students see their own files. Admins see everything. Secured at the database level.',
               },
               {
-                icon: <Zap className="w-5 h-5" />,
+                icon: <PrinterIcon className="w-5 h-5" />, // Replaced text-only Icon assignment
                 title: 'Printing instructions',
                 desc: 'Leave notes per file — number of copies, double-sided, edits needed. Admin sees it all.',
               },
@@ -270,7 +291,7 @@ export default async function LandingPage() {
               ))}
             </ul>
             <Link
-              href="/signup"
+              href={`/signup${authQuery}`}
               className="inline-flex items-center gap-2 mt-8 bg-amber-500 hover:bg-amber-400 text-zinc-950 font-bold text-sm px-5 py-2.5 rounded-lg transition-all"
             >
               Sign up as student <ArrowRight className="w-4 h-4" />
@@ -304,7 +325,7 @@ export default async function LandingPage() {
               ))}
             </ul>
             <Link
-              href="/signup"
+              href={`/signup${authQuery}`}
               className="inline-flex items-center gap-2 mt-8 bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 text-white font-bold text-sm px-5 py-2.5 rounded-lg transition-all"
             >
               Sign up as admin <ArrowRight className="w-4 h-4" />
@@ -336,7 +357,7 @@ export default async function LandingPage() {
                 Join your class on Printly. Free to start, takes 30 seconds to set up.
               </p>
               <Link
-                href="/signup"
+                href={`/signup${authQuery}`}
                 className="inline-flex items-center gap-2 bg-amber-500 hover:bg-amber-400 text-zinc-950 font-black text-base px-8 py-4 rounded-xl transition-all shadow-xl shadow-amber-500/25 hover:shadow-amber-500/40 hover:-translate-y-0.5"
               >
                 Create your free account
@@ -369,9 +390,9 @@ export default async function LandingPage() {
             <div className="space-y-3">
               <p className="text-zinc-400 text-xs font-bold uppercase tracking-wider">Platform</p>
               <ul className="space-y-2 text-xs">
-                <li><Link href="/login" className="text-zinc-500 hover:text-white transition-colors">Student Portal</Link></li>
-                <li><Link href="/login" className="text-zinc-500 hover:text-white transition-colors">Admin Dashboard</Link></li>
-                <li><Link href="/signup" className="text-zinc-500 hover:text-white transition-colors">Register Cohort</Link></li>
+                <li><Link href={`/login${authQuery}`} className="text-zinc-500 hover:text-white transition-colors">Student Portal</Link></li>
+                <li><Link href={`/login${authQuery}`} className="text-zinc-500 hover:text-white transition-colors">Admin Dashboard</Link></li>
+                <li><Link href={`/signup${authQuery}`} className="text-zinc-500 hover:text-white transition-colors">Register Cohort</Link></li>
               </ul>
             </div>
 
