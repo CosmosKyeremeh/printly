@@ -62,6 +62,22 @@ export function PrintQueue({ initialQueue }: { initialQueue: QueueItem[] }) {
       })
       .in('id', ids);
 
+    // When marking done — notify each student
+    if (status === 'done') {
+      for (const id of ids) {
+        const item = queue.find(q => q.id === id);
+        if (item?.files) {
+          await supabase.from('notifications').insert({
+            title: 'Your assignment is ready to collect 🖨️',
+            content: `"${item.files.file_name}" has been printed. Come collect it from your class rep.`,
+            type: 'print_ready',
+            is_global: false,
+            created_by: null,
+          });
+        }
+      }
+    }
+
     setQueue(prev =>
       prev.map(item => ids.includes(item.id) ? { ...item, status } : item)
     );

@@ -86,7 +86,7 @@ export default async function LandingPage({ searchParams }: PageProps) {
           {/* Badge */}
           <div className="inline-flex items-center gap-2 bg-amber-500/10 border border-amber-500/20 rounded-full px-4 py-1.5 mb-8">
             <Star className="w-3.5 h-3.5 text-amber-500 fill-amber-500" />
-            <span className="text-amber-400 text-xs font-semibold">Built for Ghanaian students</span>
+            <span className="text-amber-400 text-xs font-semibold">Experience consistent printing</span>
           </div>
 
           <h1 className="text-5xl sm:text-6xl lg:text-7xl font-black tracking-tight leading-[1.05] mb-6">

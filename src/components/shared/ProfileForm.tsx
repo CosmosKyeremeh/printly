@@ -13,6 +13,8 @@ type Profile = {
   email: string;
   full_name: string | null;
   role: string;
+  phone?: string | null;
+  whatsapp?: string | null;
   created_at: string | null;
 };
 
@@ -24,6 +26,9 @@ export function ProfileForm({ profile }: { profile: Profile | null }) {
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [error, setError] = useState('');
+  const [phone, setPhone] = useState(profile?.phone ?? '');
+  const [whatsapp, setWhatsapp] = useState(profile?.whatsapp ?? '');
+  
   const supabase = createClient();
   const router = useRouter();
 
@@ -34,7 +39,12 @@ export function ProfileForm({ profile }: { profile: Profile | null }) {
 
     const { error: profileError } = await supabase
       .from('profiles')
-      .update({ full_name: fullName, updated_at: new Date().toISOString() })
+      .update({ 
+        full_name: fullName, 
+        phone: phone || null,
+        whatsapp: whatsapp || null,
+        updated_at: new Date().toISOString() 
+      })
       .eq('id', profile!.id);
 
     if (profileError) {
@@ -126,6 +136,7 @@ export function ProfileForm({ profile }: { profile: Profile | null }) {
         <h3 className="text-zinc-200 font-medium text-sm mb-4">Edit Details</h3>
         
         <form onSubmit={handleSave} className="space-y-4">
+          {/* Full Name Field Block */}
           <div className="space-y-1.5">
             <Label className="text-xs font-medium text-zinc-400">Full name</Label>
             <Input
@@ -133,6 +144,34 @@ export function ProfileForm({ profile }: { profile: Profile | null }) {
               onChange={e => setFullName(e.target.value)}
               placeholder="Your full name"
               required
+              className="h-10 text-zinc-200 bg-zinc-950 border-zinc-800/80 focus-visible:ring-1 focus-visible:ring-amber-500/30 focus-visible:border-amber-500 rounded-lg placeholder:text-zinc-700 transition-all"
+            />
+          </div>
+
+          {/* New Field Block: Phone Number */}
+          <div className="space-y-1.5">
+            <Label className="text-xs font-medium text-zinc-400">
+              Phone number <span className="text-zinc-600 font-normal">(optional)</span>
+            </Label>
+            <Input
+              type="tel"
+              value={phone}
+              onChange={e => setPhone(e.target.value)}
+              placeholder="0XX XXX XXXX"
+              className="h-10 text-zinc-200 bg-zinc-950 border-zinc-800/80 focus-visible:ring-1 focus-visible:ring-amber-500/30 focus-visible:border-amber-500 rounded-lg placeholder:text-zinc-700 transition-all"
+            />
+          </div>
+
+          {/* New Field Block: WhatsApp Number */}
+          <div className="space-y-1.5">
+            <Label className="text-xs font-medium text-zinc-400">
+              WhatsApp number <span className="text-zinc-600 font-normal">(optional)</span>
+            </Label>
+            <Input
+              type="tel"
+              value={whatsapp}
+              onChange={e => setWhatsapp(e.target.value)}
+              placeholder="0XX XXX XXXX"
               className="h-10 text-zinc-200 bg-zinc-950 border-zinc-800/80 focus-visible:ring-1 focus-visible:ring-amber-500/30 focus-visible:border-amber-500 rounded-lg placeholder:text-zinc-700 transition-all"
             />
           </div>

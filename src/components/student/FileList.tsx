@@ -19,6 +19,7 @@ type FileRow = {
   payment_status: string;
   created_at: string;
   categories: { name: string } | null;
+  print_queue: { status: string; position: number | null }[] | null;
 };
 
 export function FileList({ files }: { files: FileRow[] }) {
@@ -84,6 +85,11 @@ export function FileList({ files }: { files: FileRow[] }) {
                   <span className="text-zinc-700 text-xs">·</span>
                   <span className="text-zinc-500 text-xs">{formatDate(file.created_at)}</span>
                 </div>
+                {file.print_queue?.[0] && file.print_queue[0].status === 'queued' && (
+                  <div className="text-xs font-semibold text-amber-500 mt-1">
+                    #{file.print_queue[0].position ?? '—'} in queue
+                  </div>
+                )}
               </div>
             </div>
 
@@ -98,24 +104,24 @@ export function FileList({ files }: { files: FileRow[] }) {
 
               {/* Action buttons */}
               <div className="flex items-center gap-1.5">
-              {/* View */}
-              <button
-                onClick={() => {
-                  supabase.storage
-                    .from('assignments')
-                    .createSignedUrl(file.file_path, 120)
-                    .then(({ data }) => {
-                      if (data?.signedUrl) {
-                        window.location.href = data.signedUrl;
-                      }
-                    });
-                }}
-                className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-medium bg-zinc-800 hover:bg-zinc-700 text-zinc-400 hover:text-white transition-all"
-                title="View file"
-              >
-                <Eye className="w-3 h-3" />
-                View
-              </button>
+                {/* View */}
+                <button
+                  onClick={() => {
+                    supabase.storage
+                      .from('assignments')
+                      .createSignedUrl(file.file_path, 120)
+                      .then(({ data }) => {
+                        if (data?.signedUrl) {
+                          window.location.href = data.signedUrl;
+                        }
+                      });
+                  }}
+                  className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-medium bg-zinc-800 hover:bg-zinc-700 text-zinc-400 hover:text-white transition-all"
+                  title="View file"
+                >
+                  <Eye className="w-3 h-3" />
+                  View
+                </button>
                 {/* Convert */}
                 <Link
                   href={`/files/${file.id}`}

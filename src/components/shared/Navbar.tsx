@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { PrinterIcon, LayoutDashboard, Upload, FileText, CreditCard, LogOut, Menu, X, UserCircle, Bell, BookOpen } from 'lucide-react';
+import { PrinterIcon, LayoutDashboard, Upload, FileText, CreditCard, LogOut, Menu, X, UserCircle, Bell, BookOpen, Phone, Users } from 'lucide-react';
 import { useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { cn } from '@/lib/utils';
@@ -11,15 +11,14 @@ import { NotificationBell } from './NotificationBell';
 type NavItem = { label: string; href: string; icon: React.ReactNode };
 
 const studentNav: NavItem[] = [
-  { label: 'Dashboard', href: '/dashboard', icon: <LayoutDashboard className="w-4 h-4" /> },
-  { label: 'Upload',    href: '/upload',    icon: <Upload className="w-4 h-4" /> },
-  { label: 'My Files',  href: '/files',     icon: <FileText className="w-4 h-4" /> },
-  { label: 'Payments',  href: '/payments',  icon: <CreditCard className="w-4 h-4" /> },
-  { label: 'Profile',   href: '/profile',   icon: <UserCircle className="w-4 h-4" /> },
+  { label: 'Dashboard',   href: '/dashboard',     icon: <LayoutDashboard className="w-4 h-4" /> },
+  { label: 'Upload',      href: '/upload',        icon: <Upload className="w-4 h-4" /> },
+  { label: 'My Files',    href: '/files',         icon: <FileText className="w-4 h-4" /> },
+  { label: 'Payments',    href: '/payments',      icon: <CreditCard className="w-4 h-4" /> },
+  { label: 'Profile',     href: '/profile',       icon: <UserCircle className="w-4 h-4" /> },
   { label: 'Notifications', href: '/notifications', icon: <Bell className="w-4 h-4" /> },
-  { label: 'Resources', href: '/resources', icon: <BookOpen className="w-4 h-4" /> },
-  { label: 'Users', href: '/admin/users', icon: <Users className="w-4 h-4" /> 
-  },
+  { label: 'Resources',   href: '/resources',     icon: <BookOpen className="w-4 h-4" /> },
+  { label: 'Contact Rep', href: '/contact',       icon: <Phone className="w-4 h-4" /> },
 ];
 
 const adminNav: NavItem[] = [
@@ -29,7 +28,8 @@ const adminNav: NavItem[] = [
   { label: 'Notifications', href: '/admin/notifications', icon: <Bell className="w-4 h-4" /> },
   { label: 'Payments',      href: '/admin/payments',      icon: <CreditCard className="w-4 h-4" /> },
   { label: 'Profile',       href: '/admin/profile',       icon: <UserCircle className="w-4 h-4" /> },
-  { label: 'Resources', href: '/admin/resources', icon: <BookOpen className="w-4 h-4" /> },
+  { label: 'Resources',     href: '/admin/resources',     icon: <BookOpen className="w-4 h-4" /> },
+  { label: 'Users',         href: '/admin/users',         icon: <Users className="w-4 h-4" /> },
 ];
 
 export function Navbar({ role }: { role: 'student' | 'admin' }) {
@@ -53,7 +53,7 @@ export function Navbar({ role }: { role: 'student' | 'admin' }) {
     <>
       {/* ── Sidebar (desktop) ── */}
       <aside className="hidden lg:flex flex-col w-60 min-h-screen fixed left-0 top-0 z-30 border-r border-brand-900/40 bg-gradient-to-b from-brand-950 via-brand-950 to-[#050608]">
-        {/* Logo Section - Modified to justify-between to sit the bell on the right */}
+        {/* Logo Section */}
         <div className="flex items-center justify-between px-5 py-5 border-b border-brand-900/30">
           <div className="flex items-center gap-3">
             <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0 bg-brand-500 shadow-[0_4px_12px_rgba(204,161,82,0.15)]">
@@ -62,9 +62,8 @@ export function Navbar({ role }: { role: 'student' | 'admin' }) {
             <span className="text-white font-black text-sm tracking-tight">Printly</span>
           </div>
           
-          {/* 2. Added NotificationBell here for Desktop Viewports */}
           <div className="hover:opacity-80 transition-opacity cursor-pointer p-1">
-            <NotificationBell />
+            <NotificationBell role={role} />
           </div>
         </div>
 
@@ -95,7 +94,7 @@ export function Navbar({ role }: { role: 'student' | 'admin' }) {
                     : 'text-zinc-400 border-transparent hover:text-brand-300 hover:bg-brand-500/5'
                 )}
               >
-                <span className={cn('transition-colors', active ? 'text-brand-400' : 'text-zinc-500 group-hover:text-brand-400')}>
+                <span className={cn('transition-colors', active ? 'text-brand-400' : 'text-zinc-500')}>
                   {icon}
                 </span>
                 {label}
@@ -125,10 +124,8 @@ export function Navbar({ role }: { role: 'student' | 'admin' }) {
           <span className="text-white font-bold text-sm">Printly</span>
         </div>
         
-        {/* Actions layout wrapper for mobile viewports */}
         <div className="flex items-center gap-4">
-          {/* 3. Added NotificationBell here for Mobile Viewports */}
-          <NotificationBell />
+          <NotificationBell role={role} />
           
           <button
             onClick={() => setOpen(!open)}

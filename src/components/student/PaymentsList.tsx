@@ -47,13 +47,18 @@ export function PaymentsList({
                     {formatDate(file.created_at ?? new Date().toISOString())}
                   </p>
                 </div>
-                <button
-                  onClick={() => setPayingFile({ id: file.id, name: file.file_name })}
-                  className="flex items-center gap-2 px-3.5 py-2 rounded-lg text-xs font-semibold bg-brand-500 text-brand-950 hover:bg-brand-400 cursor-pointer shadow-md shadow-brand-500/5 select-none shrink-0 transition-all active:scale-[0.98]"
-                >
-                  <Smartphone className="w-3.5 h-3.5" />
-                  Pay with MoMo
-                </button>
+                <div className="space-y-2">
+                  <button
+                    onClick={() => setPayingFile({ id: file.id, name: file.file_name })}
+                    className="flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-bold border transition-all text-white w-full justify-center sm:w-auto"
+                    style={{ background: 'linear-gradient(135deg, #640000, #b67e7d)', borderColor: 'transparent' }}
+                  >
+                    Pay with MoMo (demo)
+                  </button>
+                  <p className="text-xs" style={{ color: '#7a4a49' }}>
+                    Or pay cash to your class rep — they will mark it as paid.
+                  </p>
+                </div>
               </div>
             ))}
           </div>

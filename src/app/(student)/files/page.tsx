@@ -10,7 +10,11 @@ export default async function FilesPage() {
 
   const { data: files } = await supabase
     .from('files')
-    .select('*, categories(name)')
+    .select(`
+      *,
+      categories(name),
+      print_queue(status, position)
+    `)
     .eq('owner_id', user!.id)
     .order('created_at', { ascending: false });
 

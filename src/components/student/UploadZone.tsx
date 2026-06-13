@@ -220,6 +220,10 @@ export function UploadZone({ categories }: { categories: Category[] }) {
               <div className="flex-1 min-w-0">
                 <p className="text-white text-sm font-medium truncate">{item.file.name}</p>
                 <p className="text-zinc-500 text-xs">{formatBytes(item.file.size)}</p>
+                {/* Price estimate */}
+                <p className="text-xs mt-0.5" style={{ color: '#b67e7d' }}>
+                  Est. GHS {(Math.max(item.file.size > 500000 ? 3 : 1, 1)).toFixed(2)} · Final price set by admin
+                </p>
                 {item.status === 'uploading' && (
                   <div className="mt-1.5 h-1 bg-zinc-800 rounded-full overflow-hidden">
                     <div
@@ -264,6 +268,12 @@ export function UploadZone({ categories }: { categories: Category[] }) {
         >
           Upload {pendingCount} file{pendingCount > 1 ? 's' : ''}
         </Button>
+      )}
+
+      {pendingCount > 0 && (
+        <p className="text-xs text-center" style={{ color: '#7a4a49' }}>
+          💡 Printing fee is GHS 1 per page. Admin confirms final price after reviewing your file.
+        </p>
       )}
 
     </div>
