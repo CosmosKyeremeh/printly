@@ -2,16 +2,27 @@ import { createClient } from '@/lib/supabase/server';
 import { ProfileForm } from '@/components/shared/ProfileForm';
 import { UserCircle, ShieldCheck, Terminal, ExternalLink } from 'lucide-react';
 import Link from 'next/link';
+import { redirect } from 'next/navigation';
 
 export default async function AdminProfilePage() {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
 
+  // If not even authenticated, bounce them to home
+  if (!user) {
+    redirect('/');
+  }
+
   const { data: profile } = await supabase
     .from('profiles')
     .select('*')
-    .eq('id', user!.id)
+    .eq('id', user.id)
     .single();
+
+  // 🔒 Security Gate: If profile doesn't exist or user isn't an admin, reject access
+  if (!profile || profile.role !== 'admin') {
+    redirect('/');
+  }
 
   return (
     <div className="max-w-2xl mx-auto px-4 py-8 font-sans antialiased text-zinc-50 space-y-8">

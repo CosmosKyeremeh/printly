@@ -7,9 +7,7 @@ import Link from 'next/link';
 
 export function NotificationBell({ role = 'student' }: { role?: 'student' | 'admin' }) {
   const [unread, setUnread] = useState(0);
-  const [userId, setUserId] = useState<string | null>(null);
   const supabase = createClient();
-
   const href = role === 'admin' ? '/admin/notifications' : '/notifications';
 
   // Memoized fetch function so it can be called safely inside the effect and realtime stream
@@ -18,45 +16,68 @@ export function NotificationBell({ role = 'student' }: { role?: 'student' | 'adm
       .from('notifications')
       .select('id, read_by')
       .eq('is_global', true);
-
     if (data) {
-      const count = data.filter(n => !n.read_by?.includes(uid)).length;
-      setUnread(count);
+      setUnread(data.filter(n => !n.read_by?.includes(uid)).length);
     }
   }, [supabase]);
 
   useEffect(() => {
-    let channel: any;
+    let isMounted = true;
+    let activeChannel: any = null;
 
-    supabase.auth.getUser().then(({ data: { user } }) => {
-      if (!user) return;
-      setUserId(user.id);
-      fetchUnread(user.id);
+    // Synchronous execution path using async/await inside the effect block
+    const setupRealtime = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      // Safety exit if component unmounted while fetching user session
+      if (!user || !isMounted) return;
+      
+      await fetchUnread(user.id);
 
-      // Realtime subscription — fires fetchUnread whenever notifications alter
-      channel = supabase
-        .channel('notification-bell')
+      const channelName = `bell-${user.id}`;
+
+      // Purge any preexisting channel instance matching this topic string out of client memory
+      const existingChannel = supabase.getChannels().find(ch => 
+        (ch as any).topic === `realtime:public:${channelName}` || (ch as any).topic?.endsWith(channelName)
+      );
+      
+      if (existingChannel) {
+        await supabase.removeChannel(existingChannel);
+      }
+
+      if (!isMounted) return;
+
+      // Build, attach listeners, and lock down the stream safely
+      activeChannel = supabase
+        .channel(channelName)
         .on(
           'postgres_changes',
           { event: '*', schema: 'public', table: 'notifications' },
-          () => fetchUnread(user.id)
-        )
-        .subscribe();
-    });
+          () => { if (isMounted) fetchUnread(user.id); }
+        );
 
-    // Cleanup subscription channel on unmount
+      activeChannel.subscribe();
+    };
+
+    setupRealtime();
+
+    // Structural cleanup routine on component dismount
     return () => {
-      if (channel) {
-        supabase.removeChannel(channel);
+      isMounted = false;
+      if (activeChannel) {
+        supabase.removeChannel(activeChannel);
       }
     };
   }, [supabase, fetchUnread]);
 
   return (
-    <Link href={href} className="relative p-2 rounded-lg transition-all hover:bg-zinc-800">
+    <Link
+      href={href}
+      className="relative inline-flex items-center justify-center w-9 h-9 rounded-lg transition-all hover:bg-zinc-800"
+    >
       <Bell className="w-5 h-5 text-zinc-400" />
       {unread > 0 && (
-        <span className="absolute top-1 right-1 w-4 h-4 bg-amber-500 text-zinc-950 text-xs font-black rounded-full flex items-center justify-center">
+        <span className="absolute top-0.5 right-0.5 flex min-w-[16px] h-4 bg-amber-500 text-zinc-950 text-[9px] font-black rounded-full items-center justify-center px-1 shadow-[0_0_0_2px_rgba(24,24,27,1)] select-none">
           {unread > 9 ? '9+' : unread}
         </span>
       )}

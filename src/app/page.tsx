@@ -290,12 +290,12 @@ export default async function LandingPage({ searchParams }: PageProps) {
                 </li>
               ))}
             </ul>
-            <Link
+            {/* <Link
               href={`/signup${authQuery}`}
               className="inline-flex items-center gap-2 mt-8 bg-amber-500 hover:bg-amber-400 text-zinc-950 font-bold text-sm px-5 py-2.5 rounded-lg transition-all"
             >
               Sign up as student <ArrowRight className="w-4 h-4" />
-            </Link>
+            </Link> */}
           </div>
 
           {/* Admins */}
@@ -305,7 +305,7 @@ export default async function LandingPage({ searchParams }: PageProps) {
                 <Shield className="w-5 h-5 text-zinc-400" />
               </div>
               <div>
-                <p className="text-zinc-500 text-xs font-semibold uppercase tracking-wider">For Admins</p>
+                <p className="text-zinc-500 text-xs font-semibold uppercase tracking-wider"> Admins</p>
                 <h3 className="text-white font-black text-xl">Total control</h3>
               </div>
             </div>
@@ -324,13 +324,14 @@ export default async function LandingPage({ searchParams }: PageProps) {
                 </li>
               ))}
             </ul>
-            <Link
+            {/* <Link
               href={`/signup${authQuery}`}
               className="inline-flex items-center gap-2 mt-8 bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 text-white font-bold text-sm px-5 py-2.5 rounded-lg transition-all"
             >
               Sign up as admin <ArrowRight className="w-4 h-4" />
-            </Link>
+            </Link> */}
           </div>
+          
         </div>
       </section>
 

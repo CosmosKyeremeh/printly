@@ -32,7 +32,7 @@ export default function SignupPage() {
     return () => clearInterval(interval);
   }, []);
 
-  async function handleSignup(e: React.FormEvent) {
+  async function handleSignup(e: React.SubmitEvent) {
     e.preventDefault();
     setLoading(true);
     setError('');
@@ -151,13 +151,13 @@ export default function SignupPage() {
             </div>
 
             <div className="space-y-1.5">
-              <Label htmlFor="email" className="text-xs font-medium text-zinc-400">University email address</Label>
+              <Label htmlFor="email" className="text-xs font-medium text-zinc-400">Email address</Label>
               <Input
                 id="email"
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="you@university.edu.gh"
+                placeholder="mrhoney@yahoo.com"
                 required
                 className="h-10 px-3 bg-zinc-900/40 border-zinc-800/80 text-zinc-200 text-sm placeholder:text-zinc-600 focus-visible:ring-1 focus-visible:ring-amber-500/30 focus-visible:border-amber-500 transition-all rounded-lg"
               />

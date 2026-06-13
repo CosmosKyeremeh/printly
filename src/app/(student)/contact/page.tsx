@@ -61,7 +61,7 @@ export default async function ContactPage() {
                 )}
 
                 {admin.whatsapp && (
-                  
+                  <a
                     href={`https://wa.me/${admin.whatsapp.replace(/\D/g, '')}`}
                     target="_blank"
                     rel="noopener noreferrer"

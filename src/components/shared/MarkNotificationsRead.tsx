@@ -4,35 +4,43 @@ import { useEffect } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { useRouter } from 'next/navigation';
 
-interface MarkNotificationsReadProps {
-  userId: string;
-  notificationIds: string[];
-}
-
 export function MarkNotificationsRead({
   userId,
   notificationIds,
-}: MarkNotificationsReadProps) {
+}: {
+  userId: string;
+  notificationIds: string[];
+}) {
   const supabase = createClient();
   const router = useRouter();
 
   useEffect(() => {
     if (notificationIds.length === 0) return;
 
-    // Fire all RPC database mutations concurrently
-    Promise.all(
-      notificationIds.map(id =>
-        supabase.rpc('mark_notification_read', {
-          notif_id: id,
-          user_id: userId,
-        })
-      )
-    ).then(() => {
-      // router.refresh() forces Next.js to re-fetch Server Component data
-      // This will instantly update the UI and clear the NotificationBell count!
+    async function markRead() {
+      // Fetch current read_by arrays and append userId for each
+      for (const id of notificationIds) {
+        const { data } = await supabase
+          .from('notifications')
+          .select('read_by')
+          .eq('id', id)
+          .single();
+
+        if (data) {
+          const current = data.read_by ?? [];
+          if (!current.includes(userId)) {
+            await supabase
+              .from('notifications')
+              .update({ read_by: [...current, userId] })
+              .eq('id', id);
+          }
+        }
+      }
       router.refresh();
-    });
-  }, [notificationIds, userId, supabase, router]);
+    }
+
+    markRead();
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   return null;
 }

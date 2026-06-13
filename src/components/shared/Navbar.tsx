@@ -11,14 +11,14 @@ import { NotificationBell } from './NotificationBell';
 type NavItem = { label: string; href: string; icon: React.ReactNode };
 
 const studentNav: NavItem[] = [
-  { label: 'Dashboard',   href: '/dashboard',     icon: <LayoutDashboard className="w-4 h-4" /> },
-  { label: 'Upload',      href: '/upload',        icon: <Upload className="w-4 h-4" /> },
-  { label: 'My Files',    href: '/files',         icon: <FileText className="w-4 h-4" /> },
-  { label: 'Payments',    href: '/payments',      icon: <CreditCard className="w-4 h-4" /> },
-  { label: 'Profile',     href: '/profile',       icon: <UserCircle className="w-4 h-4" /> },
+  { label: 'Dashboard',    href: '/dashboard',     icon: <LayoutDashboard className="w-4 h-4" /> },
+  { label: 'Upload',       href: '/upload',        icon: <Upload className="w-4 h-4" /> },
+  { label: 'My Files',     href: '/files',         icon: <FileText className="w-4 h-4" /> },
+  { label: 'Payments',     href: '/payments',      icon: <CreditCard className="w-4 h-4" /> },
+  { label: 'Profile',      href: '/profile',       icon: <UserCircle className="w-4 h-4" /> },
   { label: 'Notifications', href: '/notifications', icon: <Bell className="w-4 h-4" /> },
-  { label: 'Resources',   href: '/resources',     icon: <BookOpen className="w-4 h-4" /> },
-  { label: 'Contact Rep', href: '/contact',       icon: <Phone className="w-4 h-4" /> },
+  { label: 'Resources',    href: '/resources',     icon: <BookOpen className="w-4 h-4" /> },
+  { label: 'Contact Rep',  href: '/contact',       icon: <Phone className="w-4 h-4" /> },
 ];
 
 const adminNav: NavItem[] = [
@@ -54,17 +54,15 @@ export function Navbar({ role }: { role: 'student' | 'admin' }) {
       {/* ── Sidebar (desktop) ── */}
       <aside className="hidden lg:flex flex-col w-60 min-h-screen fixed left-0 top-0 z-30 border-r border-brand-900/40 bg-gradient-to-b from-brand-950 via-brand-950 to-[#050608]">
         {/* Logo Section */}
-        <div className="flex items-center justify-between px-5 py-5 border-b border-brand-900/30">
+        <div className="flex items-center justify-between px-5 py-5 border-b" style={{ borderColor: '#64000050' }}>
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0 bg-brand-500 shadow-[0_4px_12px_rgba(204,161,82,0.15)]">
-              <PrinterIcon className="w-4 h-4 text-brand-950" strokeWidth={2.5} />
+            <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0"
+              style={{ background: '#b67e7d', boxShadow: '0 4px 12px #b67e7d30' }}>
+              <PrinterIcon className="w-4 h-4" style={{ color: '#040b15' }} strokeWidth={2.5} />
             </div>
             <span className="text-white font-black text-sm tracking-tight">Printly</span>
           </div>
-          
-          <div className="hover:opacity-80 transition-opacity cursor-pointer p-1">
-            <NotificationBell role={role} />
-          </div>
+          <NotificationBell role={role} />
         </div>
 
         {/* Role badge */}
@@ -116,21 +114,17 @@ export function Navbar({ role }: { role: 'student' | 'admin' }) {
       </aside>
 
       {/* ── Top bar (mobile) ── */}
-      <header className="lg:hidden fixed top-0 left-0 right-0 z-30 flex items-center justify-between px-4 h-14 border-b border-brand-900/30 bg-brand-950">
+      <header className="lg:hidden fixed top-0 left-0 right-0 z-30 flex items-center justify-between px-4 h-14 border-b"
+        style={{ background: '#420001', borderColor: '#64000050' }}>
         <div className="flex items-center gap-2.5">
-          <div className="w-7 h-7 rounded-md flex items-center justify-center bg-brand-500">
-            <PrinterIcon className="w-3.5 h-3.5 text-brand-950" strokeWidth={2.5} />
+          <div className="w-7 h-7 rounded-md flex items-center justify-center" style={{ background: '#b67e7d' }}>
+            <PrinterIcon className="w-3.5 h-3.5" style={{ color: '#040b15' }} strokeWidth={2.5} />
           </div>
           <span className="text-white font-bold text-sm">Printly</span>
         </div>
-        
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-1">
           <NotificationBell role={role} />
-          
-          <button
-            onClick={() => setOpen(!open)}
-            className="p-1 text-zinc-400 hover:text-brand-400 transition-colors"
-          >
+          <button onClick={() => setOpen(!open)} className="p-1 transition-colors" style={{ color: '#9d6463' }}>
             {open ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
           </button>
         </div>
