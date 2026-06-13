@@ -130,17 +130,17 @@ export function Navbar({ role }: { role: 'student' | 'admin' }) {
         </div>
       </header>
 
-      {/* ── Mobile drawer ── */}
+      {/* ── Mobile drawer (3D Glassmorphic Overlay Container) ── */}
       {open && (
         <div
-          className="lg:hidden fixed inset-0 z-20 backdrop-blur-sm bg-brand-950/80"
+          className="lg:hidden fixed inset-0 z-20 backdrop-blur-sm bg-black/40 transition-all duration-300"
           onClick={() => setOpen(false)}
         >
           <div
-            className="absolute left-0 top-14 bottom-0 w-64 p-3 border-r border-brand-900/30 bg-brand-950"
+            className="absolute left-0 top-14 bottom-0 w-64 p-4 border-r border-white/10 bg-brand-950/60 backdrop-blur-xl shadow-[5px_0_25px_-5px_rgba(0,0,0,0.5),inset_1px_0_0_0_rgba(255,255,255,0.05)] flex flex-col justify-between"
             onClick={e => e.stopPropagation()}
           >
-            <nav className="space-y-0.5">
+            <nav className="space-y-1">
               {nav.map(({ label, href, icon }) => {
                 const active = isActive(href);
                 return (
@@ -151,11 +151,11 @@ export function Navbar({ role }: { role: 'student' | 'admin' }) {
                     className={cn(
                       "flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all border",
                       active
-                        ? "bg-brand-500/10 border-brand-500/20 text-brand-300"
-                        : "text-zinc-400 border-transparent"
+                        ? "bg-white/10 border-white/10 text-brand-300 shadow-sm"
+                        : "text-zinc-300 border-transparent hover:bg-white/5"
                     )}
                   >
-                    <span className={active ? 'text-brand-400' : 'text-zinc-500'}>
+                    <span className={active ? 'text-brand-400' : 'text-zinc-400'}>
                       {icon}
                     </span>
                     {label}
@@ -164,10 +164,10 @@ export function Navbar({ role }: { role: 'student' | 'admin' }) {
               })}
             </nav>
 
-            <div className="absolute bottom-4 left-3 right-3">
+            <div className="pt-4 border-t border-white/5">
               <button
                 onClick={handleSignOut}
-                className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all w-full text-zinc-400 hover:text-red-400"
+                className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all w-full text-zinc-400 hover:text-red-400 hover:bg-red-500/5"
               >
                 <LogOut className="w-4 h-4 text-zinc-500" />
                 Sign out

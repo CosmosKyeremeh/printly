@@ -41,8 +41,8 @@ export function ProfileForm({ profile }: { profile: Profile | null }) {
       .from('profiles')
       .update({ 
         full_name: fullName, 
-        phone: phone || null,
-        whatsapp: whatsapp || null,
+        phone: phone || '',
+        whatsapp: whatsapp || '',
         updated_at: new Date().toISOString() 
       })
       .eq('id', profile!.id);
@@ -81,13 +81,13 @@ export function ProfileForm({ profile }: { profile: Profile | null }) {
   }
 
   return (
-    <div className="space-y-4 font-sans antialiased text-zinc-200">
+    <div className="space-y-6 font-sans antialiased text-zinc-200">
       
-      {/* ── Top Identity Overview Module ── */}
-      <div className="rounded-2xl p-5 border border-zinc-900/80 bg-zinc-900/30 shadow-sm">
+      {/* ── Top Identity Overview Module (Glassmorphic) ── */}
+      <div className="rounded-2xl p-6 backdrop-blur-md bg-zinc-900/20 border border-white/5 shadow-[0_8px_32px_0_rgba(0,0,0,0.37),inset_0_1px_0_0_rgba(255,255,255,0.05)]">
         <div className="flex items-start justify-between gap-4 mb-5">
           <div className="flex items-center gap-4">
-            <div className="w-14 h-14 rounded-xl flex items-center justify-center bg-zinc-950 border border-zinc-800/60 shadow-inner">
+            <div className="w-14 h-14 rounded-xl flex items-center justify-center bg-zinc-950/60 border border-white/5 shadow-inner backdrop-blur-sm">
               <UserCircle className="w-8 h-8 text-zinc-400" />
             </div>
             <div>
@@ -96,11 +96,11 @@ export function ProfileForm({ profile }: { profile: Profile | null }) {
               
               {/* Context clearance badges */}
               <div className="flex flex-wrap gap-1.5 mt-2">
-                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-medium bg-zinc-950 border border-zinc-800/60 text-zinc-400">
+                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-medium bg-zinc-950/40 border border-white/5 text-zinc-400 backdrop-blur-sm">
                   <span className="w-1 h-1 rounded-full bg-emerald-500" /> System Secure
                 </span>
                 {profile?.role === 'admin' && (
-                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-medium bg-zinc-950 border border-zinc-800/60 text-amber-500/90">
+                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-medium bg-zinc-950/40 border border-white/5 text-amber-500/90 backdrop-blur-sm">
                     <span className="w-1 h-1 rounded-full bg-amber-500" /> Cluster Override
                   </span>
                 )}
@@ -109,9 +109,9 @@ export function ProfileForm({ profile }: { profile: Profile | null }) {
           </div>
         </div>
 
-        {/* Responsive Grid Layout to fix mobile layout squishing */}
+        {/* Responsive Grid Layout */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          <div className="rounded-xl p-3.5 flex items-center gap-3 border border-zinc-900 bg-zinc-950/40">
+          <div className="rounded-xl p-3.5 flex items-center gap-3 border border-white/5 bg-zinc-950/20 backdrop-blur-sm shadow-[inset_0_1px_0_0_rgba(255,255,255,0.02)]">
             <Mail className="w-4 h-4 shrink-0 text-zinc-600" />
             <div className="min-w-0">
               <p className="text-[10px] uppercase font-semibold tracking-wider text-zinc-500">Routing Email</p>
@@ -119,7 +119,7 @@ export function ProfileForm({ profile }: { profile: Profile | null }) {
             </div>
           </div>
           
-          <div className="rounded-xl p-3.5 flex items-center gap-3 border border-zinc-900 bg-zinc-950/40">
+          <div className="rounded-xl p-3.5 flex items-center gap-3 border border-white/5 bg-zinc-950/20 backdrop-blur-sm shadow-[inset_0_1px_0_0_rgba(255,255,255,0.02)]">
             <Shield className="w-4 h-4 shrink-0 text-amber-500/80" />
             <div>
               <p className="text-[10px] uppercase font-semibold tracking-wider text-zinc-500">Security Clearance</p>
@@ -131,8 +131,8 @@ export function ProfileForm({ profile }: { profile: Profile | null }) {
         </div>
       </div>
 
-      {/* ── Configuration Fields Canvas ── */}
-      <div className="rounded-2xl p-5 border border-zinc-900/80 bg-zinc-900/30 shadow-sm">
+      {/* ── Configuration Fields Canvas (Glassmorphic) ── */}
+      <div className="rounded-2xl p-6 backdrop-blur-md bg-zinc-900/20 border border-white/5 shadow-[0_8px_32px_0_rgba(0,0,0,0.37),inset_0_1px_0_0_rgba(255,255,255,0.05)]">
         <h3 className="text-zinc-200 font-medium text-sm mb-4">Edit Details</h3>
         
         <form onSubmit={handleSave} className="space-y-4">
@@ -144,11 +144,11 @@ export function ProfileForm({ profile }: { profile: Profile | null }) {
               onChange={e => setFullName(e.target.value)}
               placeholder="Your full name"
               required
-              className="h-10 text-zinc-200 bg-zinc-950 border-zinc-800/80 focus-visible:ring-1 focus-visible:ring-amber-500/30 focus-visible:border-amber-500 rounded-lg placeholder:text-zinc-700 transition-all"
+              className="h-10 text-zinc-200 bg-zinc-950/40 border-white/5 focus-visible:ring-1 focus-visible:ring-amber-500/30 focus-visible:border-amber-500 rounded-lg placeholder:text-zinc-700 transition-all shadow-inner"
             />
           </div>
 
-          {/* New Field Block: Phone Number */}
+          {/* Phone Number */}
           <div className="space-y-1.5">
             <Label className="text-xs font-medium text-zinc-400">
               Phone number <span className="text-zinc-600 font-normal">(optional)</span>
@@ -158,11 +158,11 @@ export function ProfileForm({ profile }: { profile: Profile | null }) {
               value={phone}
               onChange={e => setPhone(e.target.value)}
               placeholder="0XX XXX XXXX"
-              className="h-10 text-zinc-200 bg-zinc-950 border-zinc-800/80 focus-visible:ring-1 focus-visible:ring-amber-500/30 focus-visible:border-amber-500 rounded-lg placeholder:text-zinc-700 transition-all"
+              className="h-10 text-zinc-200 bg-zinc-950/40 border-white/5 focus-visible:ring-1 focus-visible:ring-amber-500/30 focus-visible:border-amber-500 rounded-lg placeholder:text-zinc-700 transition-all shadow-inner"
             />
           </div>
 
-          {/* New Field Block: WhatsApp Number */}
+          {/* WhatsApp Number */}
           <div className="space-y-1.5">
             <Label className="text-xs font-medium text-zinc-400">
               WhatsApp number <span className="text-zinc-600 font-normal">(optional)</span>
@@ -172,24 +172,23 @@ export function ProfileForm({ profile }: { profile: Profile | null }) {
               value={whatsapp}
               onChange={e => setWhatsapp(e.target.value)}
               placeholder="0XX XXX XXXX"
-              className="h-10 text-zinc-200 bg-zinc-950 border-zinc-800/80 focus-visible:ring-1 focus-visible:ring-amber-500/30 focus-visible:border-amber-500 rounded-lg placeholder:text-zinc-700 transition-all"
+              className="h-10 text-zinc-200 bg-zinc-950/40 border-white/5 focus-visible:ring-1 focus-visible:ring-amber-500/30 focus-visible:border-amber-500 rounded-lg placeholder:text-zinc-700 transition-all shadow-inner"
             />
           </div>
 
-          <div className="border-t border-zinc-900 pt-4 mt-2">
+          <div className="border-t border-white/5 pt-4 mt-2">
             <p className="text-[10px] font-semibold uppercase tracking-wider text-zinc-500 mb-3">
               Change Password (optional)
             </p>
             
             <div className="space-y-3">
-              {/* Field 1: New Password Entry */}
               <div className="relative">
                 <Input
                   type={showPassword ? 'text' : 'password'}
                   value={newPassword}
                   onChange={e => setNewPassword(e.target.value)}
                   placeholder="New password (min. 8 characters)"
-                  className="h-10 text-zinc-200 bg-zinc-950 border-zinc-800/80 pr-10 focus-visible:ring-1 focus-visible:ring-amber-500/30 focus-visible:border-amber-500 rounded-lg placeholder:text-zinc-700 transition-all"
+                  className="h-10 text-zinc-200 bg-zinc-950/40 border-white/5 pr-10 focus-visible:ring-1 focus-visible:ring-amber-500/30 focus-visible:border-amber-500 rounded-lg placeholder:text-zinc-700 transition-all shadow-inner"
                 />
                 <button
                   type="button"
@@ -200,14 +199,13 @@ export function ProfileForm({ profile }: { profile: Profile | null }) {
                 </button>
               </div>
 
-              {/* Field 2: Confirm Password Entry */}
               <div className="relative">
                 <Input
                   type={showPassword ? 'text' : 'password'}
                   value={confirmPassword}
                   onChange={e => setConfirmPassword(e.target.value)}
                   placeholder="Confirm new password"
-                  className="h-10 text-zinc-200 bg-zinc-950 border-zinc-800/80 pr-10 focus-visible:ring-1 focus-visible:ring-amber-500/30 focus-visible:border-amber-500 rounded-lg placeholder:text-zinc-700 transition-all"
+                  className="h-10 text-zinc-200 bg-zinc-950/40 border-white/5 pr-10 focus-visible:ring-1 focus-visible:ring-amber-500/30 focus-visible:border-amber-500 rounded-lg placeholder:text-zinc-700 transition-all shadow-inner"
                 />
                 <button
                   type="button"
@@ -229,11 +227,11 @@ export function ProfileForm({ profile }: { profile: Profile | null }) {
           <Button
             type="submit"
             disabled={saving || saved}
-            className="w-full h-10 font-medium text-sm text-zinc-950 bg-zinc-100 hover:bg-zinc-200 disabled:opacity-80 transition-colors rounded-lg mt-2 shadow-sm"
+            className="w-full h-10 font-medium text-sm text-zinc-950 bg-zinc-100 hover:bg-zinc-200 disabled:opacity-80 transition-all rounded-lg mt-2 shadow-[0_4px_12px_rgba(255,255,255,0.1)] active:scale-[0.99]"
           >
             {saving && <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" />}
             {saved && <CheckCircle2 className="w-3.5 h-3.5 mr-1.5 text-emerald-600" />}
-            {saved ? 'Changes Commited' : saving ? 'Updating Vault...' : 'Save changes'}
+            {saved ? 'Changes Committed' : saving ? 'Updating Vault...' : 'Save changes'}
           </Button>
         </form>
       </div>
