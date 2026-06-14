@@ -23,7 +23,7 @@ export function UploadZone({ categories }: { categories: Category[] }) {
   const [categoryId, setCategoryId] = useState('');
   const [description, setDescription] = useState('');
   const [instructions, setInstructions] = useState('');
-  const [formError, setFormError] = useState(''); // Added formError state
+  const [formError, setFormError] = useState(''); 
   const supabase = createClient();
 
   const onDrop = useCallback((accepted: File[]) => {
@@ -47,7 +47,7 @@ export function UploadZone({ categories }: { categories: Category[] }) {
 
   async function uploadAll() {
     if (!categoryId) {
-      setFormError('Please select a category before uploading.'); // Replaced native alert
+      setFormError('Please select a category before uploading.');
       return;
     }
 
@@ -61,7 +61,6 @@ export function UploadZone({ categories }: { categories: Category[] }) {
         idx === i ? { ...f, status: 'uploading', progress: 10 } : f
       ));
       
-      //Reset form
       const allDone = queue.every(f => f.status === 'done' || f.status === 'error');
       if (allDone) {
         setTimeout(() => {
@@ -74,8 +73,6 @@ export function UploadZone({ categories }: { categories: Category[] }) {
 
       try {
         const file = queue[i].file;
-        
-        // Fix — sanitise file names on upload
         const safeName = file.name.replace(/[^a-zA-Z0-9.-\s]/g, '');
         const path = `${user.id}/${Date.now()}_${safeName}`;
 
@@ -128,7 +125,7 @@ export function UploadZone({ categories }: { categories: Category[] }) {
             value={categoryId}
             onChange={e => {
               setCategoryId(e.target.value);
-              setFormError(''); // Clears error when category is selected
+              setFormError(''); 
             }}
             className="w-full h-11 bg-zinc-900 border border-zinc-700 rounded-lg px-3 text-white text-sm focus:outline-none focus:border-amber-500 transition-colors"
           >
@@ -220,10 +217,12 @@ export function UploadZone({ categories }: { categories: Category[] }) {
               <div className="flex-1 min-w-0">
                 <p className="text-white text-sm font-medium truncate">{item.file.name}</p>
                 <p className="text-zinc-500 text-xs">{formatBytes(item.file.size)}</p>
-                {/* Price estimate */}
-                <p className="text-xs mt-0.5" style={{ color: '#b67e7d' }}>
-                  Est. GHS {(Math.max(item.file.size > 500000 ? 3 : 1, 1)).toFixed(2)} · Final price set by admin
+                
+                {/* Simplified inline message matching the manual calculation rules */}
+                <p className="text-zinc-500 text-xs mt-0.5 font-medium">
+                  Pending review · Final price assigned by admin
                 </p>
+
                 {item.status === 'uploading' && (
                   <div className="mt-1.5 h-1 bg-zinc-800 rounded-full overflow-hidden">
                     <div
@@ -260,20 +259,24 @@ export function UploadZone({ categories }: { categories: Category[] }) {
         </div>
       )}
 
-      {/* Upload button */}
+      {/* Upload actions block */}
       {pendingCount > 0 && (
-        <Button
-          onClick={uploadAll}
-          className="w-full h-11 bg-amber-500 hover:bg-amber-400 text-zinc-950 font-bold shadow-lg shadow-amber-500/20"
-        >
-          Upload {pendingCount} file{pendingCount > 1 ? 's' : ''}
-        </Button>
-      )}
+        <div className="space-y-3">
+          <Button
+            onClick={uploadAll}
+            className="w-full h-11 bg-gradient-to-br from-amber-500 via-amber-600 to-amber-700 hover:from-amber-400 hover:to-amber-600 text-zinc-950 font-bold rounded-xl transition-all shadow-lg shadow-amber-500/10 cursor-pointer disabled:opacity-40"
+          >
+            Upload {pendingCount} file{pendingCount > 1 ? 's' : ''}
+          </Button>
 
-      {pendingCount > 0 && (
-        <p className="text-xs text-center" style={{ color: '#7a4a49' }}>
-          💡 Printing fee is GHS 1 per page. Admin confirms final price after reviewing your file.
-        </p>
+          {/* New Gold and Zinc Glassmorphic Informational Hint */}
+          <div className="p-3.5 rounded-xl backdrop-blur-md bg-zinc-900/30 border border-zinc-900 text-center shadow-inner">
+            <p className="text-xs text-zinc-400 leading-relaxed font-medium">
+              💡 <span className="text-amber-500 font-bold uppercase tracking-wider text-[10px] mr-1">Printing Fee:</span> 
+              GHS 1.00 per page. Admin counts pages and sets final price after reviewing your file.
+            </p>
+          </div>
+        </div>
       )}
 
     </div>

@@ -1,6 +1,8 @@
 import type { Metadata, Viewport } from 'next';
 import './globals.css';
 import { ServiceWorkerRegistration } from '@/components/shared/ServiceWorkerRegistration';
+import { Analytics } from '@vercel/analytics/react';
+import { SpeedInsights } from '@vercel/speed-insights/next';
 
 export const viewport: Viewport = {
   themeColor: '#cca152',
@@ -36,10 +38,18 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
-      
-      <body className="bg-brand-950 text-zinc-50 antialiased">
+      <head>
+        <link rel="apple-touch-icon" href="/favicon_io/apple-touch-icon.png" />
+        <meta name="mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+        <meta name="apple-mobile-web-app-title" content="Printly" />
+      </head>
+      <body className="bg-brand-950 antialiased">
         <ServiceWorkerRegistration />
         {children}
+        <Analytics />
+        <SpeedInsights />
       </body>
     </html>
   );

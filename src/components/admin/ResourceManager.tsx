@@ -43,23 +43,27 @@ export function ResourceManager({
     maxSize: 50 * 1024 * 1024,
   });
 
-  async function handleUpload(e: React.SubmitEvent) {
+  async function handleUpload(e: React.FormEvent) {
     e.preventDefault();
     if (!file || !title.trim()) return;
     setUploading(true);
 
-    const path = `templates/${Date.now()}_${file.name}`;
+    // Generate timestamp here — inside the async function, NOT at render time
+    const timestamp = new Date().getTime();
+    const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, '_');
+    const path = `templates/${timestamp}_${safeName}`;
+
     const { error: storageError } = await supabase.storage
       .from('resources')
       .upload(path, file, { upsert: false });
 
     if (storageError) {
+      console.error('Storage error:', storageError.message);
       setUploading(false);
       return;
     }
 
-    const { data, error: dbError } = await supabase
-      .from('admin_resources')
+    const { data, error: dbError } = await (supabase.from('admin_resources') as any)
       .insert({
         title,
         description: description || null,
@@ -73,7 +77,7 @@ export function ResourceManager({
       .single();
 
     if (!dbError && data) {
-      setResources(prev => [data, ...prev]);
+      setResources((prev: Resource[]) => [data as Resource, ...prev]);
       setTitle('');
       setDescription('');
       setFile(null);

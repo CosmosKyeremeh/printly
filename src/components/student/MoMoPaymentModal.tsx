@@ -14,9 +14,10 @@ type Props = {
   fileId: string;
   fileName: string;
   onClose: () => void;
+  onSuccess: (fileId: string, fileName: string) => void;
 };
 
-export function MoMoPaymentModal({ fileId, fileName, onClose }: Props) {
+export function MoMoPaymentModal({ fileId, fileName, onClose, onSuccess }: Props) {
   const [step, setStep] = useState<Step>('enter_number');
   const [momoNumber, setMomoNumber] = useState('');
   const [network, setNetwork] = useState<'MTN' | 'Vodafone' | 'AirtelTigo'>('MTN');
@@ -43,12 +44,24 @@ export function MoMoPaymentModal({ fileId, fileName, onClose }: Props) {
       if (!res.ok) throw new Error('Payment failed');
 
       setStep('success');
-      router.refresh();
+      
+      // Auto-close after 2 seconds and notify parent list component
+      setTimeout(() => {
+        onSuccess(fileId, fileName);
+      }, 2000);
+
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An unexpected payment error occurred.');
       setStep('enter_number');
     }
   }
+
+  // Brand-accurate active coloring matrix for Ghana Telcos
+  const networkStyles = {
+    MTN: "bg-amber-500 text-zinc-950 border-amber-500 shadow-md shadow-amber-500/10",
+    Vodafone: "bg-red-600 text-white border-red-600 shadow-md shadow-red-600/10",
+    AirtelTigo: "bg-blue-600 text-white border-blue-600 shadow-md shadow-blue-600/10"
+  };
 
   return (
     <div 
@@ -66,7 +79,7 @@ export function MoMoPaymentModal({ fileId, fileName, onClose }: Props) {
         {/* Header Module */}
         <div className="flex items-start justify-between mb-5">
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl flex items-center justify-center bg-zinc-900 border border-zinc-800 text-brand-400">
+            <div className="w-9 h-9 rounded-xl flex items-center justify-center bg-zinc-900 border border-zinc-800 text-amber-500">
               <Smartphone className="w-4 h-4" />
             </div>
             <div className="min-w-0">
@@ -83,11 +96,10 @@ export function MoMoPaymentModal({ fileId, fileName, onClose }: Props) {
             >
               <X className="w-4 h-4" />
             </button>
-            )}
-          </div>
+          )}
+        </div>
 
         <AnimatePresence mode="wait">
-
           {/* Step 1 — Enter number */}
           {step === 'enter_number' && (
             <motion.div 
@@ -103,7 +115,7 @@ export function MoMoPaymentModal({ fileId, fileName, onClose }: Props) {
               </div>
 
               <form onSubmit={handleInitiate} className="space-y-4">
-                {/* Network Selector Cluster */}
+                {/* Network Selector Cluster (Brand Cohesive Colors) */}
                 <div className="grid grid-cols-3 gap-1.5">
                   {(['MTN', 'Vodafone', 'AirtelTigo'] as const).map(n => {
                     const isSelected = network === n;
@@ -115,11 +127,11 @@ export function MoMoPaymentModal({ fileId, fileName, onClose }: Props) {
                         className={cn(
                           "py-2 rounded-lg text-[11px] font-bold uppercase tracking-wider border transition-all cursor-pointer",
                           isSelected
-                            ? "bg-brand-500 text-brand-950 border-brand-500 shadow-md shadow-brand-500/5"
-                            : "bg-zinc-900/50 text-zinc-400 border-zinc-900 hover:text-zinc-200 hover:border-zinc-800"
+                            ? networkStyles[n]
+                            : "bg-zinc-900/50 text-zinc-400 border-zinc-900/80 hover:text-zinc-200 hover:border-zinc-800"
                         )}
                       >
-                        {n === 'Vodafone' ? 'Telecel' : n}
+                        {n === 'Vodafone' ? 'Telecel' : n === 'AirtelTigo' ? 'AT' : n}
                       </button>
                     );
                   })}
@@ -138,7 +150,7 @@ export function MoMoPaymentModal({ fileId, fileName, onClose }: Props) {
                       onChange={e => setMomoNumber(e.target.value.replace(/\D/g, '').slice(0, 10))}
                       placeholder="050 000 0000"
                       required
-                      className="h-11 pl-9 text-zinc-100 bg-zinc-900 border-zinc-800 focus:border-brand-500/40 focus:ring-1 focus:ring-brand-500/10 placeholder:text-zinc-600 rounded-xl text-sm tracking-wide"
+                      className="h-11 pl-9 text-zinc-100 bg-zinc-900 border-zinc-800 focus:border-amber-500/40 focus:ring-1 focus:ring-amber-500/10 placeholder:text-zinc-600 rounded-xl text-sm tracking-wide"
                     />
                   </div>
                 </div>
@@ -147,10 +159,11 @@ export function MoMoPaymentModal({ fileId, fileName, onClose }: Props) {
                   <p className="text-xs text-red-400 font-medium pl-0.5">{error}</p>
                 )}
 
+                {/* Cohesive Premium Gold Gradient CTA */}
                 <Button 
                   type="submit"
                   disabled={momoNumber.length < 10}
-                  className="w-full h-11 font-bold text-sm bg-brand-500 hover:bg-brand-400 text-brand-950 rounded-xl transition-all shadow-lg shadow-brand-500/5 cursor-pointer disabled:opacity-40 active:scale-[0.99]"
+                  className="w-full h-11 font-bold text-sm bg-gradient-to-br from-amber-500 via-amber-600 to-amber-700 hover:from-amber-400 hover:to-amber-600 text-zinc-950 rounded-xl transition-all shadow-lg shadow-amber-500/5 cursor-pointer disabled:opacity-30 disabled:pointer-events-none active:scale-[0.99]"
                 >
                   Authorize GHS 2.00
                 </Button>
@@ -172,14 +185,14 @@ export function MoMoPaymentModal({ fileId, fileName, onClose }: Props) {
               className="text-center py-6"
             >
               <div className="relative w-14 h-14 mx-auto mb-5">
-                <div className="absolute inset-0 rounded-full animate-ping opacity-10 bg-brand-400" />
-                <div className="relative w-14 h-14 rounded-full flex items-center justify-center bg-zinc-900 border border-zinc-800 text-brand-400">
+                <div className="absolute inset-0 rounded-full animate-ping opacity-10 bg-amber-500" />
+                <div className="relative w-14 h-14 rounded-full flex items-center justify-center bg-zinc-900 border border-zinc-800 text-amber-500">
                   <Loader2 className="w-5 h-5 animate-spin" />
                 </div>
               </div>
               <p className="text-zinc-200 font-semibold text-sm tracking-tight mb-1">Awaiting Instant Authorization</p>
               <p className="text-xs text-zinc-400 leading-relaxed max-w-[240px] mx-auto">
-                Please complete the payment prompt pushed to your <span className="font-bold text-zinc-200">{network}</span> terminal on <span className="font-mono text-brand-300 font-medium">{momoNumber}</span>.
+                Please complete the payment prompt pushed to your <span className="font-bold text-zinc-200">{network === 'Vodafone' ? 'Telecel' : network === 'AirtelTigo' ? 'AT' : network}</span> terminal on <span className="font-mono text-amber-500 font-medium">{momoNumber}</span>.
               </p>
             </motion.div>
           )}
@@ -197,7 +210,7 @@ export function MoMoPaymentModal({ fileId, fileName, onClose }: Props) {
               </div>
               <p className="text-zinc-100 font-bold tracking-tight text-base mb-1">Transaction Verified</p>
               <p className="text-xs text-zinc-500 mb-6 font-medium">
-                GHS 2.00 captured successfully via {network === 'Vodafone' ? 'Telecel' : network} Wallet
+                GHS 2.00 captured successfully via {network === 'Vodafone' ? 'Telecel' : network === 'AirtelTigo' ? 'AT' : network} Wallet
               </p>
               <Button 
                 onClick={onClose}
@@ -207,7 +220,6 @@ export function MoMoPaymentModal({ fileId, fileName, onClose }: Props) {
               </Button>
             </motion.div>
           )}
-
         </AnimatePresence>
       </motion.div>
     </div>
