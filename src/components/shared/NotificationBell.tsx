@@ -10,13 +10,13 @@ export function NotificationBell({ role = 'student' }: { role?: 'student' | 'adm
   const supabase = createClient();
   const href = role === 'admin' ? '/admin/notifications' : '/notifications';
 
-  // Memoized fetch function so it can be called safely inside the effect and realtime stream
   const fetchUnread = useCallback(async (uid: string) => {
     const { data } = await supabase
       .from('notifications')
       .select('id, read_by')
       .eq('is_global', true);
     if (data) {
+      // Counts all entries where the current user id does not exist inside the tracking block
       setUnread(data.filter(n => !n.read_by?.includes(uid)).length);
     }
   }, [supabase]);
@@ -25,18 +25,14 @@ export function NotificationBell({ role = 'student' }: { role?: 'student' | 'adm
     let isMounted = true;
     let activeChannel: any = null;
 
-    // Synchronous execution path using async/await inside the effect block
     const setupRealtime = async () => {
       const { data: { user } } = await supabase.auth.getUser();
-      
-      // Safety exit if component unmounted while fetching user session
       if (!user || !isMounted) return;
       
       await fetchUnread(user.id);
 
       const channelName = `bell-${user.id}`;
 
-      // Purge any preexisting channel instance matching this topic string out of client memory
       const existingChannel = supabase.getChannels().find(ch => 
         (ch as any).topic === `realtime:public:${channelName}` || (ch as any).topic?.endsWith(channelName)
       );
@@ -47,7 +43,6 @@ export function NotificationBell({ role = 'student' }: { role?: 'student' | 'adm
 
       if (!isMounted) return;
 
-      // Build, attach listeners, and lock down the stream safely
       activeChannel = supabase
         .channel(channelName)
         .on(
@@ -61,7 +56,6 @@ export function NotificationBell({ role = 'student' }: { role?: 'student' | 'adm
 
     setupRealtime();
 
-    // Structural cleanup routine on component dismount
     return () => {
       isMounted = false;
       if (activeChannel) {

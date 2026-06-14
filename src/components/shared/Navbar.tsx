@@ -11,14 +11,14 @@ import { NotificationBell } from './NotificationBell';
 type NavItem = { label: string; href: string; icon: React.ReactNode };
 
 const studentNav: NavItem[] = [
-  { label: 'Dashboard',    href: '/dashboard',     icon: <LayoutDashboard className="w-4 h-4" /> },
-  { label: 'Upload',       href: '/upload',        icon: <Upload className="w-4 h-4" /> },
-  { label: 'My Files',     href: '/files',         icon: <FileText className="w-4 h-4" /> },
-  { label: 'Payments',     href: '/payments',      icon: <CreditCard className="w-4 h-4" /> },
-  { label: 'Profile',      href: '/profile',       icon: <UserCircle className="w-4 h-4" /> },
+  { label: 'Dashboard',     href: '/dashboard',     icon: <LayoutDashboard className="w-4 h-4" /> },
+  { label: 'Upload',        href: '/upload',        icon: <Upload className="w-4 h-4" /> },
+  { label: 'My Files',      href: '/files',         icon: <FileText className="w-4 h-4" /> },
+  { label: 'Payments',      href: '/payments',      icon: <CreditCard className="w-4 h-4" /> },
+  { label: 'Profile',       href: '/profile',       icon: <UserCircle className="w-4 h-4" /> },
   { label: 'Notifications', href: '/notifications', icon: <Bell className="w-4 h-4" /> },
-  { label: 'Resources',    href: '/resources',     icon: <BookOpen className="w-4 h-4" /> },
-  { label: 'Contact Rep',  href: '/contact',       icon: <Phone className="w-4 h-4" /> },
+  { label: 'Resources',     href: '/resources',     icon: <BookOpen className="w-4 h-4" /> },
+  { label: 'Contact Rep',   href: '/contact',       icon: <Phone className="w-4 h-4" /> },
 ];
 
 const adminNav: NavItem[] = [
@@ -52,13 +52,13 @@ export function Navbar({ role }: { role: 'student' | 'admin' }) {
   return (
     <>
       {/* ── Sidebar (desktop) ── */}
-      <aside className="hidden lg:flex flex-col w-60 min-h-screen fixed left-0 top-0 z-30 border-r border-brand-900/40 bg-gradient-to-b from-brand-950 via-brand-950 to-[#050608]">
+      <aside className="hidden lg:flex flex-col w-60 min-h-screen fixed left-0 top-0 z-30 border-r border-zinc-800/60 bg-gradient-to-b from-zinc-950 via-zinc-950 to-[#090a0f]">
         {/* Logo Section */}
-        <div className="flex items-center justify-between px-5 py-5 border-b" style={{ borderColor: '#64000050' }}>
+        <div className="flex items-center justify-between px-5 py-5 border-b border-zinc-800/60">
           <div className="flex items-center gap-3">
             <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0"
-              style={{ background: '#b67e7d', boxShadow: '0 4px 12px #b67e7d30' }}>
-              <PrinterIcon className="w-4 h-4" style={{ color: '#040b15' }} strokeWidth={2.5} />
+              style={{ background: 'rgba(245, 158, 11, 0.1)', border: '1px solid rgba(245, 158, 11, 0.2)', boxShadow: '0 4px 12px rgba(245, 158, 11, 0.15)' }}>
+              <PrinterIcon className="w-4 h-4" style={{ color: '#f59e0b' }} strokeWidth={2.5} />
             </div>
             <span className="text-white font-black text-sm tracking-tight">Printly</span>
           </div>
@@ -70,7 +70,7 @@ export function Navbar({ role }: { role: 'student' | 'admin' }) {
           <span className={cn(
             "text-xs font-semibold px-2.5 py-1 rounded-full border transition-colors",
             role === 'admin' 
-              ? "bg-brand-500/10 text-brand-400 border-brand-500/20" 
+              ? "bg-amber-500/10 text-amber-400 border-amber-500/20" 
               : "bg-zinc-800/40 text-zinc-400 border-zinc-800/60"
           )}>
             {role === 'admin' ? '⚡ Admin' : '🎓 Student'}
@@ -88,11 +88,11 @@ export function Navbar({ role }: { role: 'student' | 'admin' }) {
                 className={cn(
                   'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all border',
                   active 
-                    ? 'bg-brand-500/10 border-brand-500/20 text-brand-300' 
-                    : 'text-zinc-400 border-transparent hover:text-brand-300 hover:bg-brand-500/5'
+                    ? 'bg-amber-500/10 border-amber-500/20 text-amber-400 font-semibold' 
+                    : 'text-zinc-400 border-transparent hover:text-amber-400 hover:bg-amber-500/5'
                 )}
               >
-                <span className={cn('transition-colors', active ? 'text-brand-400' : 'text-zinc-500')}>
+                <span className={cn('transition-colors', active ? 'text-amber-500' : 'text-zinc-500')}>
                   {icon}
                 </span>
                 {label}
@@ -102,7 +102,7 @@ export function Navbar({ role }: { role: 'student' | 'admin' }) {
         </nav>
 
         {/* Sign out */}
-        <div className="p-3 border-t border-brand-900/30">
+        <div className="p-3 border-t border-zinc-900">
           <button
             onClick={handleSignOut}
             className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all w-full text-zinc-400 hover:text-red-400 hover:bg-red-500/5 group"
@@ -114,17 +114,17 @@ export function Navbar({ role }: { role: 'student' | 'admin' }) {
       </aside>
 
       {/* ── Top bar (mobile) ── */}
-      <header className="lg:hidden fixed top-0 left-0 right-0 z-30 flex items-center justify-between px-4 h-14 border-b"
-        style={{ background: '#420001', borderColor: '#64000050' }}>
+      <header className="lg:hidden fixed top-0 left-0 right-0 z-30 flex items-center justify-between px-4 h-14 border-b border-zinc-800/60 bg-zinc-950">
         <div className="flex items-center gap-2.5">
-          <div className="w-7 h-7 rounded-md flex items-center justify-center" style={{ background: '#b67e7d' }}>
-            <PrinterIcon className="w-3.5 h-3.5" style={{ color: '#040b15' }} strokeWidth={2.5} />
+          <div className="w-7 h-7 rounded-md flex items-center justify-center" 
+            style={{ background: 'rgba(245, 158, 11, 0.1)', border: '1px solid rgba(245, 158, 11, 0.2)' }}>
+            <PrinterIcon className="w-3.5 h-3.5" style={{ color: '#f59e0b' }} strokeWidth={2.5} />
           </div>
           <span className="text-white font-bold text-sm">Printly</span>
         </div>
         <div className="flex items-center gap-1">
           <NotificationBell role={role} />
-          <button onClick={() => setOpen(!open)} className="p-1 transition-colors" style={{ color: '#9d6463' }}>
+          <button onClick={() => setOpen(!open)} className="p-1 transition-colors text-zinc-400 hover:text-amber-400">
             {open ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
           </button>
         </div>
@@ -133,11 +133,11 @@ export function Navbar({ role }: { role: 'student' | 'admin' }) {
       {/* ── Mobile drawer (3D Glassmorphic Overlay Container) ── */}
       {open && (
         <div
-          className="lg:hidden fixed inset-0 z-20 backdrop-blur-sm bg-black/40 transition-all duration-300"
+          className="lg:hidden fixed inset-0 z-20 backdrop-blur-sm bg-black/50 transition-all duration-300"
           onClick={() => setOpen(false)}
         >
           <div
-            className="absolute left-0 top-14 bottom-0 w-64 p-4 border-r border-white/10 bg-brand-950/60 backdrop-blur-xl shadow-[5px_0_25px_-5px_rgba(0,0,0,0.5),inset_1px_0_0_0_rgba(255,255,255,0.05)] flex flex-col justify-between"
+            className="absolute left-0 top-14 bottom-0 w-64 p-4 border-r border-zinc-800/40 bg-zinc-950/90 backdrop-blur-xl shadow-[5px_0_25px_-5px_rgba(0,0,0,0.7)] flex flex-col justify-between"
             onClick={e => e.stopPropagation()}
           >
             <nav className="space-y-1">
@@ -151,11 +151,11 @@ export function Navbar({ role }: { role: 'student' | 'admin' }) {
                     className={cn(
                       "flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all border",
                       active
-                        ? "bg-white/10 border-white/10 text-brand-300 shadow-sm"
-                        : "text-zinc-300 border-transparent hover:bg-white/5"
+                        ? "bg-amber-500/10 border-amber-500/20 text-amber-400 shadow-sm font-semibold"
+                        : "text-zinc-300 border-transparent hover:bg-zinc-900/50 hover:text-amber-400"
                     )}
                   >
-                    <span className={active ? 'text-brand-400' : 'text-zinc-400'}>
+                    <span className={active ? 'text-amber-500' : 'text-zinc-500'}>
                       {icon}
                     </span>
                     {label}
@@ -164,7 +164,7 @@ export function Navbar({ role }: { role: 'student' | 'admin' }) {
               })}
             </nav>
 
-            <div className="pt-4 border-t border-white/5">
+            <div className="pt-4 border-t border-zinc-900">
               <button
                 onClick={handleSignOut}
                 className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all w-full text-zinc-400 hover:text-red-400 hover:bg-red-500/5"

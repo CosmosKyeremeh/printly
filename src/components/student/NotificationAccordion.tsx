@@ -1,9 +1,10 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { ChevronDown, ChevronUp, Bell, BellOff } from 'lucide-react';
 import { formatDate } from '@/lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
+import { createClient } from '@/lib/supabase/client';
 
 type Notification = {
   id: string;
@@ -16,115 +17,193 @@ type Notification = {
 type Props = {
   unread: Notification[];
   read: Notification[];
+  userId: string;
 };
 
-const typeColors: Record<string, string> = {
-  deadline:    'bg-red-500/20 text-red-400 border-red-500/30',
-  print_ready: 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30',
-  payment:     'bg-amber-500/20 text-amber-400 border-amber-500/30',
-  submission:  'bg-blue-500/20 text-blue-400 border-blue-500/30',
-  general:     'bg-zinc-700 text-zinc-300 border-zinc-600',
+const typeMeta: Record<string, { label: string; className: string }> = {
+  deadline:    { label: 'Deadline',    className: 'bg-red-500/10 text-red-400 border-red-500/20' },
+  print_ready: { label: 'Print Ready', className: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' },
+  payment:     { label: 'Payment',     className: 'bg-amber-500/10 text-amber-400 border-amber-500/20' },
+  submission:  { label: 'Submission',  className: 'bg-blue-500/10 text-blue-400 border-blue-500/20' },
+  general:     { label: 'General',     className: 'bg-zinc-800 text-zinc-400 border-zinc-700' },
 };
 
-function NotificationCard({ n, isUnread }: { n: Notification; isUnread: boolean }) {
-  const colorClass = typeColors[n.type] ?? typeColors.general;
+// ── Individual accordion card ──────────────────────────────────────────────
+function NotificationCard({
+  n,
+  isUnread,
+  onFirstOpen,
+}: {
+  n: Notification;
+  isUnread: boolean;
+  onFirstOpen?: (id: string) => void;
+}) {
+  const [expanded, setExpanded] = useState(false);
+  const [markedRead, setMarkedRead] = useState(false);
+  const meta = typeMeta[n.type] ?? typeMeta.general;
+
+  function handleToggle() {
+    // Mark as read on first expand only
+    if (!expanded && isUnread && !markedRead) {
+      setMarkedRead(true);
+      onFirstOpen?.(n.id);
+    }
+    setExpanded(prev => !prev);
+  }
+
   return (
     <motion.div
       layout
-      initial={{ opacity: 0, y: 8 }}
+      initial={{ opacity: 0, y: 6 }}
       animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: -8 }}
-      transition={{ duration: 0.2 }}
-      className={`rounded-xl p-4 border transition-colors ${
-        isUnread
-          ? 'border-amber-500/20 bg-zinc-900'
-          : 'border-zinc-800/50 bg-zinc-900/50'
+      exit={{ opacity: 0, y: -6 }}
+      transition={{ duration: 0.2, ease: [0.25, 0.46, 0.45, 0.94] }}
+      className={`rounded-xl border overflow-hidden transition-colors duration-200 ${
+        isUnread && !markedRead
+          ? 'border-amber-500/25 bg-zinc-900'
+          : 'border-zinc-800/60 bg-zinc-900/40'
       }`}
     >
-      <div className="flex items-start justify-between gap-3">
-        <div className="flex items-start gap-3 flex-1 min-w-0">
-          {isUnread && (
-            <span className="w-2 h-2 bg-amber-500 rounded-full shrink-0 mt-1.5" />
-          )}
-          <div className="flex-1 min-w-0">
-            <p className={`text-sm font-semibold ${isUnread ? 'text-white' : 'text-zinc-400'}`}>
-              {n.title}
-            </p>
-            <p className="text-zinc-500 text-sm mt-1 leading-relaxed">{n.content}</p>
-            <p className="text-zinc-600 text-xs mt-2">
-              {formatDate(n.created_at ?? new Date().toISOString())}
-            </p>
-          </div>
-        </div>
-        <span className={`text-xs font-semibold px-2 py-0.5 rounded-full border shrink-0 ${colorClass}`}>
-          {n.type}
+      {/* ── Header row — always visible ── */}
+      <button
+        onClick={handleToggle}
+        className="w-full flex items-center gap-3 px-4 py-3.5 text-left group"
+      >
+        {/* Unread dot */}
+        <span
+          className={`w-2 h-2 rounded-full shrink-0 transition-all duration-500 ${
+            isUnread && !markedRead
+              ? 'bg-amber-500 shadow-[0_0_6px_rgba(245,158,11,0.6)]'
+              : 'bg-transparent'
+          }`}
+        />
+
+        {/* Title */}
+        <span className={`flex-1 text-sm font-semibold text-left leading-snug ${
+          isUnread && !markedRead ? 'text-white' : 'text-zinc-400'
+        }`}>
+          {n.title}
         </span>
-      </div>
+
+        {/* Type badge */}
+        <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border uppercase tracking-wider shrink-0 hidden sm:inline-flex ${meta.className}`}>
+          {meta.label}
+        </span>
+
+        {/* Date */}
+        <span className="text-zinc-600 text-xs shrink-0 hidden md:block">
+          {formatDate(n.created_at ?? new Date().toISOString())}
+        </span>
+
+        {/* Chevron */}
+        <motion.div
+          animate={{ rotate: expanded ? 180 : 0 }}
+          transition={{ duration: 0.2, ease: 'easeInOut' }}
+          className={`shrink-0 transition-colors ${
+            expanded ? 'text-amber-500' : 'text-zinc-600 group-hover:text-zinc-400'
+          }`}
+        >
+          <ChevronDown className="w-4 h-4" />
+        </motion.div>
+      </button>
+
+      {/* ── Expandable content ── */}
+      <AnimatePresence initial={false}>
+        {expanded && (
+          <motion.div
+            key="body"
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: 'auto', opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.25, ease: [0.25, 0.46, 0.45, 0.94] }}
+            style={{ overflow: 'hidden' }}
+          >
+            <div className="px-4 pb-4 pt-0">
+              {/* Divider */}
+              <div className="h-px bg-zinc-800/60 mb-3" />
+
+              {/* Message body */}
+              <p className="text-zinc-400 text-sm leading-relaxed">
+                {n.content}
+              </p>
+
+              {/* Mobile meta row */}
+              <div className="flex items-center gap-2 mt-3 sm:hidden">
+                <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border uppercase tracking-wider ${meta.className}`}>
+                  {meta.label}
+                </span>
+                <span className="text-zinc-600 text-xs">
+                  {formatDate(n.created_at ?? new Date().toISOString())}
+                </span>
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </motion.div>
   );
 }
 
+// ── Section wrapper with collapse toggle ──────────────────────────────────
 function Section({
   title,
   icon,
   count,
+  badge,
+  defaultOpen,
   children,
-  defaultOpen = true,
-  accentColor = 'text-zinc-400',
 }: {
   title: string;
   icon: React.ReactNode;
   count: number;
+  badge: string;
+  defaultOpen: boolean;
   children: React.ReactNode;
-  defaultOpen?: boolean;
-  accentColor?: string;
 }) {
   const [open, setOpen] = useState(defaultOpen);
 
   return (
-    <div className="space-y-2">
-      {/* Section header — click to toggle */}
+    <div>
       <button
-        onClick={() => setOpen(prev => !prev)}
-        className="w-full flex items-center justify-between px-1 py-2 group"
+        onClick={() => setOpen(p => !p)}
+        className="w-full flex items-center justify-between px-1 py-2.5 group"
       >
-        <div className="flex items-center gap-2">
-          <span className={`${accentColor} transition-colors`}>{icon}</span>
-          <span className="text-sm font-bold text-white">{title}</span>
-          <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${
-            accentColor.includes('amber')
-              ? 'bg-amber-500/15 text-amber-400'
-              : 'bg-zinc-800 text-zinc-500'
-          }`}>
+        <div className="flex items-center gap-2.5">
+          <span className="text-zinc-500 group-hover:text-zinc-300 transition-colors">
+            {icon}
+          </span>
+          <span className="text-sm font-bold text-white tracking-tight">{title}</span>
+          <span className={`text-[11px] font-bold px-2 py-0.5 rounded-full ${badge}`}>
             {count}
           </span>
         </div>
-        <div className={`transition-colors ${accentColor} group-hover:text-white`}>
-          {open
-            ? <ChevronUp className="w-4 h-4" />
-            : <ChevronDown className="w-4 h-4" />
-          }
-        </div>
+        <motion.div
+          animate={{ rotate: open ? 180 : 0 }}
+          transition={{ duration: 0.2 }}
+          className="text-zinc-600 group-hover:text-zinc-400 transition-colors"
+        >
+          <ChevronDown className="w-4 h-4" />
+        </motion.div>
       </button>
 
-      {/* Divider */}
-      <div className="h-px bg-zinc-800/60" />
+      <div className="h-px bg-zinc-800/50 mb-3" />
 
-      {/* Content */}
       <AnimatePresence initial={false}>
         {open && (
           <motion.div
-            key="content"
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: 'auto' }}
-            exit={{ opacity: 0, height: 0 }}
-            transition={{ duration: 0.25, ease: [0.25, 0.46, 0.45, 0.94] }}
+            key="section-content"
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: 'auto', opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.3, ease: [0.25, 0.46, 0.45, 0.94] }}
             style={{ overflow: 'hidden' }}
           >
-            <div className="space-y-2 pt-1">
+            <div className="space-y-2 pb-2">
               {count === 0 ? (
-                <p className="text-zinc-600 text-sm text-center py-6">
-                  {title === 'Unread' ? 'All caught up! No unread notifications.' : 'No read notifications yet.'}
+                <p className="text-zinc-600 text-sm text-center py-8 font-medium">
+                  {title === 'Unread'
+                    ? '✓ All caught up — no unread messages'
+                    : 'No read notifications yet'}
                 </p>
               ) : (
                 children
@@ -137,33 +216,78 @@ function Section({
   );
 }
 
-export function NotificationAccordion({ unread, read }: Props) {
+// ── Root accordion component ───────────────────────────────────────────────
+export function NotificationAccordion({ unread: initialUnread, read: initialRead, userId }: Props) {
+  const [unreadList, setUnreadList] = useState(initialUnread);
+  const [readList, setReadList] = useState(initialRead);
+  const supabase = createClient();
+
+  // Called the first time a student expands an unread notification
+  const handleFirstOpen = useCallback(async (notifId: string) => {
+    const notif = unreadList.find(n => n.id === notifId);
+    if (!notif) return;
+
+    // Optimistic update — move from unread to read immediately
+    setUnreadList(prev => prev.filter(n => n.id !== notifId));
+    setReadList(prev => [notif, ...prev]);
+
+    // Persist to database in the background
+    const { data } = await supabase
+      .from('notifications')
+      .select('read_by')
+      .eq('id', notifId)
+      .single();
+
+    if (data) {
+      const current = data.read_by ?? [];
+      if (!current.includes(userId)) {
+        await supabase
+          .from('notifications')
+          .update({ read_by: [...current, userId] })
+          .eq('id', notifId);
+      }
+    }
+  }, [unreadList, userId, supabase]);
+
   return (
     <div className="space-y-6">
-      {/* Unread section — open by default */}
+      {/* Unread — always open by default */}
       <Section
         title="Unread"
         icon={<Bell className="w-4 h-4" />}
-        count={unread.length}
+        count={unreadList.length}
+        badge="bg-amber-500/15 text-amber-400"
         defaultOpen={true}
-        accentColor="text-amber-500"
       >
-        {unread.map(n => (
-          <NotificationCard key={n.id} n={n} isUnread={true} />
-        ))}
+        <AnimatePresence mode="popLayout">
+          {unreadList.map(n => (
+            <NotificationCard
+              key={n.id}
+              n={n}
+              isUnread={true}
+              onFirstOpen={handleFirstOpen}
+            />
+          ))}
+        </AnimatePresence>
       </Section>
 
-      {/* Read section — collapsed by default if there are unreads */}
+      {/* Read — collapsed by default when unreads exist */}
       <Section
         title="Read"
         icon={<BellOff className="w-4 h-4" />}
-        count={read.length}
-        defaultOpen={unread.length === 0}
-        accentColor="text-zinc-500"
+        count={readList.length}
+        badge="bg-zinc-800 text-zinc-500"
+        defaultOpen={unreadList.length === 0}
       >
-        {read.map(n => (
-          <NotificationCard key={n.id} n={n} isUnread={false} />
-        ))}
+        <AnimatePresence mode="popLayout">
+          {readList.map(n => (
+            <NotificationCard
+              key={n.id}
+              n={n}
+              isUnread={false}
+            />
+          ))}
+        </AnimatePresence>
       </Section>
     </div>
   );
