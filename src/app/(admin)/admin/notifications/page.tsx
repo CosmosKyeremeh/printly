@@ -11,27 +11,17 @@ export default async function NotificationsPage() {
     .select('*')
     .order('created_at', { ascending: false });
 
-  // Split into recent (last 7 days) and older
-  const now = Date.now();
-  const sevenDays = 7 * 24 * 60 * 60 * 1000;
-  const recent = notifications?.filter(n =>
-    now - new Date(n.created_at ?? '').getTime() < sevenDays
-  ) ?? [];
-  const older = notifications?.filter(n =>
-    now - new Date(n.created_at ?? '').getTime() >= sevenDays
-  ) ?? [];
-
   return (
-    <div className="max-w-3xl mx-auto">
-      <div className="flex items-center gap-3 mb-8">
-        <div className="w-9 h-9 rounded-lg flex items-center justify-center"
-          style={{ background: '#64000030' }}>
-          <Bell className="w-4 h-4" style={{ color: '#b67e7d' }} />
+    <div className="max-w-3xl mx-auto px-4 sm:px-0">
+      {/* Header Section aligned with the Gold/Zinc theme */}
+      <div className="flex items-center gap-4 mb-8 pb-2">
+        <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-amber-500/10 border border-amber-500/20 shadow-[0_4px_12px_rgba(245,158,11,0.08)]">
+          <Bell className="w-5 h-5 text-amber-500" />
         </div>
         <div>
           <h1 className="text-2xl font-black text-white tracking-tight">Notifications</h1>
-          <p className="text-xs" style={{ color: '#7a4a49' }}>
-            {notifications?.length ?? 0} sent total
+          <p className="text-xs text-zinc-400 mt-0.5">
+            <span className="text-amber-400 font-semibold">{notifications?.length ?? 0} sent</span> total records
           </p>
         </div>
       </div>
@@ -39,8 +29,6 @@ export default async function NotificationsPage() {
       <NotificationForm
         adminId={user!.id}
         initialNotifications={notifications ?? []}
-        recentCount={recent.length}
-        olderCount={older.length}
       />
     </div>
   );
