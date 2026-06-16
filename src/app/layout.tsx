@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from 'next';
 import './globals.css';
 import { ServiceWorkerRegistration } from '@/components/shared/ServiceWorkerRegistration';
+import { PWAInstallPrompt } from '@/components/shared/PWAInstallPrompt';
 import { Analytics } from '@vercel/analytics/react';
 import { SpeedInsights } from '@vercel/speed-insights/next';
 
@@ -23,7 +24,6 @@ export const metadata: Metadata = {
       { url: '/favicon_io/favicon-32x32.png', sizes: '32x32', type: 'image/png' },
     ],
     apple: [
-      // Next.js turns this into the exact <link rel="apple-touch-icon" ... /> tag you need!
       { url: '/favicon_io/apple-touch-icon.png', sizes: '180x180', type: 'image/png' },
     ],
   },
@@ -47,7 +47,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       </head>
       <body className="bg-brand-950 antialiased">
         <ServiceWorkerRegistration />
+        
         {children}
+        
+        {/* PWA Install Prompt (global) */}
+        <PWAInstallPrompt />
+
         <Analytics />
         <SpeedInsights />
       </body>

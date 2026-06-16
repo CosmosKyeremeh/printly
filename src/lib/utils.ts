@@ -14,9 +14,11 @@ export function formatBytes(bytes: number, decimals = 2): string {
 }
 
 export function formatDate(date: string | Date): string {
-  return new Date(date).toLocaleDateString('en-GH', {
+  // Use UTC explicitly to match server and client output
+  return new Date(date).toLocaleDateString('en-GB', {
     year: 'numeric',
     month: 'short',
     day: 'numeric',
+    timeZone: 'UTC', // ← forces same output on server and client
   });
 }
