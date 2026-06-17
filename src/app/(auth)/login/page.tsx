@@ -2,6 +2,7 @@
 
 import { useState, Suspense } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import { motion } from 'framer-motion';
@@ -37,28 +38,41 @@ function LoginForm() {
     }
 
     const { data: profile } = await supabase
-      .from('profiles').select('role').eq('id', data.user.id).single();
+      .from('profiles')
+      .select('role')
+      .eq('id', data.user.id)
+      .single();
 
+    // Route to appropriate space based on access tier parameters
     router.push(profile?.role === 'admin' ? '/admin/dashboard' : '/dashboard');
     router.refresh();
   }
 
   return (
-    <div className="min-h-screen bg-zinc-950 text-zinc-50 flex font-sans antialiased">
+    <div className="min-h-screen w-full flex flex-col lg:flex-row bg-zinc-950 relative overflow-x-hidden font-sans antialiased text-zinc-50">
+
+      {/* ── 🌟 TRUE FULLSCREEN BACKGROUND UNDERLAY ── */}
+      <div className="absolute inset-0 z-0 pointer-events-none">
+        <div className="absolute inset-0 opacity-100">
+          <Image
+            src="/images/school/printly-background.jpg" // 🚀 Changed from .jfif/.jftf to .jpg
+            alt="Global Network Background"
+            fill
+            sizes="100vw"
+            className="object-cover object-center"
+            priority
+          />
+        </div>
+        {/* Exact same adjustable multi-stop mask filter used in signup page */}
+        <div className="absolute inset-0 bg-zinc-950/85 backdrop-blur-[2px]" />
+      </div>
 
       {/* ── Left Hero Panel ── */}
-      <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden flex-col justify-between p-16 bg-zinc-950 border-r border-zinc-900/60">
-        {/* Subtle geometric grid background */}
-        <div className="absolute inset-0 opacity-[0.015]"
-          style={{
-            backgroundImage: 'radial-gradient(circle, #ffffff 1px, transparent 1px)',
-            backgroundSize: '32px 32px',
-          }}
-        />
+      <div className="relative hidden lg:flex lg:w-1/2 flex-col justify-between p-16 border-r border-zinc-900/40 z-10">
         
         {/* Top Branding Header */}
-        <div className="flex items-center gap-2.5 relative z-10">
-          <div className="w-9 h-9 rounded-xl flex items-center justify-center bg-zinc-900 border border-zinc-800 shadow-sm">
+        <div className="flex items-center gap-2.5 relative">
+          <div className="w-9 h-9 rounded-xl flex items-center justify-center bg-zinc-900/80 border border-zinc-800/60 shadow-sm backdrop-blur-md">
             <PrinterIcon className="w-4 h-4 text-amber-500" strokeWidth={2} />
           </div>
           <span className="font-semibold text-base tracking-tight text-zinc-200">Printly</span>
@@ -66,7 +80,7 @@ function LoginForm() {
 
         {/* Centerpiece Messaging */}
         <motion.div
-          className="relative z-10 max-w-md my-auto space-y-6"
+          className="relative max-w-md my-auto space-y-6"
           initial={{ opacity: 0, y: 15 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, ease: 'easeOut' }}
@@ -84,7 +98,7 @@ function LoginForm() {
               { icon: <GraduationCap className="w-4 h-4 text-zinc-400" />, title: 'Fluid Workflow', desc: 'Deploy assets and monitor real-time print execution rings.' },
               { icon: <ShieldCheck className="w-4 h-4 text-zinc-400" />, title: 'Administrative Edge', desc: 'Control queue batch pipelines and transaction ledgers easily.' },
             ].map(({ icon, title, desc }) => (
-              <div key={title} className="flex gap-3.5 items-start p-3.5 rounded-xl border border-zinc-900/50 bg-zinc-900/10">
+              <div key={title} className="flex gap-3.5 items-start p-3.5 rounded-xl border border-zinc-900/40 bg-zinc-900/40 backdrop-blur-sm">
                 <div className="w-7 h-7 rounded-lg flex items-center justify-center shrink-0 bg-zinc-900 border border-zinc-800/80">
                   {icon}
                 </div>
@@ -98,24 +112,24 @@ function LoginForm() {
         </motion.div>
 
         {/* Footer Meta */}
-        <div className="text-xs text-zinc-600 relative z-10">
+        <div className="text-xs text-zinc-600 relative">
           Secure identity verification managed by Supabase Vault Architecture.
         </div>
       </div>
 
       {/* ── Right Form Panel ── */}
-      <div className="w-full lg:w-1/2 flex flex-col justify-center items-center p-6 sm:p-12 bg-zinc-950">
+      <div className="w-full lg:w-1/2 flex flex-col justify-center items-center p-6 sm:p-12 z-10 bg-zinc-950/20 lg:bg-transparent">
         
         {/* Mobile Header (Hidden on Desktop) */}
         <div className="lg:hidden w-full max-w-md flex items-center gap-2.5 mb-12">
-          <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-zinc-900 border border-zinc-800">
+          <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-zinc-900/80 border border-zinc-800/60 backdrop-blur-md">
             <PrinterIcon className="w-4 h-4 text-amber-500" />
           </div>
           <span className="font-bold text-sm tracking-tight text-zinc-200">Printly</span>
         </div>
 
         <motion.div
-          className="w-full max-w-[360px]"
+          className="w-full max-w-[360px] bg-zinc-950/80 lg:bg-zinc-950/40 p-6 sm:p-8 rounded-2xl border border-zinc-900/80 shadow-2xl backdrop-blur-md lg:backdrop-blur-sm"
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4, delay: 0.05 }}
@@ -159,7 +173,7 @@ function LoginForm() {
                 onChange={e => setEmail(e.target.value)}
                 placeholder="name@university.edu.gh"
                 required
-                className="h-10 px-3 bg-zinc-900/40 border-zinc-800/80 text-zinc-200 text-sm placeholder:text-zinc-600 focus-visible:ring-1 focus-visible:ring-amber-500/30 focus-visible:border-amber-500 transition-all rounded-lg"
+                className="h-10 px-3 bg-zinc-950/60 border-zinc-800/80 text-zinc-200 text-sm placeholder:text-zinc-600 focus-visible:ring-1 focus-visible:ring-amber-500/30 focus-visible:border-amber-500 transition-all rounded-lg"
               />
             </div>
 
@@ -178,7 +192,7 @@ function LoginForm() {
                   onChange={e => setPassword(e.target.value)}
                   placeholder="••••••••"
                   required
-                  className="h-10 px-3 bg-zinc-900/40 border-zinc-800/80 text-zinc-200 text-sm placeholder:text-zinc-600 pr-10 focus-visible:ring-1 focus-visible:ring-amber-500/30 focus-visible:border-amber-500 transition-all rounded-lg"
+                  className="h-10 px-3 bg-zinc-950/60 border-zinc-800/80 text-zinc-200 text-sm placeholder:text-zinc-600 pr-10 focus-visible:ring-1 focus-visible:ring-amber-500/30 focus-visible:border-amber-500 transition-all rounded-lg"
                 />
                 <button
                   type="button"

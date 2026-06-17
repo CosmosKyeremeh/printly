@@ -1,51 +1,74 @@
+import { createClient } from '@supabase/supabase-js';
 import { NextResponse } from 'next/server';
-import { createClient } from '@/lib/supabase/server';
 
-function generateJoinCode(slug: string): string {
-  // e.g. CE300-X7K2
+// Uses service role — bypasses RLS, safe because this is server-only
+function getAdminClient() {
+  return createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!,
+    { auth: { autoRefreshToken: false, persistSession: false } }
+  );
+}
+
+function generateJoinCode(name: string): string {
+  const prefix = name
+    .replace(/[^a-zA-Z0-9]/g, '')
+    .substring(0, 4)
+    .toUpperCase();
   const suffix = Math.random().toString(36).substring(2, 6).toUpperCase();
-  const prefix = slug.replace(/[^a-zA-Z0-9]/g, '').substring(0, 5).toUpperCase();
   return `${prefix}-${suffix}`;
 }
 
 export async function POST(request: Request) {
   try {
-    const { schoolName, className } = await request.json();
+    const body = await request.json();
+    const { schoolName, className } = body;
 
     if (!schoolName?.trim() || !className?.trim()) {
-      return NextResponse.json({ error: 'School and class name required' }, { status: 400 });
+      return NextResponse.json(
+        { error: 'School name and class name are required' },
+        { status: 400 }
+      );
     }
 
-    const supabase = await createClient();
+    const supabase = getAdminClient();
 
     const slug = `${className}-${Date.now()}`
       .toLowerCase()
       .replace(/[^a-z0-9]/g, '-')
-      .replace(/-+/g, '-');
+      .replace(/-+/g, '-')
+      .slice(0, 50);
 
     const joinCode = generateJoinCode(className);
 
-    // Insert org — Postgres auto-generates the UUID
     const { data: org, error } = await supabase
       .from('organizations')
       .insert({
-        name: `${schoolName} — ${className}`,
+        name: `${schoolName.trim()} — ${className.trim()}`,
         slug,
         join_code: joinCode,
       })
-      .select('id')
+      .select('id, join_code')
       .single();
 
-    if (error || !org) {
-      return NextResponse.json({ error: error?.message ?? 'Failed to create org' }, { status: 500 });
+    if (error) {
+      console.error('Org creation error:', error);
+      return NextResponse.json(
+        { error: error.message },
+        { status: 500 }
+      );
     }
 
     return NextResponse.json({
-      orgId: org.id,      // ← the auto-generated UUID
-      joinCode,
+      orgId:    org.id,
+      joinCode: org.join_code,
     });
 
   } catch (err) {
-    return NextResponse.json({ error: 'Server error' }, { status: 500 });
+    console.error('Unexpected error:', err);
+    return NextResponse.json(
+      { error: 'Server error — please try again' },
+      { status: 500 }
+    );
   }
 }

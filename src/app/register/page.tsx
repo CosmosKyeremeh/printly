@@ -18,7 +18,7 @@ export default function RegisterOrgPage() {
   const router = useRouter();
   const supabase = createClient();
 
-  async function handleRegister(e: React.FormEvent) {
+  async function handleRegister(e: React.SubmitEvent) {
     e.preventDefault();
     setLoading(true);
     setError('');
