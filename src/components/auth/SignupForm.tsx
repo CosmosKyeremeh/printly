@@ -53,74 +53,104 @@ export function SignupForm({ isFirstSetup }: Props) {
   setLoading(true);
   setError('');
 
-  if (password.length < 8) {
-    setError('Password must be at least 8 characters.');
+  try {
+    if (password.length < 8) {
+      setError('Password must be at least 8 characters.');
+      return;
+    }
+
+    let orgId: string;
+    let role: string;
+
+    if (isFirstSetup) {
+      if (!orgName.trim() || !className.trim()) {
+        setError('Please fill in your school and class name.');
+        return;
+      }
+
+      // ── Call with explicit timeout so it can't hang forever ──
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 15000);
+
+      let res: Response;
+      try {
+        res = await fetch('/api/organizations/create', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            schoolName: orgName.trim(),
+            className: className.trim(),
+          }),
+          signal: controller.signal,
+        });
+        clearTimeout(timeout);
+      } catch (fetchErr: unknown) {
+        if (fetchErr instanceof Error && fetchErr.name === 'AbortError') {
+          setError('Request timed out. Check your internet connection.');
+        } else {
+          setError(`Network error: ${fetchErr instanceof Error ? fetchErr.message : 'Unknown'}`);
+        }
+        return;
+      }
+
+      // ── Parse response safely ──
+      let data: Record<string, unknown>;
+      try {
+        data = await res.json();
+      } catch {
+        setError(`Server returned invalid response (status ${res.status}). Check terminal logs.`);
+        return;
+      }
+
+      if (!res.ok || !data.orgId) {
+        setError(
+          typeof data.error === 'string'
+            ? data.error
+            : `Failed to create organization (status ${res.status})`
+        );
+        return;
+      }
+
+      orgId = data.orgId as string;
+      role  = 'superadmin';
+
+    } else {
+      if (!resolvedOrg) {
+        setError('Please enter and validate your join code first.');
+        return;
+      }
+      orgId = resolvedOrg.id;
+      role  = 'student';
+    }
+
+    // ── Sign up the user ──
+    const { error: authError } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        data: {
+          full_name: fullName,
+          role,
+          org_id: orgId,
+        },
+      },
+    });
+
+    if (authError) {
+      setError(`Auth error: ${authError.message}`);
+      return;
+    }
+
+    router.push('/login?signup=success');
+
+  } catch (unexpectedErr: unknown) {
+    setError(
+      `Unexpected error: ${unexpectedErr instanceof Error ? unexpectedErr.message : 'Unknown error'}`
+    );
+  } finally {
+    // ── Always reset loading — no matter what path was taken ──
     setLoading(false);
-    return;
   }
-
-  let orgId: string;
-  let role: string;
-
-  if (isFirstSetup) {
-    if (!orgName.trim() || !className.trim()) {
-      setError('Please fill in your school and class name.');
-      setLoading(false);
-      return;
-    }
-
-    let res: Response;
-    try {
-      res = await fetch('/api/organizations/create', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          schoolName: orgName.trim(),
-          className: className.trim(),
-        }),
-      });
-    } catch (networkErr) {
-      setError('Network error — check your connection and try again.');
-      setLoading(false);
-      return;
-    }
-
-    const data = await res.json();
-
-    if (!res.ok || !data.orgId) {
-      setError(data.error ?? `Server error (${res.status}) — please try again.`);
-      setLoading(false);
-      return;
-    }
-
-    orgId = data.orgId;
-    role  = 'superadmin';
-
-  } else {
-    if (!resolvedOrg) {
-      setError('Please enter and validate your join code first.');
-      setLoading(false);
-      return;
-    }
-    orgId = resolvedOrg.id;
-    role  = 'student';
-  }
-
-  const { error: authError } = await supabase.auth.signUp({
-    email,
-    password,
-    options: {
-      data: { full_name: fullName, role, org_id: orgId },
-    },
-  });
-
-  if (authError) {
-    setError(authError.message);
-    setLoading(false);
-    return;
-  }
-
-  router.push('/login?signup=success');
 }
 
   return (

@@ -1,40 +1,55 @@
 import { createClient } from '@/lib/supabase/server';
+import { createClient as adminClient } from '@supabase/supabase-js';
 import { NextResponse } from 'next/server';
 
 export async function POST(request: Request) {
-  const { fileId, momoNumber, network } = await request.json();
-  const supabase = await createClient();
+  try {
+    const { fileId, momoNumber, network, amount } = await request.json();
 
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-  // Verify the file belongs to this user
-  const { data: file } = await supabase
-    .from('files')
-    .select('id, owner_id')
-    .eq('id', fileId)
-    .eq('owner_id', user.id)
-    .single();
+    // Verify file belongs to this user
+    const { data: file } = await supabase
+      .from('files')
+      .select('id, owner_id, page_count, manual_price, price_locked')
+      .eq('id', fileId)
+      .eq('owner_id', user.id)
+      .single();
 
-  if (!file) return NextResponse.json({ error: 'File not found' }, { status: 404 });
+    if (!file) return NextResponse.json({ error: 'File not found' }, { status: 404 });
 
-  // In production: call real MoMo API here
-  // For demo: I'm only simulating a delay then confirm
+    // Re-compute authoritative price server-side — cannot be spoofed
+    const serverPrice = (file.price_locked && file.manual_price !== null)
+      ? Number(file.manual_price)
+      : Math.max(1, file.page_count ?? 1) * 1.00;
 
-  await supabase.from('files')
-    .update({ payment_status: 'paid' })
-    .eq('id', fileId);
+    const admin = adminClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY!,
+      { auth: { autoRefreshToken: false, persistSession: false } }
+    );
 
-  await supabase.from('payments').insert({
-    file_id: fileId,
-    student_id: user.id,
-    amount: 2.00,
-    currency: 'GHS',
-    provider: 'momo',
-    provider_payment_id: `DEMO-${Date.now()}`,
-    status: 'paid',
-    metadata: { network, phone: momoNumber, demo: true },
-  });
+    await admin.from('files').update({ payment_status: 'paid' }).eq('id', fileId);
 
-  return NextResponse.json({ success: true });
+    await admin.from('payments').insert({
+      file_id: fileId,
+      student_id: user.id,
+      amount: serverPrice,           // ← always from DB, never from client
+      currency: 'GHS',
+      provider: 'momo',
+      provider_payment_id: `DEMO-${Date.now()}`,
+      status: 'paid',
+      metadata: { network, phone: momoNumber, demo: true },
+    });
+
+    return NextResponse.json({ success: true, amount: serverPrice });
+
+  } catch (err) {
+    return NextResponse.json(
+      { error: err instanceof Error ? err.message : 'Server error' },
+      { status: 500 }
+    );
+  }
 }

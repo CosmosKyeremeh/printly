@@ -126,17 +126,26 @@ function UserRow({
           <button
             onClick={onToggle}
             disabled={updating}
-            className="text-xs font-medium px-3 py-1.5 rounded-lg border transition-all disabled:opacity-50"
+            className="group relative flex items-center justify-center text-xs font-bold px-3.5 py-2 rounded-xl border transition-all duration-300 disabled:opacity-50 active:scale-95 tracking-wide overflow-hidden"
             style={{
-              background: '#42000130',
-              borderColor: '#64000050',
-              color: '#9d6463',
-            }}
-          >
-            {updating
-              ? <Loader2 className="w-3.5 h-3.5 animate-spin" />
-              : `Make ${user.role === 'admin' ? 'student' : 'admin'}`
-            }
+                background: 'linear-gradient(135deg, rgba(255, 215, 0, 0.02), rgba(212, 175, 55, 0.06))',
+                backdropFilter: 'blur(12px)',
+                WebkitBackdropFilter: 'blur(12px)',
+                borderColor: 'rgba(212, 175, 55, 0.25) rgba(212, 175, 55, 0.15) rgba(212, 175, 55, 0.1) rgba(212, 175, 55, 0.25)',
+                boxShadow: '0 4px 12px 0 rgba(0, 0, 0, 0.2), inset 0 1px 1px 0 rgba(255, 255, 255, 0.05)',
+                color: '#f59e0b', // Amber/gold accent text color
+              }}
+            >
+              {/* Shimmer Highlight Effect Hover */}
+              <div className="absolute inset-0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000 bg-gradient-to-r from-transparent via-white/5 to-transparent pointer-events-none" />
+
+              {updating ? (
+                <Loader2 className="w-3.5 h-3.5 animate-spin text-amber-400" />
+              ) : (
+                <span className="drop-shadow-[0_1px_2px_rgba(0,0,0,0.6)]">
+                  Make {user.role === 'admin' ? 'student' : 'admin'}
+                </span>
+              )}
           </button>
         )}
       </div>

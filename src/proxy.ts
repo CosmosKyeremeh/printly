@@ -7,10 +7,16 @@ const PUBLIC_ROUTES = [
   '/signup',
   '/forgot-password',
   '/reset-password',
-  '/auth/confirm',        
+  '/auth/confirm',
+  '/auth/invite',
+  '/register',
   '/api/auth/callback',
   '/api/auth/validate-admin-code',
-  '/auth/invite',
+  '/api/organizations/create',    
+  '/api/organizations/check',     
+  '/api/organizations/lookup',    
+  '/api/notifications/mark-read',
+  '/api/payments/confirm', 
 ];
 
 export async function proxy(request: NextRequest) {

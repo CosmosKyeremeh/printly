@@ -6,7 +6,22 @@ import { formatDate } from '@/lib/utils';
 import { CreditCard, Smartphone } from 'lucide-react';
 import { MoMoPaymentModal } from './MoMoPaymentModal';
 
-type UnpaidFile = { id: string; file_name: string; created_at: string | null };
+function computePrice(file: UnpaidFile): number {
+  if (file.price_locked && file.manual_price !== null) {
+    return Number(file.manual_price);
+  }
+  return Math.max(1, file.page_count ?? 1) * 1.00;
+}
+
+type UnpaidFile = {
+  id: string;
+  file_name: string;
+  created_at: string | null;
+  page_count: number | null;
+  manual_price: number | null;
+  price_locked: boolean | null;
+};
+
 type Payment = {
   id: string;
   amount: number;
@@ -16,6 +31,12 @@ type Payment = {
   files: { file_name: string } | null;
 };
 
+type PayingFile = {
+  id: string;
+  name: string;
+  price: number;
+};
+
 export function PaymentsList({
   unpaidFiles,
   payments: initialPayments,
@@ -23,17 +44,15 @@ export function PaymentsList({
   unpaidFiles: UnpaidFile[];
   payments: Payment[];
 }) {
-  const [payingFile, setPayingFile] = useState<{ id: string; name: string } | null>(null);
+  const [payingFile, setPayingFile] = useState<PayingFile | null>(null);
   const [unpaid, setUnpaid] = useState(unpaidFiles);
   const [payments, setPayments] = useState(initialPayments);
 
-  function handlePaymentSuccess(fileId: string, fileName: string) {
-    // Remove from unpaid list immediately
+  function handlePaymentSuccess(fileId: string, fileName: string, amount: number) {
     setUnpaid(prev => prev.filter(f => f.id !== fileId));
-    // Add to payment history
     setPayments(prev => [{
-      id: `demo-${Date.now()}`,
-      amount: 2.00,
+      id: `local-${Date.now()}`,
+      amount,
       currency: 'GHS',
       status: 'paid',
       created_at: new Date().toISOString(),
@@ -44,89 +63,131 @@ export function PaymentsList({
 
   return (
     <>
-      {/* ── Section: Awaiting Payment (Zinc/Amber Theme) ── */}
       {unpaid.length > 0 && (
-        <div className="mb-8 font-sans antialiased">
-          <h2 className="text-xs font-bold uppercase tracking-wider mb-3 text-amber-500/90 shadow-sm">
+        <div className="mb-8">
+          <h2 className="text-xs font-bold uppercase tracking-widest mb-4 text-amber-500/90 drop-shadow-[0_2px_4px_rgba(0,0,0,0.4)]">
             Awaiting Payment
           </h2>
-          <div className="space-y-3">
-            {unpaid.map(file => (
-              <div 
-                key={file.id}
-                className="backdrop-blur-md bg-zinc-900/40 border border-amber-500/20 rounded-xl p-4 transition-all duration-300 shadow-[0_4px_20px_0_rgba(0,0,0,0.25),inset_0_1px_0_0_rgba(255,255,255,0.04)] hover:border-amber-500/30"
-              >
-                <div className="flex items-start justify-between gap-4 flex-wrap">
-                  <div className="flex-1 min-w-0">
-                    <p className="text-white text-sm font-semibold tracking-tight">{file.file_name}</p>
-                    <p className="text-zinc-500 text-[11px] font-medium mt-0.5 tracking-wide">
-                      {formatDate(file.created_at ?? new Date().toISOString())}
-                    </p>
-                    <p className="text-zinc-400 text-xs mt-2.5 leading-relaxed bg-zinc-950/30 border border-white/[0.02] p-2 rounded-lg max-w-md">
-                      💡 <span className="text-zinc-300">Alternative:</span> Pay cash to your class rep — they will mark it as paid.
-                    </p>
+          <div className="space-y-4">
+            {unpaid.map(file => {
+              const price = computePrice(file);
+              return (
+                <div 
+                  key={file.id}
+                  className="relative overflow-hidden rounded-2xl p-5 border transition-all duration-300 hover:translate-y-[-2px]"
+                  style={{ 
+                    background: 'linear-gradient(135deg, rgba(255, 215, 0, 0.03), rgba(212, 175, 55, 0.08))',
+                    backdropFilter: 'blur(16px)',
+                    WebkitBackdropFilter: 'blur(16px)',
+                    borderColor: 'rgba(212, 175, 55, 0.25) rgba(212, 175, 55, 0.15) rgba(212, 175, 55, 0.1) rgba(212, 175, 55, 0.25)',
+                    boxShadow: '0 8px 32px 0 rgba(0, 0, 0, 0.37), inset 0 1px 1px 0 rgba(255, 255, 255, 0.05)'
+                  }}
+                >
+                  {/* Subtle 3D Ambient Radial Glow Behind Card */}
+                  <div className="absolute -right-10 -top-10 w-32 h-32 bg-amber-500/10 rounded-full blur-2xl pointer-events-none" />
+
+                  <div className="flex items-start justify-between gap-4 flex-wrap relative z-10">
+                    <div className="space-y-1.5 max-w-xl">
+                      <p className="text-zinc-100 text-sm font-semibold tracking-wide drop-shadow-sm">
+                        {file.file_name}
+                      </p>
+                      <p className="text-xs text-zinc-400 font-medium">
+                        {file.created_at ? formatDate(file.created_at) : '—'}
+                      </p>
+                      
+                      <div className="flex items-center gap-1.5 flex-wrap pt-1">
+                        <span className="text-base font-black text-transparent bg-clip-text bg-gradient-to-r from-amber-200 via-yellow-400 to-amber-500 drop-shadow-[0_1px_2px_rgba(0,0,0,0.5)]">
+                          GHS {price.toFixed(2)}
+                        </span>
+                        {file.price_locked ? (
+                          <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-md bg-amber-500/10 text-amber-400 border border-amber-500/20">
+                            Fixed by admin
+                          </span>
+                        ) : (
+                          <span className="text-xs text-zinc-400 font-normal">
+                            ({file.page_count ?? 1} pages × GHS 1.00)
+                          </span>
+                        )}
+                      </div>
+                      <p className="text-xs text-zinc-400 italic pt-1">
+                        Or pay cash to your class rep — they will mark it as paid.
+                      </p>
+                    </div>
+
+                    <button
+                      onClick={() => setPayingFile({ id: file.id, name: file.file_name, price })}
+                      className="group flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold text-zinc-950 shrink-0 transition-all duration-300 transform active:scale-95"
+                      style={{ 
+                        background: 'linear-gradient(135deg, #fcd34d 0%, #d4af37 50%, #b45309 100%)',
+                        boxShadow: '0 4px 14px 0 rgba(212, 175, 55, 0.4), inset 0 1px 0px 0 rgba(255, 255, 255, 0.4)'
+                      }}
+                    >
+                      <Smartphone className="w-3.5 h-3.5 transition-transform duration-300 group-hover:scale-110" />
+                      <span>Pay GHS {price.toFixed(2)}</span>
+                    </button>
                   </div>
-                  
-                  {/* Premium Gold Gradient Action Trigger */}
-                  <button
-                    onClick={() => setPayingFile({ id: file.id, name: file.file_name })}
-                    className="flex items-center gap-2 px-3.5 py-2.5 bg-gradient-to-br from-amber-500 via-amber-600 to-amber-700 hover:from-amber-400 hover:to-amber-600 active:scale-[0.98] transition-all duration-200 rounded-xl text-xs font-bold text-zinc-950 shadow-[0_0_15px_rgba(245,158,11,0.15)] shrink-0"
-                  >
-                    <Smartphone className="w-3.5 h-3.5 stroke-[2.5]" />
-                    Pay with MoMo
-                  </button>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       )}
 
-      {/* ── Section: Empty State (Frosted Glass Container) ── */}
       {unpaid.length === 0 && payments.length === 0 && (
-        <div className="text-center py-16 backdrop-blur-md bg-zinc-900/20 border border-white/5 rounded-2xl shadow-[0_8px_32px_0_rgba(0,0,0,0.37),inset_0_1px_0_0_rgba(255,255,255,0.05)]">
-          <CreditCard className="w-8 h-8 text-zinc-600 mx-auto mb-3 opacity-60" />
-          <p className="text-zinc-200 text-sm font-semibold">No payments yet</p>
-          <p className="text-zinc-500 text-xs mt-1">All your financial transactions will stream here</p>
+        <div 
+          className="text-center py-16 rounded-2xl border"
+          style={{ 
+            background: 'rgba(212, 175, 55, 0.02)',
+            backdropFilter: 'blur(8px)',
+            WebkitBackdropFilter: 'blur(8px)',
+            borderColor: 'rgba(212, 175, 55, 0.1)',
+            boxShadow: 'inset 0 0 24px 0 rgba(0,0,0,0.2)'
+          }}
+        >
+          <CreditCard className="w-8 h-8 mx-auto mb-3 text-amber-500/40" />
+          <p className="text-sm font-medium text-zinc-400">No payments yet</p>
         </div>
       )}
 
-      {/* ── Section: Payment History (Clean Deep Zinc Theme) ── */}
       {payments.length > 0 && (
-        <div className="font-sans antialiased">
-          <h2 className="text-xs font-bold uppercase tracking-wider mb-3 text-zinc-400/90 tracking-wide">
+        <div>
+          <h2 className="text-xs font-bold uppercase tracking-widest mb-4 text-zinc-400">
             Payment History
           </h2>
-          <div className="space-y-2">
+          <div className="space-y-3">
             {payments.map(payment => (
               <div 
                 key={payment.id}
-                className="flex items-center justify-between rounded-xl p-4 backdrop-blur-md bg-zinc-900/20 border border-white/5 shadow-[0_2px_12px_rgba(0,0,0,0.2),inset_0_1px_0_0_rgba(255,255,255,0.02)] transition-all"
+                className="flex items-center justify-between rounded-xl p-4 border transition-all duration-200"
+                style={{ 
+                  background: 'rgba(24, 24, 27, 0.4)',
+                  backdropFilter: 'blur(12px)',
+                  WebkitBackdropFilter: 'blur(12px)',
+                  borderColor: 'rgba(255, 255, 255, 0.04)',
+                  boxShadow: '0 4px 20px 0 rgba(0, 0, 0, 0.15)'
+                }}
               >
-                <div className="min-w-0 flex-1 pr-4">
-                  <p className="text-zinc-200 text-sm font-medium truncate">
+                <div className="space-y-1">
+                  <p className="text-zinc-200 text-sm font-medium">
                     {(payment.files as { file_name: string } | null)?.file_name ?? 'Unknown file'}
                   </p>
-                  <p className="text-zinc-500 text-[11px] font-medium mt-1 tracking-wide">
-                    <span className="text-amber-500/80 font-semibold">{payment.currency} {payment.amount.toFixed(2)}</span>
-                    <span className="text-zinc-600 mx-1.5">·</span>
-                    {formatDate(payment.created_at ?? new Date().toISOString())}
+                  <p className="text-xs text-zinc-400">
+                    <span className="font-semibold text-amber-400/90">{payment.currency} {payment.amount.toFixed(2)}</span>
+                    {payment.created_at ? ` · ${formatDate(payment.created_at)}` : ''}
                   </p>
                 </div>
-                <div className="shrink-0">
-                  <StatusBadge status={payment.status as 'pending' | 'paid' | 'failed'} />
-                </div>
+                <StatusBadge status={payment.status as 'pending' | 'paid' | 'failed'} />
               </div>
             ))}
           </div>
         </div>
       )}
 
-      {/* ── Overlay Modal Controller ── */}
       {payingFile && (
         <MoMoPaymentModal
           fileId={payingFile.id}
           fileName={payingFile.name}
+          filePrice={payingFile.price}
           onClose={() => setPayingFile(null)}
           onSuccess={handlePaymentSuccess}
         />

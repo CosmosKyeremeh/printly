@@ -1,10 +1,9 @@
 'use client';
 
 import { useState, useCallback } from 'react';
-import { ChevronDown, ChevronUp, Bell, BellOff } from 'lucide-react';
+import { ChevronDown, Bell, BellOff } from 'lucide-react';
 import { formatDate } from '@/lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
-import { createClient } from '@/lib/supabase/client';
 
 type Notification = {
   id: string;
@@ -217,37 +216,37 @@ function Section({
 }
 
 // ── Root accordion component ───────────────────────────────────────────────
-export function NotificationAccordion({ unread: initialUnread, read: initialRead, userId }: Props) {
+export function NotificationAccordion({ unread: initialUnread, read: initialRead }: Props) {
   const [unreadList, setUnreadList] = useState(initialUnread);
   const [readList, setReadList] = useState(initialRead);
-  const supabase = createClient();
 
-  // Called the first time a student expands an unread notification
+  // Unread status management matching exact structural API routes with automatic rollback variables
   const handleFirstOpen = useCallback(async (notifId: string) => {
     const notif = unreadList.find(n => n.id === notifId);
     if (!notif) return;
 
-    // Optimistic update — move from unread to read immediately
+    // Optimistic Update Layout Stack
     setUnreadList(prev => prev.filter(n => n.id !== notifId));
     setReadList(prev => [notif, ...prev]);
 
-    // Persist to database in the background
-    const { data } = await supabase
-      .from('notifications')
-      .select('read_by')
-      .eq('id', notifId)
-      .single();
+    try {
+      const res = await fetch('/api/notifications/mark-read', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ notificationId: notifId }),
+      });
 
-    if (data) {
-      const current = data.read_by ?? [];
-      if (!current.includes(userId)) {
-        await supabase
-          .from('notifications')
-          .update({ read_by: [...current, userId] })
-          .eq('id', notifId);
+      if (!res.ok) {
+        // Structural Fallback Rollback Sequence
+        setUnreadList(prev => [notif, ...prev]);
+        setReadList(prev => prev.filter(n => n.id !== notifId));
       }
+    } catch {
+      // Emergency Error Network Catch Rollback
+      setUnreadList(prev => [notif, ...prev]);
+      setReadList(prev => prev.filter(n => n.id !== notifId));
     }
-  }, [unreadList, userId, supabase]);
+  }, [unreadList]);
 
   return (
     <div className="space-y-6">

@@ -1,28 +1,51 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { createClient } from '@/lib/supabase/client';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Loader2, CheckCircle2, Phone, X, Smartphone } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { useRouter } from 'next/navigation';
-import { cn } from '@/lib/utils';
 
 type Step = 'enter_number' | 'waiting' | 'success';
 
 type Props = {
   fileId: string;
   fileName: string;
+  filePrice: number;                                          // ← from DB, not hardcoded
   onClose: () => void;
-  onSuccess: (fileId: string, fileName: string) => void;
+  onSuccess: (fileId: string, fileName: string, amount: number) => void;
 };
 
-export function MoMoPaymentModal({ fileId, fileName, onClose, onSuccess }: Props) {
+export function MoMoPaymentModal({ fileId, fileName, filePrice, onClose, onSuccess }: Props) {
   const [step, setStep] = useState<Step>('enter_number');
   const [momoNumber, setMomoNumber] = useState('');
   const [network, setNetwork] = useState<'MTN' | 'Vodafone' | 'AirtelTigo'>('MTN');
   const [error, setError] = useState('');
-  const router = useRouter();
+  // Re-fetch price on mount to ensure it's fresh from DB, not stale props
+  const [confirmedPrice, setConfirmedPrice] = useState<number>(filePrice);
+  const [priceLoading, setPriceLoading] = useState(true);
+  const supabase = createClient();
+
+  // Re-fetch the latest price when modal opens
+  useEffect(() => {
+    async function fetchLatestPrice() {
+      const { data } = await supabase
+        .from('files')
+        .select('page_count, manual_price, price_locked')
+        .eq('id', fileId)
+        .single();
+
+      if (data) {
+        const fresh = (data.price_locked && data.manual_price !== null)
+          ? Number(data.manual_price)
+          : Math.max(1, data.page_count ?? 1) * 1.00;
+        setConfirmedPrice(fresh);
+      }
+      setPriceLoading(false);
+    }
+    fetchLatestPrice();
+  }, [fileId, supabase]);
 
   async function handleInitiate(e: React.FormEvent) {
     e.preventDefault();
@@ -33,191 +56,167 @@ export function MoMoPaymentModal({ fileId, fileName, onClose, onSuccess }: Props
     setError('');
     setStep('waiting');
 
-    try {
-      // Call the API route instead of executing direct Supabase writes
-      const res = await fetch('/api/payments/confirm', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ fileId, momoNumber, network }),
-      });
+    // Simulate MoMo network delay
+    await new Promise(res => setTimeout(res, 4000));
 
-      if (!res.ok) throw new Error('Payment failed');
+    const res = await fetch('/api/payments/confirm', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        fileId,
+        momoNumber,
+        network,
+        amount: confirmedPrice,  // ← actual price from DB
+      }),
+    });
 
-      setStep('success');
-      
-      // Auto-close after 2 seconds and notify parent list component
-      setTimeout(() => {
-        onSuccess(fileId, fileName);
-      }, 2000);
-
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'An unexpected payment error occurred.');
+    if (!res.ok) {
       setStep('enter_number');
+      setError('Payment failed. Please try again.');
+      return;
     }
+
+    setStep('success');
+    setTimeout(() => onSuccess(fileId, fileName, confirmedPrice), 2000);
   }
 
-  // Brand-accurate active coloring matrix for Ghana Telcos
-  const networkStyles = {
-    MTN: "bg-amber-500 text-zinc-950 border-amber-500 shadow-md shadow-amber-500/10",
-    Vodafone: "bg-red-600 text-white border-red-600 shadow-md shadow-red-600/10",
-    AirtelTigo: "bg-blue-600 text-white border-blue-600 shadow-md shadow-blue-600/10"
-  };
-
   return (
-    <div 
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-zinc-950/80 backdrop-blur-xs"
-      onClick={onClose}
-    >
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4"
+      style={{ background: '#040b15cc' }}
+      onClick={onClose}>
       <motion.div
-        initial={{ opacity: 0, scale: 0.95, y: 12 }}
+        initial={{ opacity: 0, scale: 0.95, y: 16 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
-        exit={{ opacity: 0, scale: 0.95, y: 12 }}
-        transition={{ duration: 0.22, ease: [0.25, 0.46, 0.45, 0.94] }}
-        className="w-full max-w-sm rounded-2xl border border-zinc-900 bg-zinc-950 p-6 shadow-2xl relative"
-        onClick={e => e.stopPropagation()}
-      >
-        {/* Header Module */}
-        <div className="flex items-start justify-between mb-5">
+        exit={{ opacity: 0, scale: 0.95, y: 16 }}
+        className="w-full max-w-sm rounded-2xl border p-6"
+        style={{ background: '#420001', borderColor: '#64000080' }}
+        onClick={e => e.stopPropagation()}>
+
+        {/* Header */}
+        <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl flex items-center justify-center bg-zinc-900 border border-zinc-800 text-amber-500">
-              <Smartphone className="w-4 h-4" />
+            <div className="w-10 h-10 rounded-xl flex items-center justify-center"
+              style={{ background: '#64000040' }}>
+              <Smartphone className="w-5 h-5" style={{ color: '#b67e7d' }} />
             </div>
-            <div className="min-w-0">
-              <p className="text-zinc-100 font-semibold text-sm tracking-tight">Mobile Money Payment</p>
-              <p className="text-xs text-zinc-500 truncate max-w-[180px] mt-0.5">
+            <div>
+              <p className="text-white font-black text-sm">MoMo Payment</p>
+              <p className="text-xs truncate max-w-[160px]" style={{ color: '#7a4a49' }}>
                 {fileName}
               </p>
             </div>
           </div>
           {step !== 'waiting' && (
-            <button 
-              onClick={onClose} 
-              className="text-zinc-500 hover:text-zinc-200 p-1 rounded-md transition-colors cursor-pointer"
-            >
-              <X className="w-4 h-4" />
+            <button onClick={onClose} style={{ color: '#7a4a49' }}>
+              <X className="w-5 h-5" />
             </button>
           )}
         </div>
 
         <AnimatePresence mode="wait">
-          {/* Step 1 — Enter number */}
           {step === 'enter_number' && (
-            <motion.div 
-              key="enter"
-              initial={{ opacity: 0, x: 8 }}
+            <motion.div key="enter"
+              initial={{ opacity: 0, x: 10 }}
               animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -8 }}
-              transition={{ duration: 0.15 }}
-            >
-              <div className="mb-4 p-4 rounded-xl text-center border border-zinc-900 bg-zinc-900/30">
-                <p className="text-2xl font-bold text-zinc-100 tracking-tight">GHS 2.00</p>
-                <p className="text-xs text-zinc-500 mt-0.5 font-medium">Standard Printing Fee</p>
+              exit={{ opacity: 0, x: -10 }}>
+
+              {/* Price — always from DB */}
+              <div className="mb-4 p-3 rounded-xl text-center border"
+                style={{ background: '#64000020', borderColor: '#64000050' }}>
+                {priceLoading ? (
+                  <Loader2 className="w-5 h-5 animate-spin mx-auto" style={{ color: '#b67e7d' }} />
+                ) : (
+                  <>
+                    <p className="text-2xl font-black text-white">
+                      GHS {confirmedPrice.toFixed(2)}
+                    </p>
+                    <p className="text-xs mt-0.5" style={{ color: '#9d6463' }}>
+                      Printing fee
+                    </p>
+                  </>
+                )}
               </div>
 
-              <form onSubmit={handleInitiate} className="space-y-4">
-                {/* Network Selector Cluster (Brand Cohesive Colors) */}
-                <div className="grid grid-cols-3 gap-1.5">
-                  {(['MTN', 'Vodafone', 'AirtelTigo'] as const).map(n => {
-                    const isSelected = network === n;
-                    return (
-                      <button
-                        key={n}
-                        type="button"
-                        onClick={() => setNetwork(n)}
-                        className={cn(
-                          "py-2 rounded-lg text-[11px] font-bold uppercase tracking-wider border transition-all cursor-pointer",
-                          isSelected
-                            ? networkStyles[n]
-                            : "bg-zinc-900/50 text-zinc-400 border-zinc-900/80 hover:text-zinc-200 hover:border-zinc-800"
-                        )}
-                      >
-                        {n === 'Vodafone' ? 'Telecel' : n === 'AirtelTigo' ? 'AT' : n}
-                      </button>
-                    );
-                  })}
+              <form onSubmit={handleInitiate} className="space-y-3">
+                {/* Network selector */}
+                <div className="grid grid-cols-3 gap-2">
+                  {(['MTN', 'Vodafone', 'AirtelTigo'] as const).map(n => (
+                    <button key={n} type="button" onClick={() => setNetwork(n)}
+                      className="py-2 rounded-lg text-xs font-bold border transition-all"
+                      style={network === n
+                        ? { background: '#b67e7d', color: '#040b15', borderColor: '#b67e7d' }
+                        : { background: '#42000130', color: '#9d6463', borderColor: '#64000050' }
+                      }>
+                      {n}
+                    </button>
+                  ))}
                 </div>
 
-                {/* Input Controls */}
                 <div className="space-y-1.5">
-                  <label className="text-xs font-semibold text-zinc-400">
-                    Wallet Number
+                  <label className="text-xs font-medium" style={{ color: '#c99897' }}>
+                    MoMo number
                   </label>
                   <div className="relative">
-                    <Phone className="absolute left-3.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-zinc-500" />
+                    <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4"
+                      style={{ color: '#7a4a49' }} />
                     <Input
                       type="tel"
                       value={momoNumber}
                       onChange={e => setMomoNumber(e.target.value.replace(/\D/g, '').slice(0, 10))}
-                      placeholder="050 000 0000"
+                      placeholder="0XX XXX XXXX"
                       required
-                      className="h-11 pl-9 text-zinc-100 bg-zinc-900 border-zinc-800 focus:border-amber-500/40 focus:ring-1 focus:ring-amber-500/10 placeholder:text-zinc-600 rounded-xl text-sm tracking-wide"
+                      className="h-11 pl-9 text-white"
+                      style={{ background: '#2a0001', borderColor: '#640000' }}
                     />
                   </div>
                 </div>
 
-                {error && (
-                  <p className="text-xs text-red-400 font-medium pl-0.5">{error}</p>
-                )}
+                {error && <p className="text-xs" style={{ color: '#c99897' }}>{error}</p>}
 
-                {/* Cohesive Premium Gold Gradient CTA */}
-                <Button 
-                  type="submit"
-                  disabled={momoNumber.length < 10}
-                  className="w-full h-11 font-bold text-sm bg-gradient-to-br from-amber-500 via-amber-600 to-amber-700 hover:from-amber-400 hover:to-amber-600 text-zinc-950 rounded-xl transition-all shadow-lg shadow-amber-500/5 cursor-pointer disabled:opacity-30 disabled:pointer-events-none active:scale-[0.99]"
-                >
-                  Authorize GHS 2.00
+                <Button type="submit" disabled={priceLoading}
+                  className="w-full h-11 font-black text-sm text-white rounded-xl"
+                  style={{ background: 'linear-gradient(135deg, #640000, #b67e7d)' }}>
+                  Pay GHS {confirmedPrice.toFixed(2)}
                 </Button>
               </form>
 
-              <p className="text-[11px] text-center text-zinc-600 mt-4 font-medium">
-                Sandbox Environment — Simulator Authorization Only
+              <p className="text-xs text-center mt-3" style={{ color: '#7a4a49' }}>
+                Demo mode — no real charge will be made
               </p>
             </motion.div>
           )}
 
-          {/* Step 2 — Waiting */}
           {step === 'waiting' && (
-            <motion.div 
-              key="waiting"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="text-center py-6"
-            >
-              <div className="relative w-14 h-14 mx-auto mb-5">
-                <div className="absolute inset-0 rounded-full animate-ping opacity-10 bg-amber-500" />
-                <div className="relative w-14 h-14 rounded-full flex items-center justify-center bg-zinc-900 border border-zinc-800 text-amber-500">
-                  <Loader2 className="w-5 h-5 animate-spin" />
+            <motion.div key="waiting" initial={{ opacity: 0 }} animate={{ opacity: 1 }}
+              className="text-center py-6">
+              <div className="relative w-16 h-16 mx-auto mb-5">
+                <div className="absolute inset-0 rounded-full animate-ping opacity-20"
+                  style={{ background: '#b67e7d' }} />
+                <div className="relative w-16 h-16 rounded-full flex items-center justify-center"
+                  style={{ background: '#64000040' }}>
+                  <Loader2 className="w-7 h-7 animate-spin" style={{ color: '#b67e7d' }} />
                 </div>
               </div>
-              <p className="text-zinc-200 font-semibold text-sm tracking-tight mb-1">Awaiting Instant Authorization</p>
-              <p className="text-xs text-zinc-400 leading-relaxed max-w-[240px] mx-auto">
-                Please complete the payment prompt pushed to your <span className="font-bold text-zinc-200">{network === 'Vodafone' ? 'Telecel' : network === 'AirtelTigo' ? 'AT' : network}</span> terminal on <span className="font-mono text-amber-500 font-medium">{momoNumber}</span>.
+              <p className="text-white font-bold mb-1">Waiting for approval</p>
+              <p className="text-sm" style={{ color: '#9d6463' }}>
+                Check your {network} prompt on {momoNumber}
               </p>
             </motion.div>
           )}
 
-          {/* Step 3 — Success */}
           {step === 'success' && (
-            <motion.div 
-              key="success"
-              initial={{ opacity: 0, scale: 0.95 }}
+            <motion.div key="success"
+              initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
-              className="text-center py-4"
-            >
-              <div className="w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-4 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400">
-                <CheckCircle2 className="w-5 h-5" />
+              className="text-center py-6">
+              <div className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-5"
+                style={{ background: '#14532d30' }}>
+                <CheckCircle2 className="w-8 h-8 text-emerald-400" />
               </div>
-              <p className="text-zinc-100 font-bold tracking-tight text-base mb-1">Transaction Verified</p>
-              <p className="text-xs text-zinc-500 mb-6 font-medium">
-                GHS 2.00 captured successfully via {network === 'Vodafone' ? 'Telecel' : network === 'AirtelTigo' ? 'AT' : network} Wallet
+              <p className="text-white font-black text-lg mb-1">Payment confirmed!</p>
+              <p className="text-sm mb-2" style={{ color: '#9d6463' }}>
+                GHS {confirmedPrice.toFixed(2)} paid via {network} MoMo
               </p>
-              <Button 
-                onClick={onClose}
-                className="w-full h-11 font-semibold text-sm bg-zinc-900 hover:bg-zinc-800 text-zinc-200 border border-zinc-800 rounded-xl transition-all cursor-pointer"
-              >
-                Return to Workspace
-              </Button>
             </motion.div>
           )}
         </AnimatePresence>
