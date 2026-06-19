@@ -1,39 +1,88 @@
 <div align="center">
-  <h1>🖨️ PrintLy</h1>
-  <p><strong>Centralized assignment submission and printing for university classes</strong></p>
+
+  <h1>
+  🖨️ Printly
+  </h1>
+
+  <p><strong>Centralized assignment pipeline and print management for university networks</strong></p>
 
   ![Next.js](https://img.shields.io/badge/Next.js-16-black?style=flat-square&logo=next.js)
   ![Supabase](https://img.shields.io/badge/Supabase-Postgres-3ECF8E?style=flat-square&logo=supabase)
   ![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?style=flat-square&logo=typescript)
   ![Tailwind CSS](https://img.shields.io/badge/Tailwind-4-06B6D4?style=flat-square&logo=tailwindcss)
   ![Vercel](https://img.shields.io/badge/Deployed-Vercel-black?style=flat-square&logo=vercel)
+  ![PWA](https://img.shields.io/badge/PWA-Enabled-5A0FC8?style=flat-square&logo=pwa)
 
-  <br />
+  <br/>
 
   <p>
-    <a href="https://printly-oh62.vercel.app">Live Demo</a> ·
+    <a href="https://printly-ivory.vercel.app">Live Demo</a> ·
+    <a href="#visual-interface-showcase">UI Showcase</a> ·
     <a href="#features">Features</a> ·
-    <a href="#tech-stack">Tech Stack</a> ·
+    <a href="#architectural-complexity">System Architecture</a> ·
     <a href="#getting-started">Getting Started</a> ·
-    <a href="#database-schema">Database Schema</a>
+    <a href="#database-model--data-isolation">Database Schema</a>
   </p>
+
+  <p>By <a href="https://github.com/CosmosKyeremeh">BonGr8</a></p>
+
 </div>
 
 ---
 
 ## The Problem
 
-In many university classes across Ghana, students print assignments individually at the campus printer. This creates:
+In many university classes across Ghana, students print assignments individually at the campus printer. This creates a severe operational bottleneck:
 
-- Long queues and wasted time
-- Confusion for the printing manager handling mixed file types
-- No centralized tracking of who submitted what
-- Manual cash collection for printing fees
-- Missed deadlines due to poor communication
+- **Disorganized Pipelines** — Print managers handle mixed, fragmented file formats manually with no tracking
+- **Opacity** — No centralized record of who submitted, who paid, or what has been printed
+- **Friction** — Manual cash handling and fragmented communication over WhatsApp and word-of-mouth
+- **Deadline Failures** — Reminders sent per person with no broadcast system
+
+This is not a minor UX inconvenience — it is a systemic coordination failure.
 
 ## The Solution
 
-Printly is a web application that centralizes the entire printing workflow. Students upload files once. The admin (class rep or printing manager) sees everything organized, manages a print queue, and collects payments — all from one dashboard.
+Printly transforms chaotic manual processing into a structured, trackable state machine:
+
+```text
+Upload ──▶ Queue ──▶ Price ──▶ Pay ──▶ Print ──▶ Notify
+```
+
+Students submit once from any device. Admins manage everything — queue, pricing, payments, notifications — from a single dashboard. The system installs as a PWA for instant home-screen access on any phone.
+
+---
+
+## 📱 Visual Interface Showcase
+
+### Desktop Interfaces
+
+<div align="center">
+  <p><strong>Student Dashboard View</strong></p>
+  <img src="./public/images/school/student-dasboard.png" alt="Student Dashboard" width="90%" style="border-radius: 12px; border: 1px solid #27272a; box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.5); margin-bottom: 24px;" />
+</div>
+
+<div align="center">
+  <p><strong>Admin Active Print Queue</strong></p>
+  <img src="./public/images/school/admin-queue.png" alt="Admin Print Queue" width="90%" style="border-radius: 12px; border: 1px solid #27272a; box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.5); margin-bottom: 24px;" />
+</div>
+
+### Mobile & Upload Interface
+
+<div align="center">
+  <table width="80%" style="border-collapse: collapse; border: none;">
+    <tr>
+      <td width="50%" align="center" style="border: none; vertical-align: top;">
+        <p><strong>Drag &amp; Drop Upload UI</strong></p>
+        <img src="./public/images/school/upload-ui.jpg" alt="Upload UI" width="80%" style="border-radius: 12px; border: 1px solid #27272a; box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.5);" />
+      </td>
+      <td width="50%" align="center" style="border: none; vertical-align: top;">
+        <p><strong>Mobile Edge Optimization</strong></p>
+        <img src="./public/images/school/mobile-responsive.jpg" alt="Mobile View" width="75%" style="border-radius: 24px; border: 4px solid #27272a; box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.5);" />
+      </td>
+    </tr>
+  </table>
+</div>
 
 ---
 
@@ -42,43 +91,69 @@ Printly is a web application that centralizes the entire printing workflow. Stud
 ### For Students
 
 - **File Upload** — Drag and drop multiple files (PDF, DOCX, PPTX, XLSX, ZIP, images up to 50MB)
-- **File Conversion** — Convert PDF to DOCX or DOCX to PDF directly in the browser
-- **File Management** — View, download, and delete uploaded files with real-time status tracking
-- **Payments** — View payment status and history for printing fees
-- **Notifications** — Receive announcements and deadline reminders from admin
-- **Profile** — Update name and password at any time
+- **Printing Instructions** — Leave per-file notes for the admin (copies, colour, edits needed)
+- **File Conversion** — Convert PDF ↔ DOCX server-side directly in the browser
+- **File Management** — View, download, delete uploaded files with live queue position and status
+- **Payments** — Pay printing fees via MTN Mobile Money; view full payment history
+- **Notifications** — Accordion inbox with unread/read separation; bell resets in real time
+- **Resources** — Download templates and materials shared by the admin
+- **Contact Rep** — Tap to call, email, or WhatsApp the class rep directly
+- **Profile** — Update name, phone, WhatsApp number, and password
 
 ### For Admins
 
-- **Print Queue** — Live queue with bulk select, mark as printing, done, or cancelled
-- **Categories** — Create assignment categories with optional deadlines
-- **Notifications** — Send announcements to all students by type (deadline, general, payment, etc.)
-- **Payments Overview** — Track collected fees and files awaiting payment
-- **Submissions Table** — See all student submissions with status at a glance
+- **Print Queue** — Live queue for all submitted files; bulk select, mark printing / done / cancel
+- **Pricing Engine** — Auto-calculates GHS 1 per page; manual price override with lock per file
+- **Cash Payments** — Mark pending files as cash-paid with one tap; no forced digital payment
+- **Direct Print** — Open any file and trigger the browser print dialog from the queue
+- **Categories** — Create assignment types with optional deadlines; auto-triggers reminders
+- **Notifications** — Broadcast announcements by type (deadline, payment, general, print ready)
+- **Resources** — Upload templates and reference files for students to download
+- **User Management** — View all users, change roles (student ↔ admin) from within the app
+- **Invite Students** — Copy a shareable join-link; students enroll with a class join code
 
 ### Platform
 
-- Role-based access — students and admins see completely different interfaces
-- Mobile-first responsive design
-- Row Level Security — students can only access their own files at the database level
-- Automatic profile creation on signup via database trigger
+- **Multi-tenancy** — Each class is a fully isolated organization with its own join code and data
+- **Role Hierarchy** — Superadmin (org creator) → Admin (class rep) → Student
+- **PWA** — Installable on iOS and Android; custom install prompt; offline-ready service worker
+- **Row Level Security** — All data access enforced at the Postgres engine layer, not just the UI
+- **Real-time Bell** — Unread count updates live via Supabase Realtime subscriptions
+- **Vercel Analytics + Speed Insights** — Production performance monitoring enabled
+
+---
+
+## Architectural Complexity
+
+Unlike standard CRUD platforms, Printly manages stateful, multi-step workflows that must remain consistent across asynchronous mutations:
+
+1. **State Consistency** — Files move through a strict lifecycle: `queued → printing → done`. Payment status, admin price locks, and print state must remain synchronized across roles and page loads.
+
+2. **Database-Level Authorization** — Access control is not just enforced at the API layer. Postgres Row Level Security isolates every query by `organization_id` at the engine level. Bypassing the UI grants nothing.
+
+3. **Multi-Tenant Isolation** — Every table is scoped by `org_id`. The platform owner (`is_platform_owner = true`) bypasses all scoping via a security-definer helper. Organization admins see only their own data. Students see only their own files.
+
+4. **Trigger-Driven Integrity** — `org_id` is auto-populated on every insert via a `before insert` trigger. Frontend components never need to pass it manually — the database enforces it.
+
+5. **Realtime Coordination** — The notification bell subscribes to `postgres_changes` on the notifications table. Mark-as-read is persisted via a `security definer` RPC function that bypasses RLS safely.
 
 ---
 
 ## Tech Stack
 
 | Layer | Technology | Purpose |
-| ------- | ----------- | --------- |
-| Frontend | Next.js 16 (App Router) | Server components, routing, API routes |
-| Language | TypeScript | Type safety across the entire codebase |
-| Styling | Tailwind CSS v4 + shadcn/ui | Design system and accessible components |
+|-------|-----------|---------|
+| Frontend | Next.js 16 (App Router) | Server components, API routes, streaming |
+| Language | TypeScript | End-to-end type safety |
+| Styling | Tailwind CSS v4 + shadcn/ui | Design system, accessible components |
+| Animation | Framer Motion | Page transitions, accordions, micro-interactions |
 | Database | Supabase (Postgres) | Relational data with Row Level Security |
-| Auth | Supabase Auth | Email/password with role-based routing |
-| Storage | Supabase Storage | Per-user private file buckets |
-| File Conversion | ConvertAPI | PDF ↔ DOCX server-side conversion |
-| Payments | Stripe + Hubtel (MoMo) | International and Ghana mobile money |
-| Email | Resend | Transactional notifications |
-| Deployment | Vercel | CI/CD with preview deployments |
+| Auth | Supabase Auth | Email/password, role-based routing, org-scoped |
+| Storage | Supabase Storage | Per-user private file buckets with signed URLs |
+| File Conversion | ConvertAPI | Server-side PDF ↔ DOCX conversion |
+| Payments | MTN Mobile Money (Hubtel) | Ghana-local mobile money payments |
+| Analytics | Vercel Analytics + Speed Insights | Real user monitoring |
+| Deployment | Vercel | CI/CD, preview deployments, edge network |
 
 ---
 
@@ -90,7 +165,7 @@ Printly is a web application that centralizes the entire printing workflow. Stud
 - npm v9+
 - Git
 - Supabase account
-- Vercel account (for deployment)
+- Vercel account
 
 ### Local Development
 
@@ -117,47 +192,55 @@ cp .env.example .env.local
 Fill in your `.env.local`:
 
 ```env
+# Supabase
 NEXT_PUBLIC_SUPABASE_URL=your_supabase_project_url
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
 SUPABASE_SERVICE_ROLE_KEY=your_service_role_key
+
+# App
 NEXT_PUBLIC_APP_URL=http://localhost:3000
-NEXT_PUBLIC_ADMIN_SIGNUP_CODE=your_admin_code
-CONVERT_API_SECRET=your_convertapi_secret
-STRIPE_SECRET_KEY=sk_test_...
-NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_test_...
-STRIPE_WEBHOOK_SECRET=whsec_...
+
+# File Conversion
+CONVERT_API_SECRET=your_convertapi_sandbox_token
+
+# Payments
 HUBTEL_CLIENT_ID=your_hubtel_client_id
 HUBTEL_CLIENT_SECRET=your_hubtel_client_secret
-RESEND_API_KEY=re_...
-RESEND_FROM_EMAIL=noreply@yourdomain.com
 ```
 
 **4. Set up Supabase**
 
 ```bash
-# Install Supabase CLI (via Scoop on Windows)
+# Install CLI via Scoop (Windows)
 scoop bucket add supabase https://github.com/supabase/scoop-bucket.git
 scoop install supabase
 
-# Login and link project
+# Authenticate and link
 supabase login
 supabase link --project-ref your_project_ref
 
-# Push migrations
+# Push all migrations
 supabase db push
 ```
 
-**5. Set up storage**
+**5. Create storage buckets**
 
-In your Supabase dashboard, create a private bucket named `assignments` then run the storage policies from `supabase/migrations/` in the SQL editor.
+In Supabase Dashboard → Storage, create two buckets:
 
-**6. Generate TypeScript types**
+| Name | Visibility |
+| ------ | ----------- |
+| `assignments` | Private |
+| `resources` | Public |
+
+Then run the storage RLS policies from `supabase/migrations/`.
+
+**6. Regenerate TypeScript types**
 
 ```bash
 supabase gen types typescript --project-id your_project_ref > src/types/supabase.types.ts
 ```
 
-**7. Start development server**
+**7. Start the development server**
 
 ```bash
 npm run dev
@@ -167,137 +250,194 @@ Visit `http://localhost:3000`
 
 ---
 
-## Database Schema
+## Database Model & Data Isolation
 
-```text
-profiles          → Extends auth.users with role (student | admin)
-categories        → Admin-defined assignment categories with optional deadlines
-files             → Uploaded files with metadata, status, and payment status
-print_queue       → Queue entries linked to files with print status tracking
-payments          → Payment records supporting Stripe and MoMo providers
-notifications     → Admin-sent announcements visible to all students
+All tables are locked down using PostgreSQL Row Level Security. Students are partitioned into strict isolated data tenancies. Admins see all data within their organization. The platform owner bypasses all scoping via `is_platform_owner = true`.
+
+| Table | Description | RLS Scope |
+| ------- | ------------- | ----------- |
+| `organizations` | Schools or classes (multi-tenant root) | Authenticated read; service role write |
+| `profiles` | Extends `auth.users` — role, org, phone, WhatsApp | Owner read/update; admin read org-wide |
+| `categories` | Admin-defined assignment types with optional deadlines | Org-scoped read; admin write |
+| `files` | Uploaded assets — status, payment, page count, price | Owner read/write; admin read/update org-wide |
+| `print_queue` | Atomic state tracker per file upload | Owner read; admin full access org-wide |
+| `payments` | Transaction registry (MoMo provider) | Owner read; admin read org-wide |
+| `notifications` | Broadcast announcements with per-user read tracking | Org-scoped read; admin write/delete; members update `read_by` |
+| `admin_resources` | Templates and reference files for students | Org-scoped read; admin write |
+| `file_comments` | Per-file thread between student and admin | Owner read/write; admin manage |
+
+---
+
+## Multi-Tenancy Model
+
+```
+Organization (class / school)
+    ├── Superadmin  — creates the org; receives join code to share
+    ├── Admin       — class rep; manages queue, payments, notifications
+    └── Student     — uploads files; tracks status; makes payments
 ```
 
-All tables have Row Level Security enabled. Students can only read and write their own data. Admins have full read access across all tables.
+**First-user flow:** When no organization exists, the signup page renders an org creation form. The first user becomes superadmin automatically.
+
+**Student join flow:** Students enter the join code at signup → validated server-side → `org_id` is attached to their profile via Postgres trigger → all their data is automatically scoped to that organization.
 
 ---
 
 ## Project Structure
 
-```text
+```
 src/
 ├── app/
-│   ├── (auth)/           # Login and signup pages
-│   ├── (student)/        # Student dashboard, upload, files, payments, profile
-│   ├── (admin)/admin/    # Admin dashboard, queue, categories, notifications, payments
-│   └── api/              # API routes (files, payments, notifications, queue)
+│   ├── (admin)/admin/     # Dashboard, queue, categories, notifications,
+│   │                      # payments, resources, users, profile
+│   ├── (auth)/            # Login, signup (org-aware), forgot/reset password
+│   ├── (student)/         # Dashboard, upload, files, payments, notifications,
+│   │                      # resources, contact, profile
+│   ├── api/               # organizations/, notifications/, payments/,
+│   │                      # files/, queue/, auth/
+│   ├── auth/              # Email confirmation callback
+│   ├── register/          # Organization self-registration
+│   ├── manifest.ts        # PWA manifest
+│   └── page.tsx           # Public landing page
 ├── components/
-│   ├── ui/               # shadcn/ui base components
-│   ├── shared/           # Navbar, StatusBadge, ProfileForm, EmptyState
-│   ├── student/          # UploadZone, FileList, ConvertButton
-│   └── admin/            # PrintQueue, CategoryManager, NotificationForm
+│   ├── admin/             # PrintQueue, CategoryManager, NotificationForm,
+│   │                      # ResourceManager, UserRoleManager, PriceEditor,
+│   │                      # InviteStudents, DeadlinePrompt, PaymentOverview
+│   ├── auth/              # SignupForm (org-aware client component)
+│   ├── shared/            # Navbar, NotificationBell, ProfileForm,
+│   │                      # StatusBadge, PageSkeleton, PWAInstallPrompt,
+│   │                      # ServiceWorkerRegistration
+│   ├── student/           # UploadZone, FileList, ConvertButton,
+│   │                      # MoMoPaymentModal, PaymentsList,
+│   │                      # NotificationAccordion, ResourceDownloadButton,
+│   │                      # MarkNotificationsRead
+│   └── ui/                # shadcn/ui base components
+├── config/
+│   ├── constants.ts       # File limits, status enums
+│   └── site.ts            # App name, URL, version
 ├── lib/
-│   ├── supabase/         # Browser and server clients
-│   ├── payments/         # Stripe and MoMo provider abstraction
-│   ├── conversion/       # ConvertAPI wrapper
-│   ├── storage/          # File upload and signed URL helpers
-│   ├── notifications/    # Resend email wrapper
-│   └── validations/      # Zod schemas
-├── hooks/                # useFiles, useQueue, usePayment
-├── types/                # Supabase generated types + custom types
-└── config/               # Constants and site config
+│   ├── conversion/        # ConvertAPI wrapper
+│   └── supabase/          # Browser client, server client
+├── types/
+│   └── supabase.types.ts  # Generated from DB schema
+├── proxy.ts               # Route protection (Next.js 16)
+└── utils.ts               # formatBytes, formatDate (UTC-stable)
+
+public/
+├── favicon_io/            # PWA icons
+├── images/school/         # UI screenshots for README
+└── sw.js                  # Service worker
+
 supabase/
-└── migrations/           # 4 versioned SQL migration files
+└── migrations/            # Versioned SQL migration files
 ```
+
+---
+
+## Authentication & Authorization
+
+| Role | Scope |
+| ------ | ------- |
+| Platform Owner | `is_platform_owner = true`; bypasses all org scoping; global access |
+| Admin | Org-scoped; manages queue, categories, notifications, resources, users |
+| Student | Org-scoped; owns only their uploaded files and payments |
+
+Route protection is enforced in `proxy.ts`. All database access is additionally enforced by Supabase RLS — bypassing the UI grants nothing.
 
 ---
 
 ## Git Flow
 
-This project follows a strict Git flow:
-
-```text
-main          ← production releases only
-develop       ← integration branch (default)
-feature/*     ← individual features branched from develop
-release/*     ← release preparation
+```
+main          ← production only (tagged releases)
+develop       ← default integration branch
+feature/*     ← new work, branched from develop
+release/*     ← version preparation
 hotfix/*      ← emergency production fixes
 ```
 
-**Branch naming:**
+**Commit convention:**
 
 ```bash
-feature/42-upload-zone
-fix/38-admin-redirect
-chore/update-deps
+feat(queue): add bulk status update with optimistic UI
+fix(auth): org_id not attached to profile on signup
+chore: bump version to 0.3.0
+docs: update README with multi-tenancy model
 ```
 
-**Commit conventions:**
+**Release cycle:**
 
 ```bash
-feat(files): add drag-drop upload zone
-fix(auth): admin redirect after login
-chore: bump version to 0.2.0
-docs: update README with deployment steps
+git checkout -b release/vX.X.X
+npm version minor --no-git-tag-version
+git commit -m "chore: bump version to X.X.X"
+git checkout main && git merge release/vX.X.X --no-ff
+git tag -a vX.X.X -m "Release vX.X.X"
+git push origin main --tags
+git checkout develop && git merge main --no-ff && git push
 ```
 
 ---
 
 ## Deployment
 
-The app is deployed on Vercel with automatic deployments on push to `main`.
+Deployed on Vercel. Pushes to `main` trigger automatic production deployments.
 
-**Required environment variables on Vercel:**
+**Required Vercel environment variables:**
 
-- All variables from `.env.example` with production values
-- `NEXT_PUBLIC_APP_URL` should be your Vercel deployment URL
-
-**To deploy a new release:**
-
-```bash
-git checkout develop
-git checkout -b release/vX.X.X
-npm version minor --no-git-tag-version
-git add package.json
-git commit -m "chore: bump version to X.X.X"
-git checkout main
-git merge release/vX.X.X --no-ff
-git tag -a vX.X.X -m "Release vX.X.X"
-git push origin main --tags
-git checkout develop
-git merge main --no-ff
-git push origin develop
+```env
+NEXT_PUBLIC_SUPABASE_URL
+NEXT_PUBLIC_SUPABASE_ANON_KEY
+SUPABASE_SERVICE_ROLE_KEY
+NEXT_PUBLIC_APP_URL
+CONVERT_API_SECRET
+HUBTEL_CLIENT_ID
+HUBTEL_CLIENT_SECRET
 ```
 
 ---
 
 ## Roadmap
 
-### v0.2 — Payments
+### v0.2 — Real Payments
 
-- [ ] Stripe checkout integration
-- [ ] Hubtel MoMo payment flow
-- [ ] Payment webhooks and auto-status updates
-- [ ] Receipt generation
+- [ ] Live Hubtel MoMo API integration (replace demo flow)
+- [ ] Payment webhooks with automatic status updates
+- [ ] PDF receipt generation and email delivery via Resend
 
 ### v0.3 — Notifications
 
-- [ ] Email delivery via Resend
-- [ ] 24-hour deadline reminders (cron job)
-- [ ] In-app notification bell with unread count
+- [ ] Transactional email (print ready, payment confirmed)
+- [ ] Automatic deadline reminders via Vercel Cron
+- [ ] SMS receipts via Hubtel SMS API
 
 ### v0.4 — Polish
 
-- [ ] File preview (PDF viewer)
-- [ ] Bulk download as ZIP for admin
-- [ ] Submission analytics dashboard
-- [ ] SMS receipts via Hubtel
+- [ ] In-browser PDF preview
+- [ ] PDF page counter (auto price calculation)
+- [ ] Bulk ZIP download for admin
+- [ ] Submission analytics charts
 
-### Future
+### v1.0 — Scale
 
-- Multi-school support
-- Direct printer hardware integration
-- Mobile app (React Native)
+- [ ] Multiple org management for platform superadmin dashboard
+- [ ] Lecturer account type (create categories, view course submissions)
+- [ ] Flutter mobile app (iOS + Android)
+- [ ] Direct printer integration via IPP protocol
+
+---
+
+## Security Posture
+
+| Concern | Status |
+| --------- | -------- |
+| RLS on all tables | ✅ Enforced at DB engine level |
+| Org-scoped data isolation | ✅ Every query filtered by `org_id` via trigger + RLS |
+| Service role key server-only | ✅ Never exposed client-side |
+| Payment status updates | ✅ Server-side API route only |
+| Auth rate limiting | ✅ Configured in Supabase dashboard |
+| `custom_access_token_hook` | ✅ Removed — not used |
+| Admin code exposure | ✅ Server-only env var (`ADMIN_CODE`, not `NEXT_PUBLIC_`) |
 
 ---
 
@@ -309,17 +449,8 @@ git push origin develop
 4. Push and open a PR targeting `develop`
 5. Ensure CI passes before requesting review
 
-See [CONTRIBUTING.md](docs/CONTRIBUTING.md) for full guidelines.
-
 ---
 
 ## License
 
-MIT License — see [LICENSE](LICENSE) for details.
-
----
-
-<div align="center">
-  <p>Built with ❤️ </p>
-  <p>by <a href="https://github.com/CosmosKyeremeh">BonGr8</a></p>
-</div>
+MIT — see [LICENSE](LICENSE) for details.
