@@ -11,12 +11,11 @@ const PUBLIC_ROUTES = [
   '/auth/invite',
   '/register',
   '/api/auth/callback',
-  '/api/auth/validate-admin-code',
-  '/api/organizations/create',    
-  '/api/organizations/check',     
-  '/api/organizations/lookup',    
+  '/api/organizations/create',
+  '/api/organizations/check',
+  '/api/organizations/lookup',
   '/api/notifications/mark-read',
-  '/api/payments/confirm', 
+  '/api/payments/confirm',
 ];
 
 export async function proxy(request: NextRequest) {

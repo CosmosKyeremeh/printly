@@ -1,133 +1,162 @@
 'use client';
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState, useEffect } from 'react';
 import { createClient } from '@/lib/supabase/client';
-import { motion } from 'framer-motion';
+import { useRouter } from 'next/navigation';
+import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Button } from '@/components/ui/button';
-import { PrinterIcon, Loader2, Eye, EyeOff, ShieldCheck } from 'lucide-react';
+import { Loader2, ShieldCheck, Eye, EyeOff } from 'lucide-react';
+import { motion } from 'framer-motion';
 
 export default function ResetPasswordPage() {
-  const [password, setPassword] = useState('');
-  const [confirm, setConfirm] = useState('');
-  const [showPassword, setShowPassword] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
-  const router = useRouter();
+  const [password, setPassword]       = useState('');
+  const [confirm, setConfirm]         = useState('');
+  const [showPass, setShowPass]       = useState(false);
+  const [error, setError]             = useState('');
+  const [loading, setLoading]         = useState(false);
+  const [sessionReady, setSessionReady] = useState(false);
+  const [done, setDone]               = useState(false);
   const supabase = createClient();
+  const router   = useRouter();
 
-  async function handleReset(e: React.FormEvent) {
+  useEffect(() => {
+    // Check existing session first
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session) setSessionReady(true);
+    });
+
+    // Listen for PASSWORD_RECOVERY event from the hash token in the URL
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (event, session) => {
+        if (event === 'PASSWORD_RECOVERY' || (session && event === 'SIGNED_IN')) {
+          setSessionReady(true);
+        }
+      }
+    );
+
+    return () => subscription.unsubscribe();
+  }, [supabase]);
+
+  async function handleUpdate(e: React.FormEvent) {
     e.preventDefault();
-    if (password !== confirm) {
-      setError('Passwords do not match.');
-      return;
-    }
+    setError('');
+
     if (password.length < 8) {
       setError('Password must be at least 8 characters.');
       return;
     }
+    if (password !== confirm) {
+      setError('Passwords do not match.');
+      return;
+    }
+    if (!sessionReady) {
+      setError('Session expired. Request a new password reset link.');
+      return;
+    }
+
     setLoading(true);
-    setError('');
 
-    const { error } = await supabase.auth.updateUser({ password });
+    const { error: updateError } = await supabase.auth.updateUser({ password });
 
-    if (error) {
-      setError(error.message);
+    if (updateError) {
+      setError(updateError.message);
       setLoading(false);
       return;
     }
 
-    router.push('/login?reset=success');
+    setDone(true);
+    setTimeout(() => router.push('/login?reset=success'), 2000);
   }
 
   return (
-    <div className="min-h-screen bg-zinc-950 flex items-center justify-center p-6 antialiased">
+    <div className="min-h-screen bg-brand-950 flex items-center justify-center p-6">
       <motion.div
-        className="w-full max-w-[400px]"
-        initial={{ opacity: 0, y: 20 }}
+        className="w-full max-w-sm"
+        initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, ease: [0.25, 0.46, 0.45, 0.94] }}
+        transition={{ duration: 0.4 }}
       >
-        {/* Branding */}
-        <div className="flex items-center gap-2.5 mb-8">
-          <div className="w-9 h-9 rounded-xl flex items-center justify-center bg-zinc-900 border border-zinc-800 shadow-sm">
-            <PrinterIcon className="w-4 h-4 text-amber-500" />
-          </div>
-          <span className="text-white font-semibold text-base tracking-tight">Printly</span>
+        <div className="w-12 h-12 rounded-2xl flex items-center justify-center mb-6 bg-brand-500/10 border border-brand-500/20">
+          <ShieldCheck className="w-6 h-6 text-brand-500" />
         </div>
 
-        <div className="rounded-2xl p-8 border border-zinc-900 bg-zinc-900/20 backdrop-blur-xl shadow-2xl">
-          <div className="w-12 h-12 rounded-xl flex items-center justify-center mb-6 bg-zinc-900 border border-zinc-800">
-            <ShieldCheck className="w-5 h-5 text-zinc-400" />
+        <h1 className="text-3xl font-black text-white tracking-tight mb-1">
+          Set new password
+        </h1>
+        <p className="text-sm mb-8 text-brand-200/60">
+          Choose a strong password for your account.
+        </p>
+
+        {done ? (
+          <div className="rounded-xl p-4 text-center border bg-emerald-950/30 border-emerald-900/50">
+            <p className="text-emerald-400 font-semibold text-sm">
+              Password updated. Redirecting to login...
+            </p>
           </div>
-
-          <h1 className="text-2xl font-medium tracking-tight text-zinc-100 mb-1">
-            Set new password
-          </h1>
-          <p className="text-sm text-zinc-500 mb-6 leading-relaxed">
-            Configure a strong authentication key bound to your identity record.
-          </p>
-
-          <form onSubmit={handleReset} className="space-y-4">
+        ) : (
+          <form onSubmit={handleUpdate} className="space-y-4">
             <div className="space-y-1.5">
-              <Label className="text-xs font-medium text-zinc-400">
+              <Label className="text-sm font-medium text-brand-300">
                 New password
               </Label>
               <div className="relative">
                 <Input
-                  type={showPassword ? 'text' : 'password'}
+                  type={showPass ? 'text' : 'password'}
                   value={password}
                   onChange={e => setPassword(e.target.value)}
-                  placeholder="Min. 8 characters"
+                  placeholder="At least 8 characters"
                   required
-                  className="h-10 pl-3 pr-10 bg-zinc-900/40 border-zinc-800/80 text-zinc-200 text-sm placeholder:text-zinc-600 focus-visible:ring-1 focus-visible:ring-amber-500/30 focus-visible:border-amber-500 transition-all rounded-lg"
+                  className="h-11 text-white pr-10 bg-brand-900/40 border-brand-800 focus-visible:ring-1 focus-visible:ring-brand-500 focus-visible:border-brand-500"
                 />
                 <button
                   type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-600 hover:text-zinc-400 transition-colors"
+                  onClick={() => setShowPass(p => !p)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 transition-colors text-brand-600 hover:text-brand-300"
                 >
-                  {showPassword ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
+                  {showPass ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
               </div>
             </div>
 
             <div className="space-y-1.5">
-              <Label className="text-xs font-medium text-zinc-400">
+              <Label className="text-sm font-medium text-brand-300">
                 Confirm password
               </Label>
               <Input
                 type="password"
                 value={confirm}
                 onChange={e => setConfirm(e.target.value)}
-                placeholder="Repeat new password"
+                placeholder="Repeat your password"
                 required
-                className="h-10 px-3 bg-zinc-900/40 border-zinc-800/80 text-zinc-200 text-sm placeholder:text-zinc-600 focus-visible:ring-1 focus-visible:ring-amber-500/30 focus-visible:border-amber-500 transition-all rounded-lg"
+                className="h-11 text-white bg-brand-900/40 border-brand-800 focus-visible:ring-1 focus-visible:ring-brand-500 focus-visible:border-brand-500"
               />
             </div>
 
             {error && (
-              <div className="rounded-lg p-3 border border-red-500/10 bg-red-500/[0.02]">
-                <p className="text-xs text-red-400 font-medium">{error}</p>
-              </div>
+              <p className="text-sm rounded-xl px-4 py-3 border text-red-300 bg-red-950/40 border-red-900/50">
+                {error}
+              </p>
             )}
 
             <Button
               type="submit"
-              disabled={loading}
-              className="w-full h-10 bg-zinc-100 hover:bg-zinc-200 text-zinc-950 font-medium text-sm transition-colors rounded-lg mt-2 shadow-sm"
+              disabled={loading || !sessionReady}
+              className="w-full h-12 font-black text-sm text-brand-950 rounded-xl shadow-lg transition-all active:scale-[0.98] bg-gradient-to-br from-brand-300 to-brand-500 hover:from-brand-200 hover:to-brand-400"
             >
-              {loading ? (
-                <span className="flex items-center gap-2 justify-center">
-                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                  Updating...
-                </span>
-              ) : 'Update password'}
+              {loading
+                ? <><Loader2 className="w-4 h-4 mr-2 animate-spin text-brand-950" />Updating...</>
+                : 'Update password'
+              }
             </Button>
+
+            {!sessionReady && (
+              <p className="text-xs text-center text-brand-600">
+                Waiting for session from reset link...
+              </p>
+            )}
           </form>
-        </div>
+        )}
       </motion.div>
     </div>
   );

@@ -144,7 +144,11 @@ export function NotificationForm({
             {sending && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
             {sent && <CheckCircle2 className="w-4 h-4 mr-2" />}
             {!sending && !sent && <Send className="w-4 h-4 mr-2" />}
-            {sent ? 'Dispatched Successfully' : sending ? 'Broadcasting...' : 'Publish to All Terminal Feeds'}
+            {(() => {
+              if (sent) return 'Dispatched Successfully';
+              if (sending) return 'Broadcasting...';
+              return 'Publish to All Terminal Feeds';
+            })()}
           </Button>
         </form>
       </div>
