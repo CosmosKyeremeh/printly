@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { StatusBadge } from '@/components/shared/StatusBadge';
 import { formatDate } from '@/lib/utils';
 import { CreditCard, Smartphone } from 'lucide-react';
-import { MoMoPaymentModal } from './MoMoPaymentModal';
+import { PaystackPaymentModal } from './PaystackPaymentModal';
 
 function computePrice(file: UnpaidFile): number {
   if (file.price_locked && file.manual_price !== null) {
@@ -184,10 +184,9 @@ export function PaymentsList({
       )}
 
       {payingFile && (
-        <MoMoPaymentModal
+        <PaystackPaymentModal
           fileId={payingFile.id}
           fileName={payingFile.name}
-          filePrice={payingFile.price}
           onClose={() => setPayingFile(null)}
           onSuccess={handlePaymentSuccess}
         />

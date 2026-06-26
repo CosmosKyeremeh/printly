@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Loader2, CheckCircle2, X, CreditCard } from 'lucide-react';
+import { Loader2, CheckCircle2, X, CreditCard, Clock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 type Step = 'confirm' | 'processing' | 'success' | 'error';
@@ -15,12 +15,13 @@ type Props = {
 };
 
 export function PaystackPaymentModal({ fileId, fileName, onClose, onSuccess }: Props) {
-  const [step, setStep]       = useState<Step>('confirm');
-  const [price, setPrice]     = useState<number | null>(null);
-  const [error, setError]     = useState('');
-  const [loading, setLoading] = useState(true);
+  const [step, setStep]         = useState<Step>('confirm');
+  const [price, setPrice]       = useState<number | null>(null);
+  const [isPriceSet, setIsPriceSet] = useState(false);
+  const [error, setError]       = useState('');
+  const [loading, setLoading]   = useState(true);
 
-  // Fetch the latest price when modal opens
+  // Fetch latest price status when modal opens
   useEffect(() => {
     fetch('/api/payments/initialize', {
       method:  'POST',
@@ -30,6 +31,7 @@ export function PaystackPaymentModal({ fileId, fileName, onClose, onSuccess }: P
       .then(r => r.json())
       .then(d => {
         setPrice(d.amount ?? null);
+        setIsPriceSet(d.isPriceSet ?? false);
         setLoading(false);
       })
       .catch(() => setLoading(false));
@@ -38,7 +40,6 @@ export function PaystackPaymentModal({ fileId, fileName, onClose, onSuccess }: P
   async function handlePay() {
     setStep('processing');
 
-    // Step 1 — get reference from server
     const res  = await fetch('/api/payments/initialize', {
       method:  'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -52,24 +53,20 @@ export function PaystackPaymentModal({ fileId, fileName, onClose, onSuccess }: P
       return;
     }
 
-    // Step 2 — open Paystack popup
-    // @ts-ignore — Paystack loads from CDN script
+    // @ts-ignore
     const PaystackPop = (await import('@paystack/inline-js')).default;
     const handler = PaystackPop.setup({
-      key:       data.publicKey,
-      email:     '', // filled by Paystack from server initialization
-      amount:    Math.round(data.amount * 100), // pesewas
-      ref:       data.reference,
-      currency:  'GHS',
-      channels:  ['mobile_money', 'card'],
-      callback: (response: { reference: string }) => {
-        // Payment completed — webhook will confirm on server
-        // Optimistic update on client
+      key:      data.publicKey,
+      email:    '',
+      amount:   Math.round(data.amount * 100),
+      ref:      data.reference,
+      currency: 'GHS',
+      channels: ['mobile_money', 'card'],
+      callback: () => {
         setStep('success');
         setTimeout(() => onSuccess(fileId, fileName, data.amount), 2000);
       },
       onClose: () => {
-        // User closed without paying
         setStep('confirm');
       },
     });
@@ -91,6 +88,7 @@ export function PaystackPaymentModal({ fileId, fileName, onClose, onSuccess }: P
         style={{ background: '#0f0c06', borderColor: '#6a4920' }}
         onClick={e => e.stopPropagation()}
       >
+        {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl flex items-center justify-center"
@@ -116,34 +114,58 @@ export function PaystackPaymentModal({ fileId, fileName, onClose, onSuccess }: P
           {step === 'confirm' && (
             <motion.div key="confirm"
               initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+
+              {/* Price display area */}
               <div className="rounded-xl p-4 text-center mb-5 border"
                 style={{ background: '#1a1409', borderColor: '#6a492040' }}>
                 {loading ? (
-                  <Loader2 className="w-5 h-5 animate-spin mx-auto" style={{ color: '#cca152' }} />
-                ) : (
+                  <Loader2 className="w-5 h-5 animate-spin mx-auto"
+                    style={{ color: '#cca152' }} />
+                ) : isPriceSet && price !== null ? (
                   <>
                     <p className="text-2xl font-medium text-white">
-                      GHS {price?.toFixed(2) ?? '—'}
+                      GHS {price.toFixed(2)}
                     </p>
                     <p className="text-xs mt-1" style={{ color: '#93682c' }}>
                       Printing fee
                     </p>
                   </>
+                ) : (
+                  // Price not set yet by admin
+                  <>
+                    <Clock className="w-6 h-6 mx-auto mb-2" style={{ color: '#6a4920' }} />
+                    <p className="text-sm font-medium" style={{ color: '#e9cb93' }}>
+                      Price not set yet
+                    </p>
+                    <p className="text-xs mt-1 leading-relaxed" style={{ color: '#6a4920' }}>
+                      Admin will review your file and update the price shortly.
+                      Check back here once you receive a notification.
+                    </p>
+                  </>
                 )}
               </div>
 
-              <p className="text-xs text-center mb-4" style={{ color: '#6a4920' }}>
-                Pay with MTN MoMo, Vodafone Cash, AirtelTigo, or card.
-                Secured by Paystack.
-              </p>
+              {isPriceSet && price !== null && (
+                <p className="text-xs text-center mb-4" style={{ color: '#6a4920' }}>
+                  Pay with MTN MoMo, Vodafone Cash, AirtelTigo, or card.
+                  Your Rep will set price soon.
+                </p>
+              )}
 
               <Button
                 onClick={handlePay}
-                disabled={loading || price === null}
-                className="w-full h-11 font-medium text-sm rounded-xl text-brand-950"
-                style={{ background: '#cca152' }}
+                disabled={loading || !isPriceSet || price === null}
+                className="w-full h-11 font-medium text-sm rounded-xl"
+                style={{
+                  background: isPriceSet ? '#cca152' : '#1a1409',
+                  color: isPriceSet ? '#090a0f' : '#6a4920',
+                  cursor: isPriceSet ? 'pointer' : 'not-allowed',
+                  border: isPriceSet ? 'none' : '1px solid #6a4920',
+                }}
               >
-                Pay GHS {price?.toFixed(2) ?? '...'}
+                {isPriceSet && price !== null
+                  ? `Pay GHS ${price.toFixed(2)}`
+                  : 'Awaiting admin pricing'}
               </Button>
             </motion.div>
           )}
@@ -182,8 +204,12 @@ export function PaystackPaymentModal({ fileId, fileName, onClose, onSuccess }: P
               initial={{ opacity: 0 }} animate={{ opacity: 1 }}
               className="text-center py-6">
               <p className="text-red-400 text-sm mb-4">{error}</p>
-              <Button onClick={() => setStep('confirm')} variant="outline"
-                className="text-sm border-brand-800">
+              <Button
+                onClick={() => setStep('confirm')}
+                variant="outline"
+                className="text-sm"
+                style={{ borderColor: '#6a4920', color: '#e9cb93' }}
+              >
                 Try again
               </Button>
             </motion.div>

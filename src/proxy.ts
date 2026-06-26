@@ -16,6 +16,7 @@ const PUBLIC_ROUTES = [
   '/api/organizations/lookup',
   '/api/notifications/mark-read',
   '/api/payments/confirm',
+  '/api/payments/webhook',
 ];
 
 export async function proxy(request: NextRequest) {

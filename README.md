@@ -308,7 +308,7 @@ src/
 │   │                      # StatusBadge, PageSkeleton, PWAInstallPrompt,
 │   │                      # ServiceWorkerRegistration
 │   ├── student/           # UploadZone, FileList, ConvertButton,
-│   │                      # MoMoPaymentModal, PaymentsList,
+│   │                      # PaystackPaymentModal, PaymentsList,
 │   │                      # NotificationAccordion, ResourceDownloadButton,
 │   │                      # MarkNotificationsRead
 │   └── ui/                # shadcn/ui base components
