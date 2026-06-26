@@ -21,7 +21,6 @@ type QueuedFile = {
 export function UploadZone({ categories }: { categories: Category[] }) {
   const [queue, setQueue] = useState<QueuedFile[]>([]);
   const [categoryId, setCategoryId] = useState('');
-  const [description, setDescription] = useState('');
   const [instructions, setInstructions] = useState('');
   const [formError, setFormError] = useState(''); 
   const supabase = createClient();
@@ -46,11 +45,6 @@ export function UploadZone({ categories }: { categories: Category[] }) {
   }
 
   async function uploadAll() {
-    if (!categoryId) {
-      setFormError('Please select a category before uploading.');
-      return;
-    }
-
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return;
 
@@ -66,7 +60,6 @@ export function UploadZone({ categories }: { categories: Category[] }) {
         setTimeout(() => {
           setQueue([]);
           setCategoryId('');
-          setDescription('');
           setInstructions('');
         }, 2000);
       }
@@ -88,12 +81,11 @@ export function UploadZone({ categories }: { categories: Category[] }) {
 
         const { error: dbError } = await supabase.from('files').insert({
           owner_id: user.id,
-          category_id: categoryId,
+          category_id: categoryId || null, // Safely fallback to null if left blank
           file_name: safeName, 
           file_path: path,
           file_size: file.size,
           file_type: file.type,
-          description: description || null,
           instructions: instructions || null,
         });
 
@@ -116,41 +108,28 @@ export function UploadZone({ categories }: { categories: Category[] }) {
   return (
     <div className="space-y-5">
 
-      {/* Category + description */}
-      <div className="grid sm:grid-cols-2 gap-4">
-        <div className="space-y-1.5">
-          <label className="text-zinc-300 text-sm font-medium">Category *</label>
-          <select
-            aria-label="Assignment category"
-            value={categoryId}
-            onChange={e => {
-              setCategoryId(e.target.value);
-              setFormError(''); 
-            }}
-            className="w-full h-11 bg-zinc-900 border border-zinc-700 rounded-lg px-3 text-white text-sm focus:outline-none focus:border-amber-500 transition-colors"
-          >
-            <option value="">Select a category...</option>
-            {categories.map(c => (
-              <option key={c.id} value={c.id}>{c.name}</option>
-            ))}
-          </select>
-        </div>
-        <div className="space-y-1.5">
-          <label className="text-zinc-300 text-sm font-medium">
-            Description
-            <span className="text-zinc-600 font-normal ml-1">(optional)</span>
-          </label>
-          <input
-            type="text"
-            value={description}
-            onChange={e => setDescription(e.target.value)}
-            placeholder="e.g. Final submission"
-            className="w-full h-11 bg-zinc-900 border border-zinc-700 rounded-lg px-3 text-white text-sm placeholder:text-zinc-600 focus:outline-none focus:border-amber-500 transition-colors"
-          />
-        </div>
+      {/* Category selection full width (Description removed) */}
+      <div className="space-y-1.5">
+        <label className="text-zinc-300 text-sm font-medium">
+          Category <span className="text-zinc-600 font-normal ml-1">(optional)</span>
+        </label>
+        <select
+          aria-label="Assignment category"
+          value={categoryId}
+          onChange={e => {
+            setCategoryId(e.target.value);
+            setFormError(''); 
+          }}
+          className="w-full h-11 bg-zinc-900 border border-zinc-700 rounded-lg px-3 text-white text-sm focus:outline-none focus:border-amber-500 transition-colors"
+        >
+          <option value="">Select a category...</option>
+          {categories.map(c => (
+            <option key={c.id} value={c.id}>{c.name}</option>
+          ))}
+        </select>
       </div>
 
-      {/* Render the error below the category/description grid */}
+      {/* Render form errors if triggered elsewhere */}
       {formError && (
         <div className="flex items-center gap-2 bg-red-500/10 border border-red-500/20 text-red-400 p-3.5 rounded-xl text-sm">
           <AlertCircle className="w-4 h-4 shrink-0" />
@@ -218,7 +197,6 @@ export function UploadZone({ categories }: { categories: Category[] }) {
                 <p className="text-white text-sm font-medium truncate">{item.file.name}</p>
                 <p className="text-zinc-500 text-xs">{formatBytes(item.file.size)}</p>
                 
-                {/* Simplified inline message matching the manual calculation rules */}
                 <p className="text-zinc-500 text-xs mt-0.5 font-medium">
                   Pending review · Final price assigned by admin
                 </p>
@@ -269,7 +247,6 @@ export function UploadZone({ categories }: { categories: Category[] }) {
             Upload {pendingCount} file{pendingCount > 1 ? 's' : ''}
           </Button>
 
-          {/* New Gold and Zinc Glassmorphic Informational Hint */}
           <div className="p-3.5 rounded-xl backdrop-blur-md bg-zinc-900/30 border border-zinc-900 text-center shadow-inner">
             <p className="text-xs text-zinc-400 leading-relaxed font-medium">
               💡 <span className="text-amber-500 font-bold uppercase tracking-wider text-[10px] mr-1">Printing Fee:</span> 

@@ -44,6 +44,35 @@ export async function POST(request: Request) {
       );
     }
 
+    // Initialize Supabase Admin Client
+    const admin = adminClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY!,
+      { auth: { autoRefreshToken: false, persistSession: false } }
+    );
+
+    // ── Check if a pending payment already exists for this file ──
+    // If so, reuse its reference — avoids Duplicate Transaction Reference error
+    const { data: existingPayment } = await admin
+      .from('payments')
+      .select('paystack_reference, amount')
+      .eq('file_id', fileId)
+      .eq('student_id', user.id)
+      .eq('status', 'pending')
+      .eq('provider', 'paystack')
+      .maybeSingle();
+
+    if (existingPayment?.paystack_reference) {
+      return NextResponse.json({
+        reference: existingPayment.paystack_reference,
+        amount:    existingPayment.amount,
+        isPriceSet: true,
+        publicKey: process.env.NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY,
+        email:     user.email, // Passing user context back down to frontend context securely
+      });
+    }
+
+    // ── No existing pending — generate a fresh unique reference and hit Paystack ──
     const amountPesewas = Math.round(amountGHS * 100);
     const reference = `PRINTLY-${fileId.slice(0, 8).toUpperCase()}-${Date.now()}`;
 
@@ -73,12 +102,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Payment initialization failed.' }, { status: 500 });
     }
 
-    const admin = adminClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.SUPABASE_SERVICE_ROLE_KEY!,
-      { auth: { autoRefreshToken: false, persistSession: false } }
-    );
-
+    // Log the fresh record safely down to database
     await admin.from('payments').insert({
       file_id:            fileId,
       student_id:         user.id,
@@ -95,6 +119,7 @@ export async function POST(request: Request) {
       amount:    amountGHS,
       isPriceSet,
       publicKey: process.env.NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY,
+      email:     user.email,
     });
 
   } catch (err) {

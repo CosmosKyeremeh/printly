@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
@@ -22,6 +22,14 @@ export function SignupForm({ isFirstSetup }: Props) {
   const [error, setError]         = useState('');
   const router   = useRouter();
   const supabase = createClient();
+
+  // ── Fix: Clear Stale Session Local Storage Post-Password Reset ──
+  useEffect(() => {
+    if (typeof window !== 'undefined' && window.location.search.includes('reset=success')) {
+      // Wipes local storage auth states locally so Supabase client doesn't auto-fetch with bad tokens
+      supabase.auth.signOut({ scope: 'local' });
+    }
+  }, [supabase]);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -108,7 +116,7 @@ export function SignupForm({ isFirstSetup }: Props) {
       {/* Main Container Layout */}
       <main className="w-full max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8 items-center my-auto relative z-10">
         
-        {/* Left Column Text Panel - Floating cleanly over the main screen background */}
+        {/* Left Column Text Panel */}
         <div className="lg:col-span-6 xl:col-span-7 text-left space-y-6 hidden lg:block pr-8">
           <h1 className="text-5xl font-black text-amber-500 tracking-tight leading-none whitespace-pre-line drop-shadow-md">
             {isFirstSetup ? 'Create your\ndeployment key.' : 'Connect to your\nacademic circle.'}
@@ -116,19 +124,9 @@ export function SignupForm({ isFirstSetup }: Props) {
           <p className="text-brand-100/80 max-w-md text-white leading-relaxed drop-shadow">
             Streamline your workflow deployments and coordinate computational frameworks directly inside your hub.
           </p>
-          {/* <div className="pt-4 space-y-4 max-w-md">
-            <div className="flex gap-3.5 items-start">
-              <span className="w-2 h-2 rounded-full bg-brand-400 mt-2 shrink-0 shadow" />
-              <p className="text-sm text-brand-200/90"><strong className="text-white">Fluid Engine:</strong> Fast distribution channels across standard clusters.</p>
-            </div>
-            <div className="flex gap-3.5 items-start">
-              <span className="w-2 h-2 rounded-full bg-brand-400 mt-2 shrink-0 shadow" />
-              <p className="text-sm text-brand-200/90"><strong className="text-white">Structured Administration:</strong> Precise role control mapping and execution logging pipelines.</p>
-            </div>
-          </div> */}
         </div>
 
-        {/* Right Column Registration Component - Crystal clear look without backdrop tint blockage */}
+        {/* Right Column Registration Component */}
         <div className="lg:col-span-6 xl:col-span-5 flex justify-center lg:justify-end">
           <motion.div
             className="w-full max-w-md bg-brand-950/10 border border-white/15 backdrop-blur-md rounded-2xl p-6 sm:p-10 shadow-2xl shadow-black/30"
@@ -137,7 +135,6 @@ export function SignupForm({ isFirstSetup }: Props) {
             transition={{ duration: 0.4, ease: 'easeOut' }}
           >
             <div className="mb-8">
-              {/* Mobile Branding Text (Only visible on small viewports) */}
               <div className="lg:hidden flex items-center gap-2 mb-4">
                 <PrinterIcon className="w-4 h-4 text-amber-500" />
                 <span className="text-xs tracking-widest text-white font-mono uppercase">Printly Hub</span>
@@ -184,7 +181,7 @@ export function SignupForm({ isFirstSetup }: Props) {
                 </div>
               </div>
 
-              {/* Password Input with eye view toggles */}
+              {/* Password Input */}
               <div className="space-y-1.5">
                 <Label className="text-xs font-medium text-white tracking-wide uppercase">Password</Label>
                 <div className="relative">
@@ -197,11 +194,10 @@ export function SignupForm({ isFirstSetup }: Props) {
                     required
                     className="h-11 pl-10 pr-10 text-sm text-brand-50 bg-white/5 border-white/10 placeholder:text-brand-300/40 focus-visible:ring-1 focus-visible:ring-brand-400 focus-visible:border-brand-400 rounded-xl transition-all"
                   />
-                  {/* {bg-amber-500 hover:bg-amber-400 text-zinc-950} */}
                   <button
                     type="button"
                     onClick={() => setShowPass(prev => !prev)}
-                    className="absolute right-3.5 top-1/2 -translate-y-1/2 transition-colors text-zinc-950 hover:text-brand-100 "
+                    className="absolute right-3.5 top-1/2 -translate-y-1/2 transition-colors text-brand-300 hover:text-brand-100"
                   >
                     {showPass ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </button>

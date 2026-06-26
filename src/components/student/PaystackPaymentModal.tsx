@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Loader2, CheckCircle2, X, CreditCard, Clock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -15,11 +15,14 @@ type Props = {
 };
 
 export function PaystackPaymentModal({ fileId, fileName, onClose, onSuccess }: Props) {
-  const [step, setStep]         = useState<Step>('confirm');
-  const [price, setPrice]       = useState<number | null>(null);
+  const [step, setStep]             = useState<Step>('confirm');
+  const [price, setPrice]           = useState<number | null>(null);
   const [isPriceSet, setIsPriceSet] = useState(false);
-  const [error, setError]       = useState('');
-  const [loading, setLoading]   = useState(true);
+  const [error, setError]           = useState('');
+  const [loading, setLoading]       = useState(true);
+  
+  // Guard reference to block concurrent initialization requests
+  const isProcessing                = useRef(false);
 
   // Fetch latest price status when modal opens
   useEffect(() => {
@@ -38,40 +41,55 @@ export function PaystackPaymentModal({ fileId, fileName, onClose, onSuccess }: P
   }, [fileId]);
 
   async function handlePay() {
+    // Block if a request is already in-flight
+    if (isProcessing.current) return;
+    isProcessing.current = true;
+
     setStep('processing');
 
-    const res  = await fetch('/api/payments/initialize', {
-      method:  'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body:    JSON.stringify({ fileId }),
-    });
-    const data = await res.json();
+    try {
+      const res  = await fetch('/api/payments/initialize', {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify({ fileId }),
+      });
+      const data = await res.json();
 
-    if (!res.ok || !data.reference) {
-      setError(data.error ?? 'Could not initialize payment.');
+      if (!res.ok || !data.reference) {
+        setError(data.error ?? 'Could not initialize payment.');
+        setStep('error');
+        isProcessing.current = false;
+        return;
+      }
+
+      // @ts-ignore
+      const { default: PaystackPop } = await import('@paystack/inline-js');
+      const paystack = new PaystackPop();
+
+      paystack.newTransaction({
+        key:       data.publicKey,
+        email:     data.email || 'borngreatcoszay@gmail.com',
+        amount:    Math.round(data.amount * 100),
+        ref:       data.reference,
+        currency:  'GHS',
+        channels:  ['mobile_money', 'card'],
+        onSuccess: () => {
+          isProcessing.current = false;
+          setStep('success');
+          setTimeout(() => onSuccess(fileId, fileName, data.amount), 2000);
+        },
+        // The inline-js SDK expects 'onClose' to handle window dismissal/cancellation
+        onClose: () => {
+          isProcessing.current = false;
+          setStep('confirm');
+        },
+      });
+
+    } catch {
+      setError('Something went wrong. Please try again.');
       setStep('error');
-      return;
+      isProcessing.current = false;
     }
-
-    // @ts-ignore
-    const PaystackPop = (await import('@paystack/inline-js')).default;
-    const handler = PaystackPop.setup({
-      key:      data.publicKey,
-      email:    '',
-      amount:   Math.round(data.amount * 100),
-      ref:      data.reference,
-      currency: 'GHS',
-      channels: ['mobile_money', 'card'],
-      callback: () => {
-        setStep('success');
-        setTimeout(() => onSuccess(fileId, fileName, data.amount), 2000);
-      },
-      onClose: () => {
-        setStep('confirm');
-      },
-    });
-
-    handler.openIframe();
   }
 
   return (
@@ -131,7 +149,6 @@ export function PaystackPaymentModal({ fileId, fileName, onClose, onSuccess }: P
                     </p>
                   </>
                 ) : (
-                  // Price not set yet by admin
                   <>
                     <Clock className="w-6 h-6 mx-auto mb-2" style={{ color: '#6a4920' }} />
                     <p className="text-sm font-medium" style={{ color: '#e9cb93' }}>
@@ -148,7 +165,7 @@ export function PaystackPaymentModal({ fileId, fileName, onClose, onSuccess }: P
               {isPriceSet && price !== null && (
                 <p className="text-xs text-center mb-4" style={{ color: '#6a4920' }}>
                   Pay with MTN MoMo, Vodafone Cash, AirtelTigo, or card.
-                  Your Rep will set price soon.
+                  Secured by Paystack.
                 </p>
               )}
 

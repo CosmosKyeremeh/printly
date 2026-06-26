@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, Suspense } from 'react';
+import { useState, Suspense, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter, useSearchParams } from 'next/navigation';
@@ -23,6 +23,19 @@ function LoginForm() {
   const passwordReset = searchParams.get('reset') === 'success';
   const confirmError = searchParams.get('error') === 'confirmation_failed';
   const supabase = createClient();
+
+  useEffect(() => {
+    // ── Fix: Supabase 400 on ant_type=password (Stale Token Error) ──
+    // This warning occurs when stale session data exists after a password reset.
+    // If the reset flow just completed successfully, explicitly sign out
+    // before initializing the login form to clear orphaned state.
+    if (passwordReset) {
+      supabase.auth.signOut().then(() => {
+        // Log explicitly for verification during debugging
+        console.log("Printly Security: Stale session cleared post-password reset.");
+      });
+    }
+  }, [passwordReset, supabase.auth]);
 
   async function handleLogin(e: React.FormEvent) {
     e.preventDefault();
@@ -55,7 +68,7 @@ function LoginForm() {
       <div className="absolute inset-0 z-0 pointer-events-none">
         <div className="absolute inset-0 opacity-100">
           <Image
-            src="/images/school/printly-background.jpg" // 🚀 Changed from .jfif/.jftf to .jpg
+            src="/images/school/printly-background.jpg" 
             alt="Global Network Background"
             fill
             sizes="100vw"
