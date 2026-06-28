@@ -1,5 +1,7 @@
 import { createClient } from '@/lib/supabase/server';
 import { ProfileForm } from '@/components/shared/ProfileForm';
+import { PrintlyQRCode } from '@/components/shared/PrintlyQRCode';
+import { OrgDetailsCard } from '@/components/admin/OrgDetailsCard';
 import { UserCircle, ShieldCheck, Terminal, ExternalLink } from 'lucide-react';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
@@ -24,6 +26,16 @@ export default async function AdminProfilePage() {
     redirect('/');
   }
 
+  // Fetch org details separately — includes join code for display
+  const org = profile?.org_id
+  ? await supabase
+      .from('organizations')
+      .select('id, name, join_code, created_at')
+      .eq('id', profile.org_id)
+      .single()
+      .then(({ data }) => data)
+  : null;
+
   return (
     <div className="max-w-2xl mx-auto px-4 py-8 font-sans antialiased text-zinc-50 space-y-8">
       
@@ -34,12 +46,21 @@ export default async function AdminProfilePage() {
         </div>
         <div className="space-y-0.5">
           <h1 className="text-xl font-medium text-zinc-100 tracking-tight">My Profile</h1>
-          <p className="text-xs text-zinc-500">Manage and view your structural account permissions</p>
+          <p className="text-xs text-zinc-500">Manage your administrative credentials and network access</p>
         </div>
       </div>
 
-      {/* Profile Form Wrapper */}
-      <ProfileForm profile={profile} />
+      {/* Main Content Layout Block */}
+      <div className="space-y-6">
+        {/* Org details — shown first so admin sees it immediately */}
+        {org && <OrgDetailsCard org={org} />}
+
+        {/* Profile Form Wrapper */}
+        <ProfileForm profile={profile} />
+
+        {/* QR Code Segment */}
+        <PrintlyQRCode />
+      </div>
 
       {/* ── Administrative Quick Command Links ── */}
       <div className="space-y-3">
