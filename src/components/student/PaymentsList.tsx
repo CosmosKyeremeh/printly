@@ -3,14 +3,15 @@
 import { useState } from 'react';
 import { StatusBadge } from '@/components/shared/StatusBadge';
 import { formatDate } from '@/lib/utils';
-import { CreditCard, Smartphone } from 'lucide-react';
+import { Clock, CreditCard, Smartphone } from 'lucide-react';
 import { PaystackPaymentModal } from './PaystackPaymentModal';
 
-function computePrice(file: UnpaidFile): number {
+// Price is only considered "set" once admin has explicitly locked it — mirrors /api/payments/initialize
+function computePrice(file: UnpaidFile): number | null {
   if (file.price_locked && file.manual_price !== null) {
     return Number(file.manual_price);
   }
-  return Math.max(1, file.page_count ?? 1) * 1.00;
+  return null;
 }
 
 type UnpaidFile = {
@@ -96,16 +97,18 @@ export function PaymentsList({
                       </p>
                       
                       <div className="flex items-center gap-1.5 flex-wrap pt-1">
-                        <span className="text-base font-black text-transparent bg-clip-text bg-gradient-to-r from-amber-200 via-yellow-400 to-amber-500 drop-shadow-[0_1px_2px_rgba(0,0,0,0.5)]">
-                          GHS {price.toFixed(2)}
-                        </span>
-                        {file.price_locked ? (
-                          <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-md bg-amber-500/10 text-amber-400 border border-amber-500/20">
-                            Fixed by admin
-                          </span>
+                        {price !== null ? (
+                          <>
+                            <span className="text-base font-black text-transparent bg-clip-text bg-gradient-to-r from-amber-200 via-yellow-400 to-amber-500 drop-shadow-[0_1px_2px_rgba(0,0,0,0.5)]">
+                              GHS {price.toFixed(2)}
+                            </span>
+                            <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-md bg-amber-500/10 text-amber-400 border border-amber-500/20">
+                              Fixed by admin
+                            </span>
+                          </>
                         ) : (
-                          <span className="text-xs text-zinc-400 font-normal">
-                            ({file.page_count ?? 1} pages × GHS 1.00)
+                          <span className="text-xs text-zinc-400 font-medium italic">
+                            Under review — admin will set the price shortly
                           </span>
                         )}
                       </div>
@@ -115,15 +118,30 @@ export function PaymentsList({
                     </div>
 
                     <button
-                      onClick={() => setPayingFile({ id: file.id, name: file.file_name, price })}
-                      className="group flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold text-zinc-950 shrink-0 transition-all duration-300 transform active:scale-95"
-                      style={{ 
+                      onClick={() => price !== null && setPayingFile({ id: file.id, name: file.file_name, price })}
+                      disabled={price === null}
+                      className="group flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold shrink-0 transition-all duration-300 transform active:scale-95 disabled:cursor-not-allowed"
+                      style={ price !== null ? {
+                        color: '#09090b',
                         background: 'linear-gradient(135deg, #fcd34d 0%, #d4af37 50%, #b45309 100%)',
                         boxShadow: '0 4px 14px 0 rgba(212, 175, 55, 0.4), inset 0 1px 0px 0 rgba(255, 255, 255, 0.4)'
+                      } : {
+                        color: '#71717a',
+                        background: 'rgba(212, 175, 55, 0.06)',
+                        border: '1px solid rgba(212, 175, 55, 0.15)',
                       }}
                     >
-                      <Smartphone className="w-3.5 h-3.5 transition-transform duration-300 group-hover:scale-110" />
-                      <span>Pay GHS {price.toFixed(2)}</span>
+                      {price !== null ? (
+                        <>
+                          <Smartphone className="w-3.5 h-3.5 transition-transform duration-300 group-hover:scale-110" />
+                          <span>Pay GHS {price.toFixed(2)}</span>
+                        </>
+                      ) : (
+                        <>
+                          <Clock className="w-3.5 h-3.5" />
+                          <span>Awaiting price</span>
+                        </>
+                      )}
                     </button>
                   </div>
                 </div>
