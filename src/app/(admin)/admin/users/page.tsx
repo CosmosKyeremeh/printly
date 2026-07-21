@@ -13,6 +13,21 @@ export default async function UsersPage() {
     .order('role')
     .order('full_name');
 
+  const { data: currentProfile } = await supabase
+    .from('profiles')
+    .select('org_id')
+    .eq('id', user!.id)
+    .single();
+
+  const org = currentProfile?.org_id
+    ? await supabase
+        .from('organizations')
+        .select('join_code')
+        .eq('id', currentProfile.org_id)
+        .single()
+        .then(({ data }) => data)
+    : null;
+
   return (
     <div className="max-w-3xl mx-auto">
       <div className="flex items-center gap-3 mb-8">
@@ -28,7 +43,7 @@ export default async function UsersPage() {
       </div>
 
       <div className="space-y-6">
-        <InviteStudents />
+        <InviteStudents joinCode={org?.join_code ?? null} />
         <UserRoleManager
           users={profiles ?? []}
           currentUserId={user!.id}

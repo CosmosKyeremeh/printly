@@ -11,15 +11,18 @@ export function NotificationBell({ role = 'student' }: { role?: 'student' | 'adm
   const href = role === 'admin' ? '/admin/notifications' : '/notifications';
 
   const fetchUnread = useCallback(async (uid: string) => {
-    const { data } = await supabase
-      .from('notifications')
-      .select('id, read_by')
-      .eq('is_global', true);
+    // Admins additionally care about per-file submission alerts (is_global: false);
+    // students only ever see broadcast announcements. RLS already scopes both to
+    // the caller's own org, so no client-side org filter is needed here.
+    const query = supabase.from('notifications').select('id, read_by');
+    const { data } = role === 'admin'
+      ? await query.or('is_global.eq.true,type.eq.submission')
+      : await query.eq('is_global', true);
     if (data) {
       // Counts all entries where the current user id does not exist inside the tracking block
       setUnread(data.filter(n => !n.read_by?.includes(uid)).length);
     }
-  }, [supabase]);
+  }, [supabase, role]);
 
   useEffect(() => {
     let isMounted = true;

@@ -23,7 +23,8 @@ export function OrgDetailsCard({ org }: { org: Org }) {
   }
 
   function copyLink() {
-    const link = `${window.location.origin}/signup`;
+    const query = org.join_code ? `?code=${encodeURIComponent(org.join_code)}` : '';
+    const link = `${window.location.origin}/auth/invite${query}`;
     navigator.clipboard.writeText(link);
     setLinkCopied(true);
     setTimeout(() => setLinkCopied(false), 2500);
@@ -106,7 +107,7 @@ export function OrgDetailsCard({ org }: { org: Org }) {
       <div className="px-5 py-3 border-t"
         style={{ background: '#1a1409', borderColor: '#6a492040' }}>
         <p className="text-xs" style={{ color: '#6a4920' }}>
-          💡 Students go to <span className="font-mono" style={{ color: '#cca152' }}>/signup</span> → enter this code → they join your class automatically.
+          💡 Students open the invite link → see this code ready to copy → sign up and join your class automatically.
         </p>
       </div>
     </div>

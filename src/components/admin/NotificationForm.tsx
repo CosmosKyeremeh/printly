@@ -1,10 +1,11 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import Link from 'next/link';
 import { createClient } from '@/lib/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Send, Loader2, CheckCircle2, Trash2, ChevronDown, ChevronUp } from 'lucide-react';
+import { Send, Loader2, CheckCircle2, Trash2, ChevronDown, ChevronUp, ExternalLink } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { formatDate } from '@/lib/utils';
 import { cn } from '@/lib/utils';
@@ -17,6 +18,7 @@ type Notification = {
   content: string;
   type: string;
   created_at: string | null;
+  related_file_id: string | null;
 };
 
 const typeOptions: { value: NotificationType; label: string }[] = [
@@ -47,6 +49,28 @@ export function NotificationForm({
   const [showOlder, setShowOlder] = useState(false);
   
   const supabase = createClient();
+
+  // Live-update the ledger when a submission notification lands (e.g. from the
+  // files-insert trigger) while this page is already open — no manual refresh.
+  useEffect(() => {
+    const channel = supabase
+      .channel('admin-notifications-ledger')
+      .on(
+        'postgres_changes',
+        { event: 'INSERT', schema: 'public', table: 'notifications' },
+        (payload) => {
+          const row = payload.new as Notification;
+          setNotifications(prev =>
+            prev.some(n => n.id === row.id) ? prev : [row, ...prev]
+          );
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [supabase]);
 
   const now = Date.now();
   const sevenDays = 7 * 24 * 60 * 60 * 1000;
@@ -278,6 +302,17 @@ function AdminNotifRow({
             </span>
           </div>
         </button>
+
+        {n.related_file_id && (
+          <Link
+            href={`/admin/queue#file-${n.related_file_id}`}
+            onClick={e => e.stopPropagation()}
+            className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-semibold shrink-0 text-blue-400 bg-blue-500/5 border border-blue-500/20 hover:bg-blue-500/10 transition-all"
+          >
+            <ExternalLink className="w-3.5 h-3.5" />
+            View file
+          </Link>
+        )}
 
         <button
           onClick={() => onDelete(n.id)}

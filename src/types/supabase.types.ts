@@ -288,6 +288,7 @@ export type Database = {
           is_global: boolean | null
           org_id: string | null
           read_by: string[] | null
+          related_file_id: string | null
           title: string
           type: string
         }
@@ -299,6 +300,7 @@ export type Database = {
           is_global?: boolean | null
           org_id?: string | null
           read_by?: string[] | null
+          related_file_id?: string | null
           title: string
           type: string
         }
@@ -310,6 +312,7 @@ export type Database = {
           is_global?: boolean | null
           org_id?: string | null
           read_by?: string[] | null
+          related_file_id?: string | null
           title?: string
           type?: string
         }
@@ -326,6 +329,13 @@ export type Database = {
             columns: ["org_id"]
             isOneToOne: false
             referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "notifications_related_file_id_fkey"
+            columns: ["related_file_id"]
+            isOneToOne: false
+            referencedRelation: "files"
             referencedColumns: ["id"]
           },
         ]

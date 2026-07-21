@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -13,10 +13,12 @@ import { motion } from 'framer-motion';
 type Props = { isFirstSetup: boolean };
 
 export function SignupForm({ isFirstSetup }: Props) {
+  const searchParams = useSearchParams();
   const [fullName, setFullName]   = useState('');
   const [email, setEmail]         = useState('');
   const [password, setPassword]   = useState('');
-  const [classCode, setClassCode] = useState('');
+  // Prefilled from an invite link's ?code= param, e.g. /auth/invite?code=ABC123
+  const [classCode, setClassCode] = useState(() => (searchParams.get('code') ?? '').toUpperCase());
   const [showPass, setShowPass]   = useState(false);
   const [loading, setLoading]     = useState(false);
   const [error, setError]         = useState('');

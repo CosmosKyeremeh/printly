@@ -73,6 +73,7 @@ export function PrintQueue({ initialQueue }: { initialQueue: QueueItem[] }) {
             type: 'print_ready',
             is_global: false,
             created_by: null,
+            related_file_id: item.files.id,
           });
         }
       }
@@ -197,10 +198,11 @@ export function PrintQueue({ initialQueue }: { initialQueue: QueueItem[] }) {
             return (
               <div
                 key={item.id}
+                id={item.files ? `file-${item.files.id}` : undefined}
                 className={cn(
-                  "rounded-xl border bg-zinc-900/10 transition-all duration-150",
-                  isSelected 
-                    ? "border-brand-500/30 bg-brand-500/[0.02]" 
+                  "rounded-xl border bg-zinc-900/10 transition-all duration-150 scroll-mt-24 target:border-amber-500/50 target:bg-amber-500/[0.03]",
+                  isSelected
+                    ? "border-brand-500/30 bg-brand-500/[0.02]"
                     : "border-zinc-800/60 hover:border-zinc-800"
                 )}
               >

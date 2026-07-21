@@ -1,3 +1,4 @@
+import { Suspense } from 'react';
 import { createClient as adminClient } from '@supabase/supabase-js';
 import { SignupForm } from '@/components/auth/SignupForm';
 
@@ -15,5 +16,9 @@ export default async function SignupPage() {
 
   const isFirstSetup = (count ?? 0) === 0;
 
-  return <SignupForm isFirstSetup={isFirstSetup} />;
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-brand-950" />}>
+      <SignupForm isFirstSetup={isFirstSetup} />
+    </Suspense>
+  );
 }
